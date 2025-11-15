@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> faculty profile </h1>
+    <p> <strong>username:</strong> {{user.username}} </p>
+    <p> <strong>positions:</strong> {{user.positions}} </p>
+    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
+    <p> <strong></strong></p>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> student profile </h1>
+    <p> <strong>id:</strong> {{user.id}} </p>
+    <p> <strong>major:</strong> {{user.major}} </p>
+    <p> <strong>research_topics:</strong> {{user.research_topics}} </p>
+    <p> <strong>gpa:</strong> {{user.gpa}} </p>
+    <p> <strong>languages:</strong> {{user.languages}} </p>
+    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
+    <p> <strong>applications:</strong> {{user.applications}} </p>
+    <p> <strong>courses:</strong> {{user.courses}} </p>
+{% endblock %}

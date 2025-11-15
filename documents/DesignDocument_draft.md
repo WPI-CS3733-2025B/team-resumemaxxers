@@ -34,7 +34,7 @@ Prepared by:
 | Name | Date       | Changes | Version |
 | ------ |------------| --------- | --------- |
 |Revision 1 | 2025-11-11 |Initial draft | 1.0        |
-|Revision 2 | 2025-11-14 | Final draft  | 2.0        |
+|Revision 2 | 2025-11-14 |Final draft   | 2.0        |
 
 
 # 1. Introduction
@@ -256,11 +256,15 @@ Class Tables
     ```
     
 Provide a UML diagram of your database model showing the associations and relationships among tables. 
+<img src ="../md-images/uml2.png">
 
 ## 2.2 Modules and Interfaces
 
 ### 2.2.1 Overview
 Describe the high-level architecture of your software:  i.e., the major modules/blueprints and how they fit together. Provide a UML component diagram that illustrates the architecture of your software. Briefly mention the role of each module in your architectural design. Please refer to the "System Level Design" lectures in Week 4. 
+
+<img src ="../md-images/2.png">
+
 
 ### 2.2.2 Interfaces
 
@@ -279,6 +283,9 @@ Include a detailed description of the routes your application will implement.
 | 3. |   'GET'  | student/logout | student logout            |
 | 4. |  'GET', 'POST'  | faculty/login   | faculty login page        |
 | 5. | 'GET'  | faculty/logout | faculty logout            |
+| 6. | 'GET'  | faculty/verify/<token> | faculty verifies email          |
+| 7. | 'GET'  | faculty/login/sso | faculty login with Auth0 SSO          |
+
 
 #### 2.2.2.2 \<Blueprint2> Routes  main.student.routes -- student
 
@@ -286,6 +293,10 @@ Include a detailed description of the routes your application will implement.
 |:--|:-------------|:----------------------------------|:-----------------------------------------|
 |1. | 'GET'        | student/<student_id>/profile/view | students or faculty view student profile |
 |2. | 'GET', 'POST' | student/<student_id>/profile/edit              | student edits their profile              |
+|3. | 'GET'        | student/positions | students views positions |
+|4. | 'GET'        | student/positions/recommended | students views recommended positions |
+| 5. | 'GET', 'POST' | student                 | main route for student |
+
 
 #### 2.2.2.3 \<Blueprint3> Routes main.faculty.routes -- faculty
 
@@ -293,6 +304,9 @@ Include a detailed description of the routes your application will implement.
 |:--|:------------------|:----------------------------------|:-------------|
 |1. | 'GET' | faculty/<faculty_id>/profile/view | faculty view their profile |
 |2. | 'GET', 'POST' | faculty/editlists                 | faculty edit the predefined lists |
+| 3. | 'GET', 'POST' | faculty/recommendations           | faculty viewing reference requests from students |
+| 4. | 'GET', 'POST' | faculty/positions           | faculty viewing their own positions |
+| 5. | 'GET', 'POST' | faculty                 | main route for faculty |
 
 #### 2.2.2.4 \<Blueprint4> Routes main.application.routes -- application
 
@@ -301,6 +315,7 @@ Include a detailed description of the routes your application will implement.
 |1. | 'POST'  | application/<application_id>/reject | faculty reject students' application          |
 |2. | 'POST'  | application/<application_id>/approve                 | faculty approve students' application         |
 |3. | 'POST'  | application/<application_id>/withdraw                | student withdraw their 'pending' applications |
+|3. | 'POST'  | application/<application_id>                | page for viewing application details |
 |4. | 'GET'   | application                         | page to view all the applications             |
 
 #### 2.2.2.5 \<Blueprint5> Routes main.position.routes -- position
@@ -312,6 +327,7 @@ Include a detailed description of the routes your application will implement.
 | 3. | 'GET', 'POST' | position/<position_id>/delete              | faculty-only method for deleting a position    |
 | 4. | 'GET'       | position/<position_id>/view                | page for viewing position info                 |
 | 5. | 'GET', 'POST' | position/<position_id>/apply | student-only method for applying to a position |
+
 
 
 #### 2.2.2.6 \<Blueprint6> Routes main.recommendation.routes -- recommendation
@@ -329,18 +345,25 @@ Repeat the above for other modules you included in your application.
 
 Provide UI sketches or screenshots for the following pages:
  * Faculty main page
-<img src ="md-images/my_positions.png"></img>
 
- * Student main page (show how you will display "all positions" vs "recommended positions")
-<img src ="md-images/open_positions.png"></img>
+<img src ="../md-images/faculty_main.png"></img>
+
+ * Student main page
+
+<img src ="../md-images/student_main.png"></img>
 
  * Faculty creating a position 
-<img src ="md-images/edit_or_create.png"></img>
+
+<img src ="../md-images/edit_or_create.png"></img>
 
  * Faculty accepting/rejecting an application
-<img src ="md-images/inbox.png"></img>
+
+<img src ="../md-images/inbox.png"></img>
 
  * Student applying for a position
-<img src ="md-images/application_page.png"></img>
+
+<img src ="../md-images/application_page.png"></img>
+
+
 
 

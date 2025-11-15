@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
+ 
+
+{% block content %}
+<h1> Register </h1>
+
+<form action = "{{url_for('auth.register')}}" method = "POST">
+    {{ form.hidden_tag()}}
+    {{wtf.form_field(form.username)}}
+    {{wtf.form_field(form.firstname)}}
+    {{wtf.form_field(form.lastname)}}
+    {{wtf.form_field(form.email)}}
+    {{wtf.form_field(form.id)}}
+    {{wtf.form_field(form.majors)}}
+    {{wtf.form_field(form.gpa)}}
+    {{wtf.form_field(form.research_topics)}}
+    {{wtf.form_field(form.languages)}}
+    {{wtf.form_field(form.courses)}}
+    {{wtf.form_field(form.password)}}
+    {{wtf.form_field(form.password2)}}
+    {{wtf.form_field(form.submit)}}
+
+
+</form>
+{% endblock %}

@@ -64,6 +64,13 @@ positions_courses = sqla.Table(
     sqla.Column('course_id', sqla.Integer, sqla.ForeignKey('course.id'), primary_key=True)
 )
 
+course_majors = sqla.Table(
+    'course_majors',
+    db.metadata,
+    sqla.Column('course_id', sqla.Integer, sqla.ForeignKey('course.id'), primary_key=True),
+    sqla.Column('major_id', sqla.Integer, sqla.ForeignKey('major.id'), primary_key=True)
+)
+
 class User(db.Model, UserMixin):
     __abstract__ = True
     id: sqlo.Mapped[int] = sqlo.mapped_column(primary_key=True)
@@ -158,7 +165,7 @@ class Major(db.Model):
 
     students: sqlo.Mapped[List['Student']] = sqlo.relationship(secondary=students_majors, back_populates='majors')
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(secondary=positions_majors, back_populates='majors')
-    courses: sqlo.Mapped[List['Course']] = sqlo.relationship(back_populates='major')
+    courses: sqlo.Mapped[List['Course']] = sqlo.relationship(secondary=course_majors, back_populates='majors')
 
     def __repr__(self):
         return f'<Major {self.name}>'
@@ -170,7 +177,7 @@ class Course(db.Model):
     name: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(100))
     coursenum: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(10), index=True)
 
-    major: sqlo.Mapped['Major'] = sqlo.relationship(back_populates='courses')
+    majors: sqlo.Mapped[List['Major']] = sqlo.relationship(secondary = course_majors, back_populates='courses')
     students: sqlo.Mapped[List['CourseEnrollment']] = sqlo.relationship(back_populates='course')
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(secondary=positions_courses, back_populates='courses')
 

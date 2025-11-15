@@ -1,0 +1,66 @@
+{% extends "bootstrap_base.html" %}
+{% block title %}Smile Portal{% endblock %}
+
+{# This is the main content block used by bootstrap_base.html #}
+{% block content %}
+    <head>
+        {% if title %}
+            <title>{{ title }} - Research Position Matcher </title>
+        {% else %}
+            <title>Welcome to Research Position Matcher Portal!</title>
+        {% endif %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        {{ moment.include_moment() }}
+    </head>
+
+    <body>
+        <div class="nav-container">
+            <table>
+                <tr>
+                    <td>
+                        <a href="{{ url_for('main.index') }}" class="button"></a>Research Position Matcher</a>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('main.postsmile') }}" class="button"></a>Post Research Position</a>
+                    </td>
+
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'student' %}
+                            <td><a href="{{ url_for('main.student_profile') }}" class="button"></a>student_profile</a></td>
+                        {% elif current_user.role == 'faculty' %}
+                            <td><a href="{{ url_for('main.faculty_profile') }}" class="button"></a>faculty_profile</a></td>
+                        {% endif %}
+                            <td><a href="{{ url_for('auth.logout') }}" class="button"></a>Logout</a></td>
+                            <td>logged in as {{ current_user.username }}</td>
+                    {% else %}
+                        <td><a href="{{ url_for('auth.login') }}" class="button"></a>Login</a></td>
+                        <td><a href="{{ url_for('auth.register') }}" class="button"></a>Register</a></td>
+                    {% endif %}
+                    
+                    <td>
+                        {% if current_user.is_authenticated %}
+                            Current user is:
+                            <span class="useritem">{{ current_user.username }}</span>
+                        {% else %}
+                            Current user is:
+                            <span class="useritem">Guest</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {# Child templates override this block #}
+            {% block page_content %}{% endblock %}
+        </div>
+    </body>
+{% endblock %}
