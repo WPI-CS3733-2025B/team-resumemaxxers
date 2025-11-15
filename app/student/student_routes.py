@@ -5,6 +5,7 @@ import sqlalchemy as sqla
 from app.main.models import Course, Student, Position, Faculty, Application
 from app.main.models import Student
 #from app.main.forms import CourseForm, EditForm, EmptyForm
+from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
 
@@ -19,3 +20,31 @@ def student_profile_view(student_id):
         return redirect(url_for('main.index')) # Redirect to a suitable page, e.g., main index
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
+
+@student.route('/student/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        current_user.email = form.email.data
+        current_user.majors = form.majors.data
+        current_user.gpa = form.gpa.data
+        current_user.research_topics = form.research_topics.data
+        current_user.languages = form.languages.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('student.student_profile_view', student_id=current_user.id))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+        form.email.data = current_user.email
+        form.majors.data = current_user.majors
+        form.gpa.data = current_user.gpa
+        form.research_topics.data = current_user.research_topics
+        form.languages.data = current_user.languages
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)

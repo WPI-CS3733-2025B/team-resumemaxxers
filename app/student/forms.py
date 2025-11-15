@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, BooleanField
-from wtforms.validators import  ValidationError, DataRequired   
+from wtforms import StringField, SubmitField, SelectField, BooleanField, PasswordField
+from wtforms.validators import ValidationError, DataRequired, EqualTo, Email
 from wtforms import TextAreaField            
 from wtforms.validators import Length 
 
@@ -19,3 +19,17 @@ class SortForm(FlaskForm):
     languages = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
     Refresh = SubmitField('Refresh')
 
+class EditForm(FlaskForm):
+    firstname = StringField('First Name', validators=[DataRequired()])
+    lastname = StringField('Last name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    address = TextAreaField('Address', validators=[Length(min=0, max=200)])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Password', validators=[DataRequired(), EqualTo('password')])
+    majors = QuerySelectMultipleField('Majors',
+                                      query_factory=lambda: db.session.scalars(sqla.select(Major).order_by(Major.name)),
+                                      get_label=lambda theMajor: theMajor.name,
+                                      widget=ListWidget(prefix_label=False),
+                                      option_widget=CheckboxInput())
+
+    submit = SubmitField('Edit')

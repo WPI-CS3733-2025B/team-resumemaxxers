@@ -31,11 +31,8 @@
                 <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">Home</a>
               </li>
               {% if not current_user.is_anonymous %}
-              <li class="nav-item border border-light px-2 ms-2 ">
-                <a class="nav-link" aria-current="page" href="{{ url_for('main.createclass') }}">Create Class</a>
-              </li>
               <li class="nav-item border border-light px-2 ms-2 " >
-                <a class="nav-link" aria-current="page" href="{{ url_for('main.display_profile') }}">Profile</a>
+                <a class="nav-link" aria-current="page" href="{{ url_for('student.student_profile_view', student_id = current_user.id) }}">Profile</a>
               </li>
               {% endif %}
             </ul>

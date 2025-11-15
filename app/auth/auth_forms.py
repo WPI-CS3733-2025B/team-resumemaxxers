@@ -61,7 +61,71 @@ class RegistrationFormFaculty(FlaskForm):
     submit = SubmitField('Post')
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+
+    username = StringField('Username', validators = [DataRequired()])
+
     password = PasswordField('Password', validators=[DataRequired()])
+
     remember_me = BooleanField('Remember Me')
+
     submit = SubmitField('Sign In')
+
+
+
+class EditProfileForm(FlaskForm):
+
+    username = StringField('Username', validators=[DataRequired()])
+
+    firstname = StringField('First Name', validators=[DataRequired()])
+
+    lastname = StringField('Last Name', validators=[DataRequired()])
+
+    email = StringField('Email', validators=[DataRequired(), Email()])
+
+
+
+    majors = QuerySelectMultipleField('Majors',
+
+                                      query_factory=lambda: db.session.scalars(sqla.select(Major).order_by(Major.name)),
+
+                                      get_label=lambda theMajor: theMajor.name,
+
+                                      widget=ListWidget(prefix_label=False),
+
+                                      option_widget=CheckboxInput())
+
+
+
+    gpa = StringField('GPA', validators=[DataRequired()])
+
+
+
+    research_topics = QuerySelectMultipleField('Interests',
+
+                                               query_factory=lambda: db.session.scalars(
+
+                                                   sqla.select(ResearchTopic).order_by(ResearchTopic.name)),
+
+                                               get_label=lambda theResearchTopic: theResearchTopic.name,
+
+                                               widget=ListWidget(prefix_label=False),
+
+                                               option_widget=CheckboxInput())
+
+
+
+    languages = QuerySelectMultipleField('Languages',
+
+                                         query_factory=lambda: db.session.scalars(
+
+                                             sqla.select(Language).order_by(Language.name)),
+
+                                         get_label=lambda theLanguage: theLanguage.name,
+
+                                         widget=ListWidget(prefix_label=False),
+
+                                         option_widget=CheckboxInput())
+
+
+
+    submit = SubmitField('Submit')

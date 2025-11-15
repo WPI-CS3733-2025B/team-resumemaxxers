@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1> faculty profile </h1>
-    <p> <strong>username:</strong> {{user.username}} </p>
-    <p> <strong>positions:</strong> {{user.positions}} </p>
-    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
-    <p> <strong></strong></p>
-
     <h1> student profile </h1>
+    {% if current_user.id == user.id %}
+    <p><a href="{{ url_for('student.edit_profile') }}">Edit Profile</a></p>
+    {% endif %}
     <p> <strong>id:</strong> {{user.id}} </p>
-    <p> <strong>major:</strong> {{user.major}} </p>
+    <p> <strong>major:</strong> {{user.majors}} </p>
     <p> <strong>research_topics:</strong> {{user.research_topics}} </p>
     <p> <strong>gpa:</strong> {{user.gpa}} </p>
     <p> <strong>languages:</strong> {{user.languages}} </p>
