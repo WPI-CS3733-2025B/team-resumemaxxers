@@ -32,7 +32,7 @@ def register():
     return render_template('register.html', form=rform)
 
 
-@auth.route('/faculty/register', methods = ['GET', 'POST'])
+@auth.route('/faculty/login', methods = ['GET', 'POST'])
 def register_faculty():
     rform = RegistrationFormFaculty()
     if rform.validate_on_submit():
@@ -63,7 +63,12 @@ def login():
         student = db.session.scalars(query).first()
 
         if (student is None) or (student.check_password(lform.password.data) == False):
-            return redirect(url_for('auth.login'))
+
+            query = sqla.select(Faculty).where(Faculty.username == lform.username.data)
+            faculty = db.session.scalars(query).first()
+
+            if (faculty is None) or (faculty.check_password(lform.password.data) == False):
+                return redirect(url_for('auth.login'))
 
         login_user(student, remember=lform.remember_me.data)
         flash('The user {} has successfully logged in!'.format(current_user.username))
