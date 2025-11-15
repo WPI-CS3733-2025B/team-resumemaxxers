@@ -7,6 +7,22 @@ from app.auth.auth_forms import RegistrationForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
 from app.auth import auth_blueprint as auth
 
+@auth.route('/set_role/student', methods=['POST'])
+@login_required
+def set_role_student():
+    current_user.role = 'student'
+    db.session.commit()
+    flash("Role updated to Student", "success")
+    return redirect(url_for('main.index'))
+
+@auth.route('/set_role/faculty', methods=['POST'])
+@login_required
+def set_role_faculty():
+    current_user.role = 'faculty'
+    db.session.commit()
+    flash("Role updated to Faculty", "success")
+    return redirect(url_for('main.index'))
+
 @auth.route('/student/register', methods = ['GET', 'POST'])
 def register():
     rform = RegistrationForm()

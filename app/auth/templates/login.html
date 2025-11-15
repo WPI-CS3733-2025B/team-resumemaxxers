@@ -17,6 +17,14 @@
 
 </form>
 
-New User? <a href = "{{url_for('auth.register')}}"> Click to Register! </a>
+<p>New User?</p>
+<div class="mt-2">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-sm">
+        Register as Student
+    </a>
+    <a href="{{ url_for('auth.verify') }}" class="btn btn-outline-primary btn-sm">
+        Register as Faculty
+    </a>
+</div>
 
 {% endblock %}
