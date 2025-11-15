@@ -5,6 +5,8 @@ from flask_login import LoginManager
 from config import Config
 from flask_moment import Moment
 
+import sqlalchemy as sqla
+import sqlalchemy.orm as sqlo
 
 db = SQLAlchemy()
 
