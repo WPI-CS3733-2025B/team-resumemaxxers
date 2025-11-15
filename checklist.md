@@ -2,6 +2,11 @@
 
 |    | Methods           | URL Path   | Description               |
 |:---|:------------------|:-----------|:--------------------------|
+| 1. |  'GET', 'POST'  | student/login | student login page        |
+| 2. |   'GET', 'POST'  | student/register | student registration page |
+| 3. |   'GET'  | student/logout | student logout            |
+| 4. |  'GET', 'POST'  | faculty/login   | faculty login page        |
+| 5. | 'GET'  | faculty/logout | faculty logout            |
 | 6. | 'GET'  | faculty/verify/<token> | faculty verifies email          |
 | 7. | 'GET'  | faculty/login/sso | faculty login with Auth0 SSO          |
 
