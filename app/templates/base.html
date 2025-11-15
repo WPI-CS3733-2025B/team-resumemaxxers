@@ -26,9 +26,9 @@
 
                     {% if current_user.is_authenticated %}
                         {% if current_user.role == 'student' %}
-                            <td><a href="{{ url_for('student.student_profile') }}" class="button"></a>student_profile</a></td>
+                            <td><a href="{{ url_for('main.student_profile') }}" class="button"></a>student_profile</a></td>
                         {% elif current_user.role == 'faculty' %}
-                            <td><a href="{{ url_for('faculty.faculty_profile') }}" class="button"></a>faculty_profile</a></td>
+                            <td><a href="{{ url_for('main.faculty_profile') }}" class="button"></a>faculty_profile</a></td>
                         {% endif %}
                             <td><a href="{{ url_for('auth.logout') }}" class="button"></a>Logout</a></td>
                             <td>logged in as {{ current_user.username }}</td>
