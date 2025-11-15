@@ -1,7 +1,7 @@
 from config import Config
 
 from app import create_app, db
-from app.main.models import Major, ResearchTopic, Language, Course
+from app.main.models import Major, ResearchTopic, Language, Course, Faculty, User
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
 
@@ -17,7 +17,11 @@ interests = ["ML", "HPC", "AI", "Cybersecurity", "KDD", "Graphics"]
 languages = ["C", "C++", "Python", "Haskell", "Java", "JavaScript", "Lisp", "Rust"]
 courses = ["CS1004", "CS2011", "CS2102", "CS2201", "CS3013", "CS3133", "CS3431", "CS3516", "CS3733", "CS4233", "CS4001", "CS4002", "CS4003"]
 
-
+# Default faculty info table
+fac_ids = [1, 2, 3]
+fac_names = ["ab", "ac", "ad"]
+fac_lastnames = ["bb", "bc", "bd"]
+fac_passwords = ["11", "12", "13"]
 
 # fill in db with some things
 
@@ -54,6 +58,20 @@ def add_courses():
             db.session.add(Course(name=t["name"], coursenum=t["coursenum"]))
         db.session.commit()
 
+def add_faculty():
+    query = sqla.select(Faculty)
+    if db.session.scalars(query).first() is None:
+        for i in range(len(fac_ids)):
+            faculty = Faculty(
+                username=fac_lastnames[i] + fac_names[i],
+                email=fac_lastnames[i] + fac_names[i] + "@wpi.edu",
+                firstname=fac_names[i],
+                lastname=fac_lastnames[i]
+            )
+            faculty.set_password(fac_passwords[i])
+            db.session.add(faculty)
+        db.session.commit()
+
 @app.cli.command("init-db")
 def init_db():
     """Clear the existing data and create new tables."""
@@ -63,8 +81,8 @@ def init_db():
     add_interests()
     add_languages()
     add_courses()
+    add_faculty()
     print("Initialized the database.")
-
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -52,8 +52,13 @@ class RegistrationForm(FlaskForm):
         query = sqla.select(Student).where(Student.email == email.data)
         student = db.session.scalars(query).first()
         if student is not None:
-            raise ValidationError('The username already exists! Please use a different email.')
+            raise ValidationError('The email is already used! Please use a different email.')
 
+
+class RegistrationFormFaculty(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Post')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
