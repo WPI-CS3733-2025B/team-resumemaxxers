@@ -16,7 +16,7 @@ from app.main import main_blueprint as main
 def index():
     #courses = db.session.scalars(sqla.select(Course))
     Students = db.session.scalars(sqla.select(Student))
-    return render_template('student.index.html', title="Course List", students = Students)
+    return redirect(url_for('student.student_profile_view', student_id = current_user.id))
 
 @main.route('/position/<position_id>/view', methods=['GET'])
 @login_required
