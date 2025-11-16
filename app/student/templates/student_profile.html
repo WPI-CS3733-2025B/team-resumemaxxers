@@ -5,12 +5,25 @@
     {% if current_user.id == user.id %}
     <p><a href="{{ url_for('student.edit_profile') }}">Edit Profile</a></p>
     {% endif %}
-    <p> <strong>id:</strong> {{user.id}} </p>
-    <p> <strong>major:</strong> {{user.majors}} </p>
-    <p> <strong>research_topics:</strong> {{user.research_topics}} </p>
-    <p> <strong>gpa:</strong> {{user.gpa}} </p>
-    <p> <strong>languages:</strong> {{user.languages}} </p>
-    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
-    <p> <strong>applications:</strong> {{user.applications}} </p>
-    <p> <strong>courses:</strong> {{user.courses}} </p>
-{% endblock %}
+    
+    <h1>Display Student Profile</h1>
+    <div class = "border rounded-3 bg-light p-3">
+        <h2> Student username: {{ user.username }} </h2>
+        <p> <b>Name:</b> {{ user.firstname }} 
+                {{ user.lastname }}</p>
+        <p> <b>ID:</b> {{ user.id }}</p>
+        <p> <b>Email:</b> {{ user.email }}</p>
+        <p> <b>Majors:</b> {{ user.majors }} </p>
+        <p> <b>Research Interests:</b> {{ user.research_topics }} </p>
+        <p> <b>GPA:</b> {{ user.gpa }} </p>
+        <p> <b>Languages:</b> {{ user.languages }}  </p>
+        <p> <b>recommendation:</b> {{ user.recommendation }} </p>
+        <p> <b>Application:</b> {{ user.applications }} </p>
+        <p> <b>Courses:</b> {{ user.courses }} </p>
+        <hr>
+
+
+
+    <hr>
+      
+{% endblock %} 

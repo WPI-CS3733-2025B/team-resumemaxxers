@@ -5,6 +5,7 @@ import sqlalchemy as sqla
 from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
 from app.main.models import Student
 #from app.main.forms import CourseForm, EditForm, EmptyForm
+from app.student.forms import SortForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
 from wtforms.validators import DataRequired, Email
@@ -16,9 +17,10 @@ from app.main import main_blueprint as main
 @main.route('/index', methods=['GET'])
 @login_required
 def index():
+    form = SortForm()
     #courses = db.session.scalars(sqla.select(Course))
     Students = db.session.scalars(sqla.select(Student))
-    return render_template('student_index.html', title="Course List", students = Students)
+    return render_template('student_index.html', title="Course List", students = Students, form = form)
 
 @main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])
