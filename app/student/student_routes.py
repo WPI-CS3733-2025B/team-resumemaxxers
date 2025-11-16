@@ -60,7 +60,7 @@ def edit_profile():
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
 
-@main.route('/position/<position_id>/apply', methods=['GET', 'POST'])
+@student.route('/position/<position_id>/apply', methods=['GET', 'POST'])
 @login_required
 def apply_position(position_id):
     position=Position.query.get_or_404(position_id)
