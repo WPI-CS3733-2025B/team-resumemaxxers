@@ -33,3 +33,5 @@ class EditForm(FlaskForm):
                                       option_widget=CheckboxInput())
 
     submit = SubmitField('Edit')
+
+    
