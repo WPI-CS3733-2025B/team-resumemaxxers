@@ -75,3 +75,4 @@ def logout():
 
 #@auth.route('/faculty/verify/<token>', methods = ['GET'])
 #@auth.route('/faculty/login/sso', methods = ['GET'])
+

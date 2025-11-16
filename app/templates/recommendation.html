@@ -1,0 +1,19 @@
+{{% extends "base.html" %}}
+
+{{% block content %}}
+    <h1>Write Recommendation for  {{ student.username }}</h1>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.text.lable }}<br>
+            {{ form.txt(rows=8, cols=60) }}
+            {% for error in form.ttext.error  %}
+                <span clss ='text-danger'>{{ error }}</span><br>
+            <endfor>
+        </p>
+
+        <P>{{ form.submit() }}</P>    
+    </form>
+{% endblock %}
