@@ -2,7 +2,7 @@ from app import db
 from flask import render_template, flash, redirect, url_for, request, jsonify
 import sqlalchemy as sqla
 
-from app.main.models import Course, Student, Position, Faculty, Application
+from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
 from app.main.models import Student
 #from app.main.forms import CourseForm, EditForm, EmptyForm
 from flask_login import current_user, login_required
@@ -20,13 +20,13 @@ def index():
     Students = db.session.scalars(sqla.select(Student))
     return render_template('index.html', title="Course List", students = Students)
 
-@main.route('/', methods=['GET'])
+@main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])
 @login_required
-def index():
+def faculty_index():
     #courses = db.session.scalars(sqla.select(Course))
-    Faculty = db.session.scalars(sqla.select(Faculty))
-    return render_template('faculty_index.html', title="Course List", faculty = Faculty)
+    FacultyList = db.session.scalars(sqla.select(Faculty))
+    return render_template('faculty_index.html', title="Course List", faculty = FacultyList)
 
 @main.route('/position/<position_id>/view', methods=['GET'])
 @login_required
