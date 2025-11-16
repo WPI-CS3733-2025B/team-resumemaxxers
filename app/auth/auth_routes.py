@@ -63,15 +63,20 @@ def login():
         student = db.session.scalars(query).first()
 
         if (student is None) or (student.check_password(lform.password.data) == False):
+            pass
+        else:
+            login_user(student, remember=lform.remember_me.data)
+            flash('The user {} has successfully logged in!'.format(current_user.username))
 
-            query = sqla.select(Faculty).where(Faculty.username == lform.username.data)
-            faculty = db.session.scalars(query).first()
+        query = sqla.select(Faculty).where(Faculty.username == lform.username.data)
+        faculty = db.session.scalars(query).first()
 
-            if (faculty is None) or (faculty.check_password(lform.password.data) == False):
-                return redirect(url_for('auth.login'))
+        if (faculty is None) or (faculty.check_password(lform.password.data) == False):
+            return redirect(url_for('auth.login'))
+        else:
+            login_user(faculty, remember=lform.remember_me.data)
+            flash('The user {} has successfully logged in!'.format(current_user.username))
 
-        login_user(student, remember=lform.remember_me.data)
-        flash('The user {} has successfully logged in!'.format(current_user.username))
         return redirect(url_for('main.index'))
     return render_template('login.html', form=lform)
 
