@@ -22,6 +22,7 @@ fac_ids = [1, 2, 3]
 fac_names = ["ab", "ac", "ad"]
 fac_lastnames = ["bb", "bc", "bd"]
 fac_passwords = ["11", "12", "13"]
+#enter last name + name as username (no space)
 
 # fill in db with some things
 

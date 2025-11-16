@@ -104,6 +104,10 @@ class Student(User):
 
     def __repr__(self):
         return f'<Student {self.username}>'
+    
+    @property
+    def role(self):
+        return "student"
 
 
 class Faculty(User):
@@ -113,6 +117,10 @@ class Faculty(User):
 
     def __repr__(self):
         return f'<Faculty {self.username}>'
+    
+    @property
+    def role(self):
+        return "faculty"
 
 
 class Application(db.Model):

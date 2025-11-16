@@ -18,7 +18,7 @@ from app.main import main_blueprint as main
 def index():
     #courses = db.session.scalars(sqla.select(Course))
     Students = db.session.scalars(sqla.select(Student))
-    return render_template('index.html', title="Course List", students = Students)
+    return render_template('student_index.html', title="Course List", students = Students)
 
 @main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])
