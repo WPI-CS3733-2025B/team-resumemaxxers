@@ -9,8 +9,7 @@
             <h1 class="mb-1">Welcome!</h1>
         </div>
 
-        <!-- TODO: (milestone 2) Add the template to render an instance of a `sortForm`. The form should display the sort attribute select box and the "Refresh" submit button.
-                Style the `sortorder` form element using the `formselect` CSS element we defined in milestone1 -->
+        <a href="{{ url_for('faculty.faculty_profile_view', faculty_id=current_user.id) }}">View profile</a>
             
     </div>
     <!-- TODO: (milestone1) Format posts -->

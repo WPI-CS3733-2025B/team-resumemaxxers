@@ -44,9 +44,7 @@ def register_faculty():
 
         login_user(fac, remember=True)
         flash('The user {} has successfully logged in!'.format(current_user.username))
-        return redirect(url_for('main.index'))
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
     return render_template('register_faculty.html', form = rform)
 
 
@@ -67,6 +65,7 @@ def login():
         else:
             login_user(student, remember=lform.remember_me.data)
             flash('The user {} has successfully logged in!'.format(current_user.username))
+            return redirect(url_for('student.student_profile_view', student_id=current_user.id))
 
         query = sqla.select(Faculty).where(Faculty.username == lform.username.data)
         faculty = db.session.scalars(query).first()
@@ -76,8 +75,8 @@ def login():
         else:
             login_user(faculty, remember=lform.remember_me.data)
             flash('The user {} has successfully logged in!'.format(current_user.username))
+            return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
 
-        return redirect(url_for('main.index'))
     return render_template('login.html', form=lform)
 
 
