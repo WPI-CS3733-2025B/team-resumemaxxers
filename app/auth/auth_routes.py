@@ -28,7 +28,7 @@ def register():
         db.session.commit()
 
         flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('student.student_index', student_id=current_user.id))
     return render_template('register.html', form=rform)
 
 
@@ -51,7 +51,10 @@ def register_faculty():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        if current_user.role == "student":
+            return redirect(url_for('student.student_index', student_id=current_user.id))
+        else:
+            return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
 
     lform = LoginForm()
 
@@ -68,7 +71,7 @@ def login():
             if user and user.check_password(password):
                 login_user(user, remember=remember_me)
                 flash('The user {} has successfully logged in!'.format(user.username))
-                return redirect(url_for('student.student_profile_view', student_id=user.id))
+                return redirect(url_for('student.student_index', student_id=user.id))
         elif user_role == 'faculty':
             query = sqla.select(Faculty).where(Faculty.username == username)
             user = db.session.scalars(query).first()
