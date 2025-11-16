@@ -11,7 +11,7 @@
             {{ form.txt(rows=8, cols=60) }}
             {% for error in form.ttext.error  %}
                 <span clss ='text-danger'>{{ error }}</span><br>
-            <endfor>
+            {% endfor %}
         </p>
 
         <P>{{ form.submit() }}</P>    
