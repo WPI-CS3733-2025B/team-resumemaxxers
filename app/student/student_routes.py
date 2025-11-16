@@ -13,15 +13,17 @@ from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
 @student.route('/student/<student_id>/index', methods=['GET'])
+@login_required
 def student_index(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
         flash('Student not found.', 'error')
-        return redirect(url_for('main.index')) # Redirect to a suitable page, e.g., main index
+        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
 
     return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student)
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
+@login_required
 def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:

@@ -1,11 +1,10 @@
 {% extends "bootstrap_base.html" %}
 {% import 'bootstrap_wtf.html' as wtf %}
-{% from datetime import datetime, timezone, timedelta%}
 
 {% block content %}
     <h1> Create New Positions </h1>
 
-    <form action = "{url_for('main.createposition')}" method = "POST">
+    <form action="{{ url_for('faculty.create_position', faculty_id=current_user.id) }}" method="POST">
         {{ form.hidden_tag()}}
 
         {{wtf.form_field(form.name)}}
@@ -15,11 +14,12 @@
         {{wtf.form_field(form.team_size)}}
         {{wtf.form_field((form.min_gpa))}}
         {{wtf.form_field(form.ref_required)}}
-        {{wtf.form_field(form.faculty)}}
-        {{wtf.form_field(form.applications)}}
+
         {{wtf.form_field(form.majors)}}
         {{wtf.form_field(form.research_topics)}}
-        {{wtf.form_field(form.language)}}
+        {{wtf.form_field(form.languages)}}
         {{wtf.form_field(form.courses)}}
+
+        {{wtf.form_field(form.submit)}}
     </form>
 {% endblock %}
