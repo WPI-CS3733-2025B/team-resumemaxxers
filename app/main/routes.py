@@ -20,6 +20,14 @@ def index():
     Students = db.session.scalars(sqla.select(Student))
     return render_template('index.html', title="Course List", students = Students)
 
+@main.route('/', methods=['GET'])
+@main.route('/faculty_index', methods=['GET'])
+@login_required
+def index():
+    #courses = db.session.scalars(sqla.select(Course))
+    Faculty = db.session.scalars(sqla.select(Faculty))
+    return render_template('faculty_index.html', title="Course List", faculty = Faculty)
+
 @main.route('/position/<position_id>/view', methods=['GET'])
 @login_required
 def view_position(position_id):
