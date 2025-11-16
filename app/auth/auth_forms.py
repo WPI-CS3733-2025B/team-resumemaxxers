@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField
 from wtforms.validators import Length, DataRequired, Email, EqualTo, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
@@ -67,6 +67,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
     remember_me = BooleanField('Remember Me')
+    role = RadioField('Login as', choices=[('student', 'Student'), ('faculty', 'Faculty')], validators=[DataRequired()])
 
     submit = SubmitField('Sign In')
 

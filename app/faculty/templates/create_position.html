@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 {% import 'bootstrap_wtf.html' as wtf %}
 {% from datetime import datetime, timezone, timedelta%}
 
@@ -8,7 +8,6 @@
     <form action = "{url_for('main.createposition')}" method = "POST">
         {{ form.hidden_tag()}}
 
-        {{wtf.form_field(form.id)}}
         {{wtf.form_field(form.name)}}
         {{wtf.form_field(form.description)}}
         {{wtf.form_field(form.start_date)}}

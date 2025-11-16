@@ -56,26 +56,29 @@ def login():
     lform = LoginForm()
 
     if lform.validate_on_submit():
+        user_role = lform.role.data
+        username = lform.username.data
+        password = lform.password.data
+        remember_me = lform.remember_me.data
 
-        query = sqla.select(Student).where(Student.username == lform.username.data)
-        student = db.session.scalars(query).first()
-
-        if (student is None) or (student.check_password(lform.password.data) == False):
-            pass
-        else:
-            login_user(student, remember=lform.remember_me.data)
-            flash('The user {} has successfully logged in!'.format(current_user.username))
-            return redirect(url_for('student.student_profile_view', student_id=current_user.id))
-
-        query = sqla.select(Faculty).where(Faculty.username == lform.username.data)
-        faculty = db.session.scalars(query).first()
-
-        if (faculty is None) or (faculty.check_password(lform.password.data) == False):
-            return redirect(url_for('auth.login'))
-        else:
-            login_user(faculty, remember=lform.remember_me.data)
-            flash('The user {} has successfully logged in!'.format(current_user.username))
-            return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+        user = None
+        if user_role == 'student':
+            query = sqla.select(Student).where(Student.username == username)
+            user = db.session.scalars(query).first()
+            if user and user.check_password(password):
+                login_user(user, remember=remember_me)
+                flash('The user {} has successfully logged in!'.format(user.username))
+                return redirect(url_for('student.student_profile_view', student_id=user.id))
+        elif user_role == 'faculty':
+            query = sqla.select(Faculty).where(Faculty.username == username)
+            user = db.session.scalars(query).first()
+            if user and user.check_password(password):
+                login_user(user, remember=remember_me)
+                flash('The user {} has successfully logged in!'.format(user.username))
+                return redirect(url_for('faculty.faculty_index', faculty_id=user.id))
+        
+        flash('Invalid username, password or role selection.')
+        return redirect(url_for('auth.login'))
 
     return render_template('login.html', form=lform)
 

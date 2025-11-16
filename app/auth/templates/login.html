@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 {% import 'bootstrap_wtf.html' as wtf %}
 
 
@@ -11,6 +11,7 @@
     {{ wtf.form_field(form.password)}}
 
     {{ wtf.form_field(form.remember_me)}}
+    {{ wtf.form_field(form.role)}}
 
     {{ wtf.form_field(form.submit)}}
 
@@ -23,7 +24,7 @@
         Register as Student
     </a>
     <a href="{{ url_for('auth.register_faculty') }}" class="btn btn-outline-primary btn-sm">
-        Login as Faculty
+        Register as Faculty
     </a>
 </div>
 
