@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, BooleanField, PasswordField
 from wtforms.validators import ValidationError, DataRequired, EqualTo, Email
 from wtforms import TextAreaField            
-from wtforms.validators import Length 
+from wtforms.validators import Length, Optional
 
 from app import db
 import sqlalchemy as sqla

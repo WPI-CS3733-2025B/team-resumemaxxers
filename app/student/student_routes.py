@@ -14,7 +14,18 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
+@student.route('/student/<student_id>/index', methods=['GET'])
+@login_required
+def student_index(student_id):
+    student = db.session.get(Student, student_id)
+    if student is None:
+        flash('Student not found.', 'error')
+        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
+
+    return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student)
+
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
+@login_required
 def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
@@ -23,14 +34,6 @@ def student_profile_view(student_id):
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
 
-@student.route('/faculty/<faculty_id>/profile/view', methods=['GET'])
-def faculty_profile_view(faculty_id):
-    faculty = db.session.get(Faculty, faculty_id)
-    if faculty is None:
-        flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index')) # Redirect to a suitable page, e.g., main index
-
-    return render_template('faculty_profile.html', title=f"{faculty.firstname}'s Profile", user=faculty)
 
 @student.route('/student/edit_profile', methods=['GET', 'POST'])
 @login_required

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 {% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
@@ -6,7 +6,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
 
         <div class="me-3">
-            <h1 class="mb-1">Welcome!</h1>
+            <h1 class="mb-1">Welcome, student!</h1>
         </div>
 
         <!-- TODO: (milestone 2) Add the template to render an instance of a `sortForm`. The form should display the sort attribute select box and the "Refresh" submit button.
@@ -49,7 +49,6 @@
                 {{ form.Refresh(class_="btn btn-outline-success btn-sm") }}
             </form>
     </div>
-    <!-- TODO: (milestone1) Format posts -->
     <div class="postlist">
     {% for positions in positions %}
         <div class="post-box">

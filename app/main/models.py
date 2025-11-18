@@ -9,11 +9,17 @@ from flask_login import UserMixin
 from app import login
 
 @login.user_loader
-def load_user(id):
-    user = db.session.get(Student, int(id))
-    if user:
-        return user
-    return db.session.get(Faculty, int(id))
+def load_user(user_id_str):
+    try:
+        role, user_id = user_id_str.split('-')
+        user_id = int(user_id)
+        if role == 'student':
+            return db.session.get(Student, user_id)
+        elif role == 'faculty':
+            return db.session.get(Faculty, user_id)
+    except (ValueError, TypeError):
+        return None
+    return None
 
 students_majors = sqla.Table(
     'students_majors',
@@ -80,6 +86,9 @@ class User(db.Model, UserMixin):
     email: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(120), unique=True, index=True)
     password_hash: sqlo.Mapped[Optional[str]] = sqlo.mapped_column(sqla.String(256))
 
+    def get_id(self):
+        return f"{self.role}-{self.id}"
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
