@@ -173,6 +173,9 @@ class Position(db.Model):
 
     def __repr__(self):
         return f'<Position {self.name}>'
+    
+    def get_research_topics(self):
+        return [topic.name for topic in self.research_topics]
 
 
 class Major(db.Model):
