@@ -130,6 +130,9 @@ class Faculty(User):
     @property
     def role(self):
         return "faculty"
+    
+    def get_position_names(self):
+        return [position.name for position in self.positions]
 
 
 class Application(db.Model):

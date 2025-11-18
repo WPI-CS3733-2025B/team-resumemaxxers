@@ -1,9 +1,16 @@
 {% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> faculty profile </h1>
-    <p> <strong>username:</strong> {{user.username}} </p>
-    <p> <strong>positions:</strong> {{user.positions}} </p>
-    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
-    <p> <strong></strong></p>
+    <h1> Faculty profile </h1>
+    <div class = "border rounded-3 bg-light p-3">
+        <h2> Faculty username: {{ user.username }} </h2>
+        <p> <b>Positions:</b> 
+            <ul>
+                {% for name in user.get_position_names() %}
+                    <li>{{ name }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
+    </div>
 {% endblock %}

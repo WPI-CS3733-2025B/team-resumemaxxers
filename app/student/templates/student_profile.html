@@ -1,7 +1,7 @@
 {% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> student profile </h1>
+    <h1> Sudent profile </h1>
     {% if current_user.id == user.id %}
     <p><a href="{{ url_for('student.edit_profile') }}">Edit Profile</a></p>
     {% endif %}
@@ -24,6 +24,7 @@
 
 
 
-    <hr>
+        <hr>
+    </div>
       
 {% endblock %} 
