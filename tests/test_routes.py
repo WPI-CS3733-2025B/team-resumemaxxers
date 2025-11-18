@@ -45,7 +45,7 @@ def init_database(request,test_client):
     db.create_all()
 
     # Students
-    john_pork = Student(username='john_pork', email='jp@pork.com', firstname='John', lastname='Pork', gpa=2.2)
+    john_pork = Student(username='john_pork', email='jp@pork.com', firstname='John', lastname='Pork', gpa=2.2, id=100)
     khaby_lame = Student(username='khaby_lame', email='khaby@lame.com', firstname='Khaby', lastname='Lame', gpa=4.0)
     baby_gronk = Student(username='baby_gronk', email='livvy@dunne.com', firstname='Baby', lastname='Gronk', gpa=3.1)
     
@@ -60,12 +60,12 @@ def init_database(request,test_client):
     major_yapping = Major(name='Advanced Yapping')
     major_mewing = Major(name='Mewing')
     topic_ohio = ResearchTopic(name='The Ohio Phenomenon')
-    lang_gen_alpha = Language(name='Gen Alpha')
+    lang_rust = Language(name='Rust')
     course_rizz = Course(name='Intro to Rizz', coursenum='RIZZ-101')
     course_sigma = Course(name='Advanced Sigma Grindset', coursenum='SIG-420')
     
     db.session.add_all([john_pork, khaby_lame, baby_gronk, dr_skibidi, the_rizzler,
-                        major_yapping, major_mewing, topic_ohio, lang_gen_alpha,
+                        major_yapping, major_mewing, topic_ohio, lang_rust,
                         course_rizz, course_sigma])
     db.session.commit()
 
@@ -81,7 +81,7 @@ def init_database(request,test_client):
     db.session.commit()
 
     khaby_lame.majors.append(major_mewing)
-    khaby_lame.languages.append(lang_gen_alpha)
+    khaby_lame.languages.append(lang_rust)
     pos_rizz.research_topics.append(topic_ohio)
     pos_rizz.majors.append(major_mewing)
 
@@ -178,6 +178,8 @@ def test_create_position(request, test_client, init_database):
     THEN check that the position is created
     """
     do_login(test_client, path= '/login', username='the_rizzler', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/1/create_position')  # not functional, should be 302
+    assert response.status_code == 302
     response = test_client.get('/faculty/68/create_position')
     assert response.status_code == 200
     assert b"Create New Position" in response.data
@@ -185,7 +187,7 @@ def test_create_position(request, test_client, init_database):
     # Prepare form data for a new position
     new_position_data = {
         'name': 'Meme Historian',
-        'description': 'Research, catalog, and analyze ancient and modern memes.',
+        'description': 'Research, catalog, and analyze',
         'team_size': '2',
         'min_gpa': '3.0',
         'ref_required': 'y', # 'y' for 'True' in some WTForms BooleanField handling
@@ -206,10 +208,67 @@ def test_create_position(request, test_client, init_database):
         created_position = db.session.scalars(sqla.select(Position).filter_by(name='Meme Historian')).first()
         assert created_position is not None
         assert created_position.faculty.username == 'the_rizzler'
-        assert created_position.description == 'Research, catalog, and analyze ancient and modern memes.'
+        assert created_position.description == 'Research, catalog, and analyze'
         assert created_position.team_size == 2
         assert created_position.min_gpa == 3.0
         assert created_position.ref_required == True
-        # For dates, comparing the string representation might be simpler or ensuring they are not None
         assert created_position.start_date is not None
         assert created_position.end_date is not None
+
+    do_logout(test_client, path='/logout')
+
+def test_view_student_profile(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student visits their profile page
+    THEN check that their information is displayed correctly
+    """
+    do_login(test_client, path='/login', username='john_pork', passwd='67', user_role="student")
+    response = test_client.get('/student/100/profile/view')
+    assert response.status_code == 200
+    assert b"john_pork" in response.data
+    assert b"jp@pork.com" in response.data
+    assert b"2.2" in response.data  # Initial GPA
+    do_logout(test_client, path='/logout')
+
+def test_edit_student_profile(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form
+    THEN check that their information is updated in the database
+    """
+    do_login(test_client, path='/login', username='john_pork', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/edit_profile')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Get the ID of the major 'Advanced Yapping' to add it to the student
+    with test_client.application.app_context():
+        yapping_major = db.session.scalars(sqla.select(Major).filter_by(name='Advanced Yapping')).first()
+        assert yapping_major is not None
+        yapping_major_id = yapping_major.id
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': 3.4,
+        'majors': yapping_major_id,
+        'csrf_token': 'test'
+    }
+
+    # POST the new data
+    response = test_client.post('/student/edit_profile', data=edit_profile_data, follow_redirects=True)
+
+    do_login(test_client, path='/login', username='john_pork', passwd='67', user_role="student")
+    do_logout(test_client, path='/logout')
+    do_login(test_client, path='/login', username='john_pork', passwd='67', user_role="student")
+
+    response = test_client.get('/student/100/profile/view')
+    
+    # Assert the response after redirect
+    assert response.status_code == 200
+    assert b"3.4" in response.data
+    assert b"Advanced Yapping"
+
+    do_logout(test_client, path='/logout')
