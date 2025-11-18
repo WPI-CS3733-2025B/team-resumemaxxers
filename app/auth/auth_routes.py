@@ -52,7 +52,7 @@ def register_faculty():
 def login():
     if current_user.is_authenticated:
         if current_user.role == "student":
-            return redirect(url_for('student.student_index', student_id=current_user.id))
+            return redirect(url_for('main.index', student_id=current_user.id))
         else:
             return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
 

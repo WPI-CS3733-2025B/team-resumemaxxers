@@ -17,13 +17,7 @@ from app.student import student_blueprint as student
 @student.route('/student/<student_id>/index', methods=['GET'])
 @login_required
 def student_index(student_id):
-    student = db.session.get(Student, student_id)
-    form = SortForm()
-    if student is None:
-        flash('Student not found.', 'error')
-        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
-    Positions = db.session.scalars(sqla.select(Position))
-    return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student, form=form, positions=Positions  )
+    return redirect(url_for('main.index'))
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
 @login_required
