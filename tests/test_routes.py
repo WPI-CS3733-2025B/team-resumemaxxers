@@ -231,6 +231,18 @@ def test_view_student_profile(request, test_client, init_database):
     assert b"2.2" in response.data  # Initial GPA
     do_logout(test_client, path='/logout')
 
+def test_view_faculty_profile(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student visits a faculty profile page
+    THEN check that their information is displayed correctly
+    """
+    do_login(test_client, path='/login', username='john_pork', passwd='67', user_role="student")
+    response = test_client.get('/faculty/68/profile/view')
+    assert response.status_code == 200
+    assert b"the_rizzler" in response.data
+    do_logout(test_client, path='/logout')
+
 def test_edit_student_profile(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
