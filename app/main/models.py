@@ -95,6 +95,12 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def apply(self, position):
+        if not self in position.applications:
+            new_app = Application(student=self, position=position)
+            db.session.add(new_app)
+            db.session.commit()
+
     def __repr__(self):
         return f'<User {self.username}>'
 
