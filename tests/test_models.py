@@ -3,7 +3,7 @@ warnings.filterwarnings("ignore")
 
 import unittest
 from app import create_app, db
-from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, ResearchTopic
+from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, ResearchTopic, Language, Course, CourseEnrollment
 from config import Config
 
 
@@ -32,8 +32,8 @@ class TestModels(unittest.TestCase):
 
     def test_apply_and_withdraw(self):
         # Create and commit initial users and position
-        s1 = Student(username='john', email='john@example.com', gpa=3.5, firstname='John', lastname='Doe')
-        f1 = Faculty(username='prof', email='prof@example.com', firstname='Professor', lastname='Plum')
+        s1 = Student(username='john', email='john@example.com', gpa=3.5, firstname='John', lastname='Pork')
+        f1 = Faculty(username='prof', email='prof@example.com', firstname='Professor', lastname='Pork')
         db.session.add_all([s1, f1])
         db.session.commit()
         
@@ -76,7 +76,9 @@ class TestModels(unittest.TestCase):
         # Create entities
         s = Student(username='rel_student', email='rel@s.com', gpa=4.0, firstname='Rel', lastname='Student')
         f = Faculty(username='rel_faculty', email='rel@f.com', firstname='Rel', lastname='Faculty')
+        c = Course(name='SWE', coursenum='CS3733')
         m = Major(name='Computer Science')
+        l = Language(name='Rust')
         rt = ResearchTopic(name='Artificial Intelligence')
         
         db.session.add_all([s, f, m, rt])
@@ -90,12 +92,18 @@ class TestModels(unittest.TestCase):
         s.majors.append(m)
         s.research_topics.append(rt)
         p.majors.append(m)
+
+        s.add_course(c, instructor=f)
+        s.languages.append(l)
+        s.add_research_topic(rt)
         
         db.session.commit()
         
         # Test relationships from Student side
         self.assertEqual(len(s.majors), 1)
         self.assertEqual(s.majors[0].name, 'Computer Science')
+        self.assertIn(l, s.languages)
+        self.assertIn(m, s.majors)
         
         # Test relationships from Position side
         self.assertEqual(len(p.majors), 1)

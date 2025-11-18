@@ -135,6 +135,25 @@ class Student(User):
             db.session.delete(application_to_withdraw)
             db.session.commit()
 
+    def add_major(self, major):
+        if major not in self.majors:
+            self.majors.append(major)
+
+    def add_research_topic(self, topic):
+        if topic not in self.research_topics:
+            self.research_topics.append(topic)
+
+    def add_course(self, course, instructor, grade=None):
+        if not any(enrollment.course == course for enrollment in self.courses):
+            new_enrollment = CourseEnrollment(
+                student=self,
+                course=course,
+                instructor=instructor,
+                grade=grade
+            )
+            db.session.add(new_enrollment)
+
+
 class Faculty(User):
     __tablename__ = 'faculty'
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(back_populates='faculty')
