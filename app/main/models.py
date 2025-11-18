@@ -117,6 +117,15 @@ class Student(User):
     @property
     def role(self):
         return "student"
+    
+    def get_major_names(self):
+        return [major.name for major in self.majors]
+    
+    def get_research_topic_names(self):
+        return [topic.name for topic in self.research_topics]
+    
+    def get_language_names(self):
+        return [language.name for language in self.languages]
 
 
 class Faculty(User):

@@ -13,10 +13,28 @@
                 {{ user.lastname }}</p>
         <p> <b>ID:</b> {{ user.id }}</p>
         <p> <b>Email:</b> {{ user.email }}</p>
-        <p> <b>Majors:</b> {{ user.majors }} </p>
-        <p> <b>Research Interests:</b> {{ user.research_topics }} </p>
+        <p> <b>Majors:</b> 
+            <ul>
+                {% for major in user.get_major_names() %}
+                    <li>{{ major }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Research Interests:</b> 
+            <ul>
+                {% for rinter in user.get_research_topic_names() %}
+                    <li>{{ rinter }}</li>
+                {% endfor %}
+            </ul>
+        </p>
         <p> <b>GPA:</b> {{ user.gpa }} </p>
-        <p> <b>Languages:</b> {{ user.languages }}  </p>
+        <p> <b>Languages:</b> 
+            <ul>
+                {% for lang in user.get_language_names() %}
+                    <li>{{ lang }}</li>
+                {% endfor %}
+            </ul>
+        </p>
         <p> <b>recommendation:</b> {{ user.recommendation }} </p>
         <p> <b>Application:</b> {{ user.applications }} </p>
         <p> <b>Courses:</b> {{ user.courses }} </p>
