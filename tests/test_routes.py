@@ -180,3 +180,36 @@ def test_create_position(request, test_client, init_database):
     do_login(test_client, path= '/login', username='the_rizzler', passwd='68', user_role="faculty")
     response = test_client.get('/faculty/68/create_position')
     assert response.status_code == 200
+    assert b"Create New Position" in response.data
+
+    # Prepare form data for a new position
+    new_position_data = {
+        'name': 'Meme Historian',
+        'description': 'Research, catalog, and analyze ancient and modern memes.',
+        'team_size': '2',
+        'min_gpa': '3.0',
+        'ref_required': 'y', # 'y' for 'True' in some WTForms BooleanField handling
+        'start_date': '2023-01-01',
+        'end_date': '2023-12-31',
+        'csrf_token': 'test' # CSRF token often required for POST forms, use a dummy for testing if WTF_CSRF_ENABLED is False
+    }
+    
+    # POST request to submit the form
+    response = test_client.post('/faculty/68/create_position', data=new_position_data, follow_redirects=True)
+    
+    assert response.status_code == 200
+    assert b"Meme Historian" in response.data # check for the new position name on the redirected page (e.g., faculty dashboard)
+    assert b"Position created successfully" in response.data # check for a success flash message
+
+    # Check database directly
+    with test_client.application.app_context():
+        created_position = db.session.scalars(sqla.select(Position).filter_by(name='Meme Historian')).first()
+        assert created_position is not None
+        assert created_position.faculty.username == 'the_rizzler'
+        assert created_position.description == 'Research, catalog, and analyze ancient and modern memes.'
+        assert created_position.team_size == 2
+        assert created_position.min_gpa == 3.0
+        assert created_position.ref_required == True
+        # For dates, comparing the string representation might be simpler or ensuring they are not None
+        assert created_position.start_date is not None
+        assert created_position.end_date is not None
