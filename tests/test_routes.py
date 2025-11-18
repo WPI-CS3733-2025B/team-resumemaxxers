@@ -53,6 +53,8 @@ def init_database(request,test_client):
     dr_skibidi = Faculty(username='dr_skibidi', email='skibidi@toilet.com', firstname='Doctor', lastname='Skibidi')
     the_rizzler = Faculty(username='the_rizzler', email='riz@zler.com', firstname='The', lastname='Rizzler')
 
+    john_pork.set_password("67")
+
     # Majors, Topics, Languages, Courses
     major_yapping = Major(name='Advanced Yapping')
     major_mewing = Major(name='Mewing')
@@ -61,8 +63,8 @@ def init_database(request,test_client):
     course_rizz = Course(name='Intro to Rizz', coursenum='RIZZ-101')
     course_sigma = Course(name='Advanced Sigma Grindset', coursenum='SIG-420')
     
-    db.session.add_all([john_pork, khaby_lame, baby_gronk, dr_skibidi, the_rizzler, 
-                        major_yapping, major_mewing, topic_ohio, lang_gen_alpha, 
+    db.session.add_all([john_pork, khaby_lame, baby_gronk, dr_skibidi, the_rizzler,
+                        major_yapping, major_mewing, topic_ohio, lang_gen_alpha,
                         course_rizz, course_sigma])
     db.session.commit()
 
@@ -142,3 +144,28 @@ def test_invalidlogin(request,test_client,init_database):
                           follow_redirects = True)
     assert response.status_code == 200
     assert b"Sign In" in response.data
+
+def do_login(test_client, path, username, passwd, user_role):
+    response = test_client.post(path,
+                          data=dict(username= username, password=passwd, role=user_role, remember_me=False),
+                          follow_redirects = True)
+    assert response.status_code == 200
+    print(response.data)
+    assert b"Logout" in response.data
+
+def do_logout(test_client, path):
+    response = test_client.get(path,
+                          follow_redirects = True)
+    assert response.status_code == 200
+    # Assuming the application re-directs to login page after logout.
+    assert b"Sign In" in response.data
+
+def test_login_logout(request,test_client,init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with correct credentials
+    THEN check that the response is valid and login is succesfull
+    """
+    do_login(test_client, path = '/login', username = 'john_pork', passwd = '67', user_role="student")
+
+    do_logout(test_client, path = '/logout')
