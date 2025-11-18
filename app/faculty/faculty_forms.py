@@ -23,6 +23,11 @@ class CreatePosition(FlaskForm):
                                       query_factory=lambda: db.session.scalars(sqla.select(Faculty).order_by(Faculty.username)),
                                       get_label=lambda theFaculty: theFaculty.username,
                                       widget=ListWidget(prefix_label=False),
+                                      option_widget=CheckboxInput())    
+    applications = QuerySelectMultipleField('Applications',
+                                      query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
+                                      get_label=lambda theApplication: theApplication.name,
+                                      widget=ListWidget(prefix_label=False),
                                       option_widget=CheckboxInput())
     majors = QuerySelectMultipleField('Majors',
                                       query_factory=lambda: db.session.scalars(sqla.select(Major).order_by(Major.name)),

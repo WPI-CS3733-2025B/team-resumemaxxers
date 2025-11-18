@@ -4,7 +4,7 @@ import sqlalchemy as sqla
 
 from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
 from app.main.models import Student
-from app.student.forms import ApplyPositionForm
+from app.student.forms import ApplyPositionForm, SortForm
 from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
@@ -18,11 +18,12 @@ from app.student import student_blueprint as student
 @login_required
 def student_index(student_id):
     student = db.session.get(Student, student_id)
+    form = SortForm()
     if student is None:
         flash('Student not found.', 'error')
         return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
-
-    return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student)
+    Positions = db.session.scalars(sqla.select(Position))
+    return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student, form=form, positions=Positions  )
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
 @login_required

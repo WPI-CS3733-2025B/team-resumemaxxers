@@ -20,7 +20,8 @@ def index():
     form = SortForm()
     #courses = db.session.scalars(sqla.select(Course))
     Students = db.session.scalars(sqla.select(Student))
-    return render_template('student_index.html', title="Course List", students = Students, form = form)
+    Positions = db.session.scalars(sqla.select(Position))
+    return render_template('student_index.html', title="Course List", students = Students, form = form, positions=Positions)
 
 @main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])
@@ -28,7 +29,8 @@ def index():
 def faculty_index():
     #courses = db.session.scalars(sqla.select(Course))
     FacultyList = db.session.scalars(sqla.select(Faculty))
-    return render_template('faculty_index.html', title="Course List", faculty = FacultyList)
+    Positions = db.session.scalars(sqla.select(Position))
+    return render_template('faculty_index.html', title="Course List", faculty = FacultyList, positions=Positions)
 
 @main.route('/position/<position_id>/view', methods=['GET'])
 @login_required

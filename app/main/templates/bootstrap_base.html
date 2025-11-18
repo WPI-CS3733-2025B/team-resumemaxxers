@@ -37,6 +37,7 @@
                   <li class="nav-item border border-light px-2 ms-2 ">
                     <a class="nav-link" aria-current="page" href="{{ url_for('faculty.faculty_index', faculty_id = current_user.id) }}">Home</a>
                   </li>
+                  
                 {% endif %}
               {% endif %}
               {% if not current_user.is_anonymous %}
@@ -47,6 +48,9 @@
                 {% elif current_user.role == 'faculty' %}
                   <li class="nav-item border border-light px-2 ms-2 ">
                     <a class="nav-link" aria-current="page" href="{{ url_for('faculty.faculty_profile_view', faculty_id = current_user.id) }}">Profile</a>
+                  </li>
+                  <li class="nav-item border border-light px-2 ms-2 ">
+                    <a class="nav-link" aria-current="page" href="{{ url_for('faculty.create_position', faculty_id = current_user.id) }}">Create Position</a>
                   </li>
                 {% endif %} 
               {% endif %}

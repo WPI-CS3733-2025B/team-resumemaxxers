@@ -32,7 +32,8 @@ def faculty_index(faculty_id):
         flash('Faculty not found.', 'error')
         return redirect(url_for('faculty.index')) # Redirect to a suitable page, e.g., main index
 
-    return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user)
+    Positions = db.session.scalars(sqla.select(Position))
+    return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user, positions=Positions  )
 
 @faculty.route('/faculty/<faculty_id>/create_position', methods=['GET', 'POST'])
 @login_required

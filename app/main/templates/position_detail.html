@@ -93,12 +93,11 @@
     <section class="position-actions text-center">
         {% if current_user.is_authenticated and current_user.role == 'student' %}
             <a class="btn btn-primary"
-                href="{{ url_for('main.apply_position', position_id=position.id) }}">
+                href="{{ url_for('student.apply_position', position_id=position.id) }}">
                 Apply for this Position
             </a>
         {% endif %}
 
-        <!-- <a class="btn btn-secondary" href="{{ url_for('main.positions_list') }}">Back to Positions</a> -->
     </section>
 
 </main>
