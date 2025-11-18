@@ -13,8 +13,8 @@ from wtforms.validators import DataRequired, Email
 
 from app.main import main_blueprint as main
 
-@main.route('/', methods=['GET'])
-@main.route('/index', methods=['GET'])
+@main.route('/', methods=['GET', 'POST'])
+@main.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     form = SortForm()
@@ -34,20 +34,26 @@ def index():
     languages = db.session.scalars(sqla.select(Language).distinct()).all()
     form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
 
-    query = sqla.select(Position)
+    Positions = sqla.select(Position)
 
-    """ if form.majors.data:
-        Positions = db.session.scalars(Positions.where(Position.majors ))
-    majors
-    courses 
-    grades 
-    course_instructors 
-    research_topics 
-    languages""" 
-    Positions = db.session.scalars(sqla.select(Position))
-    #courses = db.session.scalars(sqla.select(Course))
+    if form.validate_on_submit(): 
+        if form.majors.data:
+            Positions = Positions.join(Position.majors).where(Major.id == form.majors.data)
+        if form.courses.data:
+            Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
+        if form.grades.data:
+            Positions = Positions.where(Position.min_gpa >= float(form.grades.data))
+        if form.course_instructors.data:
+            Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
+        if form.research_topics.data:
+            Positions = Positions.join(Position.research_topics).where(ResearchTopic.id == form.research_topics.data)
+        if form.languages.data:
+            Positions = Positions.join(Position.languages).where(Language.id == form.languages.data)
+    
+    
     Students = db.session.scalars(sqla.select(Student))
-    return render_template('student_index.html', title="Course List", students = Students, form = form, positions=Positions)
+    PositionsA = db.session.scalars(Positions).all()
+    return render_template('student_index.html', title="Course List", students = Students, form = form, positions=PositionsA)
 
 @main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])

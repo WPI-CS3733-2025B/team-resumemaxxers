@@ -1,31 +1,11 @@
-<div class="card mb-4 shadow-sm">  
-  <div class="card-body">        
-
-<table id="post-{{position.id}}" class = "posttable" style = "width:100%" valign="top">
-        <tr> 
-            <td colspan="3"><div class="posttitle card-title mb-2"> {{position.name}} </div>
-            </td>
-        </tr>
-        <tr>
-            <td width="80%" >
-                <div class="postmessage card-text"> {{ position.body }} </div> <br>
-                <div class="postmessage"> {{ position.start_date }} to {{ position.end_date}} </div>
-            </td> 
-        </tr>
-        <tr> 
-            <td colspan="3" style = "text-align:center" valign="bottom">  
-                <br>
-                {% for pos in position.get_research_topics() %}
-                    <span class="tagitem">{{ pos.name }}</span>
-                {% endfor %}
-            </td>
-        </tr>
-        <tr>
-            <td colspan="3" style = "text-align:center" valign="bottom">  
-                <br>
-                    Posted by: <span class="useritem">{{ position.faculty }}</span>
-            </td>
-        </tr>
-    </table>
-    </div>
+<div class="card text-center">
+  <div class="card-body">
+    <h5 class="card-title">Position name: {{ position.name }} </h5>
+    <p class="card-text">Team size: {{ position.team_size }} </p>
+    <p class="card-text">Minimum GPA: {{ position.min_gpa }} </p>
+    <p class="card-text">Date: {{ position.start_date }} to {{ position.end_date}} </p>
+  </div>
+  <div class="card-footer text-muted">
+    Posted by: <span class="useritem">{{ position.faculty }}</span>
+  </div>
 </div>
