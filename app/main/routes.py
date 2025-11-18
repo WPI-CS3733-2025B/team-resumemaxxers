@@ -9,6 +9,7 @@ from app.student.forms import SortForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
 from wtforms.validators import DataRequired, Email
+from datetime import datetime
 
 
 from app.main import main_blueprint as main
@@ -62,5 +63,5 @@ def faculty_index():
 @login_required
 def view_position(position_id):
     position=Position.query.get_or_404(position_id)
-    return render_template('position_detail.html',position=position)
+    return render_template('position_detail_page.html',position=position)
 
