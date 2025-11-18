@@ -11,12 +11,12 @@ from wtforms.widgets import ListWidget, CheckboxInput
 from app.main.models import Major, Course
 
 class SortForm(FlaskForm):
-    majors = SelectField('Sort By', choices=[('date','OptionA'), ('title', 'OptionB'), ('likes', 'OptionC'), ('happiness', 'OptionD')], default='date')
-    courses = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
-    grades = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
-    course_instructors = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
-    research_topics = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
-    languages = SelectField('Sort By', choices=[('',''), ('', ''), ('', ''), ('', '')], default='')
+    majors = SelectField('Sort By', choices=[], default='')
+    courses = SelectField('Sort By', choices=[], default='')
+    grades = StringField('Sort By')
+    course_instructors = SelectField('Sort By', choices=[], default='')
+    research_topics = SelectField('Sort By', choices=[], default='')
+    languages = SelectField('Sort By', choices=[], default='')
     Refresh = SubmitField('Refresh')
 
 class EditForm(FlaskForm):
