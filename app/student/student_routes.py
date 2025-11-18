@@ -2,19 +2,28 @@ from app import db
 from flask import render_template, flash, redirect, url_for, request, jsonify
 import sqlalchemy as sqla
 
-from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
+from app.main.models import Course, Student, Position, Faculty, Application
 from app.main.models import Student
-from app.student.forms import ApplyPositionForm
+#from app.main.forms import CourseForm, EditForm, EmptyForm
 from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
-from wtforms.validators import DataRequired, Email, Length, Optional
-
 
 from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
+@student.route('/student/<student_id>/index', methods=['GET'])
+@login_required
+def student_index(student_id):
+    student = db.session.get(Student, student_id)
+    if student is None:
+        flash('Student not found.', 'error')
+        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
+
+    return render_template('student_index.html', title=f"{student.firstname}'s Dashboard", user=student)
+
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
+@login_required
 def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
@@ -22,15 +31,6 @@ def student_profile_view(student_id):
         return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
-
-@student.route('/faculty/<faculty_id>/profile/view', methods=['GET'])
-def faculty_profile_view(faculty_id):
-    faculty = db.session.get(Faculty, faculty_id)
-    if faculty is None:
-        flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index')) # Redirect to a suitable page, e.g., main index
-
-    return render_template('faculty_profile.html', title=f"{faculty.firstname}'s Profile", user=faculty)
 
 @student.route('/student/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -59,47 +59,3 @@ def edit_profile():
         form.languages.data = current_user.languages
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
-
-@student.route('/position/<position_id>/apply', methods=['GET', 'POST'])
-@login_required
-def apply_position(position_id):
-    position=Position.query.get_or_404(position_id)
-
-    form = ApplyPositionForm()
-
-    if position.ref_required:
-        form.reference_email.validators = [DataRequired(message="Reference email is required."),
-                                           Email(message="Invalid email address.")]
-
-    if form.validate_on_submit():
-        statement = form.statement.data
-        reference_email = form.reference_email.data.strip()
-
-        faculty_ref = None
-        if reference_email:
-            faculty_ref = Faculty.query.filter_by(email=reference_email).first()
-            if not faculty_ref:
-                flash("No faculty with this email found.")
-                return render_template('apply_position.html', position=position, form=form)
-
-        application = Application(
-            student_id=current_user.id,
-            position_id=position.id,
-            statement=statement
-        )
-        db.session.add(application)
-        db.session.commit()
-
-        if faculty_ref:
-            recommendation = Recommendation(
-                student_id=current_user.id,
-                faculty_id=faculty_ref.id,
-                application_id=application.id
-            )
-            db.session.add(recommendation)
-            db.session.commit()
-
-        flash("Application submitted successfully!")
-        return redirect(url_for('main.view_position', position_id=position.id))
-
-    return render_template('apply_position.html', position=position, form=form)
