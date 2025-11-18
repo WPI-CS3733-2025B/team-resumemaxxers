@@ -51,9 +51,10 @@ def init_database(request,test_client):
     
     # Faculty
     dr_skibidi = Faculty(username='dr_skibidi', email='skibidi@toilet.com', firstname='Doctor', lastname='Skibidi')
-    the_rizzler = Faculty(username='the_rizzler', email='riz@zler.com', firstname='The', lastname='Rizzler')
+    the_rizzler = Faculty(username='the_rizzler', email='riz@zler.com', firstname='The', lastname='Rizzler', id=68)
 
     john_pork.set_password("67")
+    the_rizzler.set_password("68")
 
     # Majors, Topics, Languages, Courses
     major_yapping = Major(name='Advanced Yapping')
@@ -150,7 +151,6 @@ def do_login(test_client, path, username, passwd, user_role):
                           data=dict(username= username, password=passwd, role=user_role, remember_me=False),
                           follow_redirects = True)
     assert response.status_code == 200
-    print(response.data)
     assert b"Logout" in response.data
 
 def do_logout(test_client, path):
@@ -169,3 +169,14 @@ def test_login_logout(request,test_client,init_database):
     do_login(test_client, path = '/login', username = 'john_pork', passwd = '67', user_role="student")
 
     do_logout(test_client, path = '/logout')
+
+def test_create_position(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with correct credentials
+    AND '/faculty/<faculty_id>/create_position' is submitted correctly
+    THEN check that the position is created
+    """
+    do_login(test_client, path= '/login', username='the_rizzler', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/68/create_position')
+    assert response.status_code == 200
