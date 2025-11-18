@@ -95,12 +95,6 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def apply(self, position):
-        if not self in position.applications:
-            new_app = Application(student=self, position=position)
-            db.session.add(new_app)
-            db.session.commit()
-
     def __repr__(self):
         return f'<User {self.username}>'
 
@@ -124,6 +118,22 @@ class Student(User):
     def role(self):
         return "student"
 
+    def apply(self, position):
+        if not any(app.position.id == position.id for app in self.applications):
+            new_app = Application(student=self, position=position)
+            db.session.add(new_app)
+            db.session.commit()
+
+    def withdraw(self, old_position):
+        application_to_withdraw = None
+        for app in self.applications:
+            if app.position.id == old_position.id:
+                application_to_withdraw = app
+                break
+
+        if application_to_withdraw:
+            db.session.delete(application_to_withdraw)
+            db.session.commit()
 
 class Faculty(User):
     __tablename__ = 'faculty'

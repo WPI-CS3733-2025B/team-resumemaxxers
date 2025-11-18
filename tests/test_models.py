@@ -34,13 +34,19 @@ class TestModels(unittest.TestCase):
         self.assertFalse(u.check_password('bbb'))
         self.assertTrue(u.check_password('aaa'))
 
-    def test_apply(self):
+    def test_application(self):
         u = Student(username='john', firstname='John', lastname='Pork', gpa=1.0, email='jp@jpmorgan.com')
         f = Faculty(username='DrBig', firstname='Dr', lastname='Big', id=1)
         self.assertTrue(f.id is not None)
         p = Position(name='Vibe Coder', description='default', team_size=1, min_gpa=4.0, faculty_id=f.id)
         self.assertTrue(len(p.applications)==0)
+        u.withdraw(p)  # should not work yet
         u.apply(p)
+        u.apply(p)  # should not work this time
         self.assertTrue(len(p.applications)==1)
         self.assertTrue(p.applications[0].student == u)
         self.assertTrue(p.applications[0].position == p)
+        u.withdraw(p)  # should work now
+        u.withdraw(p)  # should not work
+        self.assertTrue(len(p.applications)==0)
+
