@@ -27,8 +27,10 @@ def register():
         db.session.add(student)
         db.session.commit()
 
+        login_user(student, remember=True)
+
         flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('student.student_index', student_id=current_user.id))
+        return redirect(url_for('main.index'))
     return render_template('register.html', form=rform)
 
 
