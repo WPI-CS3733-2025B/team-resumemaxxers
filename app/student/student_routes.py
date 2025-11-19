@@ -60,9 +60,11 @@ def student_index(student_id):
         if form.languages.data:
             Positions = Positions.join(Position.languages).where(Language.id == form.languages.data)
 
+    PositionsA = db.session.scalars(Positions).all()
+
     return render_template(
         'student_index.html',
-        positions=positions,
+        positions=PositionsA,
         recommendations=recommendations,
         student=student,
         form=form
