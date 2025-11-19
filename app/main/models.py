@@ -127,6 +127,41 @@ class Student(User):
     def get_language_names(self):
         return [language.name for language in self.languages]
 
+    def apply(self, position):
+        if not any(app.position.id == position.id for app in self.applications):
+            new_app = Application(student=self, position=position)
+            db.session.add(new_app)
+            db.session.commit()
+
+    def withdraw(self, old_position):
+        application_to_withdraw = None
+        for app in self.applications:
+            if app.position.id == old_position.id:
+                application_to_withdraw = app
+                break
+
+        if application_to_withdraw:
+            db.session.delete(application_to_withdraw)
+            db.session.commit()
+
+    def add_major(self, major):
+        if major not in self.majors:
+            self.majors.append(major)
+
+    def add_research_topic(self, topic):
+        if topic not in self.research_topics:
+            self.research_topics.append(topic)
+
+    def add_course(self, course, instructor, grade=None):
+        if not any(enrollment.course == course for enrollment in self.courses):
+            new_enrollment = CourseEnrollment(
+                student=self,
+                course=course,
+                instructor=instructor,
+                grade=grade
+            )
+            db.session.add(new_enrollment)
+
 
 class Faculty(User):
     __tablename__ = 'faculty'
