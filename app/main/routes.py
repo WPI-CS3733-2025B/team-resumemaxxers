@@ -46,9 +46,9 @@ def index():
         if form.course_instructors.data:
             Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
         if form.research_topics.data:
-            Positions = Positions.join(Position.research_topics).where(ResearchTopic.id == form.research_topics.data)
+            Positions = Positions.join(Position.research_topics).where(ResearchTopic.name == form.research_topics.data)
         if form.languages.data:
-            Positions = Positions.join(Position.languages).where(Language.id == form.languages.data)
+            Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
 
     Students = db.session.scalars(sqla.select(Student))
     PositionsA = db.session.scalars(Positions).all()
