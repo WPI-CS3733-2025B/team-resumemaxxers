@@ -9,6 +9,7 @@ import sqlalchemy.orm as sqlo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
+from sqlalchemy import or_
 
 @login.user_loader
 def load_user(user_id_str):
@@ -119,32 +120,34 @@ class Student(User):
     @property
     def role(self):
         return "student"
-    
+
     def recommended_positions(self):
-        q = None
+        q = Position.query
 
+        # GPA filter
         if self.gpa is not None:
-            q = Position.query.filter(
-                Position.min_gpa == None, Position.min_gpa <= self.gpa
+            q = q.filter(
+                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
             )
 
+        # Majors filter
         if self.majors:
-
-            q = Position.query.filter(
-                ~Position.majors.any(
-                    Major.id.notin_([m.id for m in self.majors])
-                )
+            major_ids = [m.id for m in self.majors]
+            q = q.filter(
+                ~Position.majors.any(Major.id.notin_(major_ids))
             )
 
+        # Research topics filter
         if self.research_topics:
-
-            q = Position.query.filter(
+            topic_names = [t.name for t in self.research_topics]
+            q = q.filter(
                 ~Position.research_topics.any(
-                    ResearchTopic.name.notin_([m.name for m in self.research_topics])
+                    ResearchTopic.name.notin_(topic_names)
                 )
             )
 
         return q.all()
+
 class Faculty(User):
     __tablename__ = 'faculty'
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(back_populates='faculty')
