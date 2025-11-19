@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>My Application</h1>
+    
+    {% if Applications %}
+        <ul>
+        {% for app in applications %}
+            <li>
+                <strong> {{ app.position.titile }}</strong>
+                ({{ app.position.department or "No department" }}) <br>
+                Applied on: {{ app.created_at.strftime("%Y-%m-%d %H:%M")}}
+                <em>Cover_letter:</em>
+                <p>{{ app.cover_letter }}</p>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>you haven't applied for any department yet</p>
+    {% endif %}
+{% end block %}

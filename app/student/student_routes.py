@@ -14,10 +14,27 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
+
 @student.route('/student/<student_id>/index', methods=['GET'])
 @login_required
 def student_index(student_id):
-    return redirect(url_for('main.index'))
+    student = db.session.get(Student, student_id)
+    if student is None:
+        flash('Student not found.', 'error')
+        return redirect(url_for('main.index'))
+
+    # Example: get all positions and recommendations for the student
+    positions = Position.query.all()
+    recommendations = []
+    if hasattr(student, 'recommended_positions') and callable(getattr(student, 'recommended_positions')):
+        recommendations = student.recommended_positions()
+
+    return render_template(
+        'student_index.html',
+        positions=positions,
+        recommendations=recommendations,
+        student=student
+    )
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
 @login_required
@@ -101,3 +118,15 @@ def apply_position(position_id):
         return redirect(url_for('main.view_position', position_id=position.id))
 
     return render_template('apply_position.html', position=position, form=form)
+
+@main.route('/recommended')
+@login_required
+def recommended():
+    if not isinstance(current_user._get_current_object(), Student):
+        flash("Only students can view recommended positions.")
+        return redirect(url_for('main.index'))
+
+    positions = current_user.recommendedPositions()
+    return render_template('recommended_positions.html',
+                           positions=positions,
+                           title="Recommended Positions")

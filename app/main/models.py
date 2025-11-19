@@ -117,8 +117,26 @@ class Student(User):
     @property
     def role(self):
         return "student"
+    
+    def recommended_positions(self):
+        q = Position.query
 
+        if self.gpa is not None:
+            q = q.filter(
+                (Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            )
 
+        if self.majors:
+            q = q.filter(
+                (Position.majors == None, Position.majors == '', Position.majors == self.majors)
+            )
+
+        if self.research_topics:
+            q = q.filter(
+                (Position.research_topics == None, Position.research_topics == '', Position.research_topics == self.research_topics)
+            )
+
+        return q.all()
 class Faculty(User):
     __tablename__ = 'faculty'
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(back_populates='faculty')
