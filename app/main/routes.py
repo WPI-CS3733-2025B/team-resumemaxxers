@@ -9,6 +9,7 @@ from app.student.forms import SortForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
 from wtforms.validators import DataRequired, Email
+from datetime import datetime
 
 
 from app.main import main_blueprint as main
@@ -35,7 +36,6 @@ def index():
     form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
 
     Positions = sqla.select(Position)
-
     if form.validate_on_submit(): 
         if form.majors.data:
             Positions = Positions.join(Position.majors).where(Major.id == form.majors.data)
@@ -46,11 +46,10 @@ def index():
         if form.course_instructors.data:
             Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
         if form.research_topics.data:
-            Positions = Positions.join(Position.research_topics).where(ResearchTopic.id == form.research_topics.data)
+            Positions = Positions.join(Position.research_topics).where(ResearchTopic.name == form.research_topics.data)
         if form.languages.data:
-            Positions = Positions.join(Position.languages).where(Language.id == form.languages.data)
-    
-    
+            Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
+
     Students = db.session.scalars(sqla.select(Student))
     PositionsA = db.session.scalars(Positions).all()
     return render_template('student_index.html', title="Course List", students = Students, form = form, positions=PositionsA)
@@ -68,5 +67,5 @@ def faculty_index():
 @login_required
 def view_position(position_id):
     position=Position.query.get_or_404(position_id)
-    return render_template('position_detail.html',position=position)
+    return render_template('position_detail_page.html',position=position)
 

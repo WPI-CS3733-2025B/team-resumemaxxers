@@ -1,29 +1,49 @@
 {% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> student profile </h1>
-    {% if current_user.id == user.id %}
-    <p><a href="{{ url_for('student.edit_profile') }}">Edit Profile</a></p>
-    {% endif %}
-    
-    <h1>Display Student Profile</h1>
+    <h1> Sudent profile </h1>
+
     <div class = "border rounded-3 bg-light p-3">
         <h2> Student username: {{ user.username }} </h2>
         <p> <b>Name:</b> {{ user.firstname }} 
                 {{ user.lastname }}</p>
         <p> <b>ID:</b> {{ user.id }}</p>
         <p> <b>Email:</b> {{ user.email }}</p>
-        <p> <b>Majors:</b> {{ user.majors }} </p>
-        <p> <b>Research Interests:</b> {{ user.research_topics }} </p>
+        <p> <b>Majors:</b> 
+            <ul>
+                {% for major in user.get_major_names() %}
+                    <li>{{ major }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Research Interests:</b> 
+            <ul>
+                {% for rinter in user.get_research_topic_names() %}
+                    <li>{{ rinter }}</li>
+                {% endfor %}
+            </ul>
+        </p>
         <p> <b>GPA:</b> {{ user.gpa }} </p>
-        <p> <b>Languages:</b> {{ user.languages }}  </p>
-        <p> <b>recommendation:</b> {{ user.recommendation }} </p>
+        <p> <b>Languages:</b> 
+            <ul>
+                {% for lang in user.get_language_names() %}
+                    <li>{{ lang }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
         <p> <b>Application:</b> {{ user.applications }} </p>
-        <p> <b>Courses:</b> {{ user.courses }} </p>
-        <hr>
+        <p> <b>Courses:</b> 
+            <ul>
+                {% for course in user.get_course_names() %}
+                    <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
+        </p>
 
-
-
-    <hr>
+    </div>
+    {% if current_user.id == user.id %}
+        <p><a href="{{ url_for('student.edit_profile') }}" class="btn btn-primary">Edit Profile</a></p>
+    {% endif %}
       
 {% endblock %} 

@@ -1,0 +1,111 @@
+{% extends "bootstrap_base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
+
+{% block content %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ position.name }} – Research Position</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous">
+    </head>
+
+    <body>
+
+    <main class="container">
+
+        <section class="position-header">
+            <h4 class="position-title text-center">{{ position.name }}</h4>
+
+            <p class="position-faculty">
+                <strong>Faculty:</strong>
+                {{ position.faculty.firstname }} {{ position.faculty.lastname }}<br>
+                <strong>Email:</strong> {{ position.faculty.email }}
+            </p>
+        </section>
+
+        <section class="position-meta">
+            <div class="meta-item">
+                <span class="meta-label">Start date:</span>
+                <span class="meta-value">{{ position.start_date.date() }}</span>
+            </div>
+
+            <div class="meta-item">
+                <span class="meta-label">End date:</span>
+                <span class="meta-value">{{ position.end_date.date() }}</span>
+            </div>
+
+            <div class="meta-item">
+                <span class="meta-label">Team size:</span>
+                <span class="meta-value">{{ position.team_size }}</span>
+            </div>
+
+            <div class="meta-item">
+                <span class="meta-label">Minimum GPA:</span>
+                <span class="meta-value">
+                    {% if position.min_gpa %} {{ position.min_gpa }} {% else %} N/A {% endif %}
+                </span>
+            </div>
+
+            <div class="meta-item">
+                <span class="meta-label">Reference required:</span>
+                <span class="meta-value">
+                    {% if position.ref_required %} Yes {% else %} No {% endif %}
+                </span>
+            </div>
+        </section>
+
+        <section class="position-body">
+            <h5>Description</h5>
+            <p>{{ position.description }}</p>
+
+            <h5>Preferred Majors</h5>
+            <ul>
+                {% for major in position.majors %}
+                    <li>{{ major.name }}</li>
+                {% endfor %}
+            </ul>
+
+            <h5>Research Topics</h5>
+            <ul>
+                {% for topic in position.research_topics %}
+                    <li>{{ topic.name }}</li>
+                {% endfor %}
+            </ul>
+
+            <h5>Required Languages</h5>
+            <ul>
+                {% for lang in position.languages %}
+                    <li>{{ lang.name }}</li>
+                {% endfor %}
+            </ul>
+
+            <h5>Required Courses</h5>
+            <ul>
+                {% for course in position.courses %}
+                    <li>{{ course.name }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="position-actions text-center">
+            {% if current_user.is_authenticated and current_user.role == 'student' %}
+                <a class="btn btn-primary"
+                    href="{{ url_for('student.apply_position', position_id=position.id) }}">
+                    Apply for this Position
+                </a>
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    </body>
+    </html>
+{% endblock %}
