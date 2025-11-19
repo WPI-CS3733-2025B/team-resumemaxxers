@@ -4,6 +4,7 @@ from typing import List, Optional
 from app import db
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
@@ -164,6 +165,32 @@ class Student(User):
                 grade=grade
             )
             db.session.add(new_enrollment)
+    
+    def recommended_positions(self):
+        q = Position.query
+
+        if self.gpa is not None:
+            q = q.filter(
+                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            )
+
+        if self.majors:
+            q = q.filter(
+                or_(
+                    ~Position.majors.any(),
+                    Position.majors.any(Major.id.in_([m.id for m in self.majors]))
+                )
+            )
+
+        if self.research_topics:
+            q = q.filter(
+                or_(
+                    ~Position.research_topics.any(), 
+                    Position.research_topics.any(ResearchTopic.name.in_([t.name for t in self.research_topics]))
+                )
+            )
+
+        return q.all()
 
 
 class Faculty(User):

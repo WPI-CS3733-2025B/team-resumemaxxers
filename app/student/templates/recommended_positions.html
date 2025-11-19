@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Recommended Positions</h2>
+
+  {% if positions %}
+    <ul class="list-group">
+      {% for p in positions %}
+        <li class="list-group-item">
+          <h4>{{ p.title }}</h4>
+          {% if p.major %}<p><strong>Preferred major:</strong> {{ p.major }}</p >{% endif %}
+          {% if p.min_gpa %}<p><strong>Minimum GPA:</strong> {{ p.min_gpa }}</p >{% endif %}
+          {% if p.tags %}<p><strong>Tags:</strong> {{ p.tags }}</p >{% endif %}
+          <p>{{ p.description }}</p >
+
+          <a class="btn btn-sm btn-primary"
+             href=" {{ url_for('student.apply_position', position_id=p.id) }}">
+            Apply
+          </a >
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No positions match your profile yet. Try updating your profile or check back later.</p >
+  {% endif %}
+{% endblock %}
