@@ -2,11 +2,7 @@
 
 {% block content %}
     <h1> Sudent profile </h1>
-    {% if current_user.id == user.id %}
-    <p><a href="{{ url_for('student.edit_profile') }}">Edit Profile</a></p>
-    {% endif %}
-    
-    <h1>Display Student Profile</h1>
+
     <div class = "border rounded-3 bg-light p-3">
         <h2> Student username: {{ user.username }} </h2>
         <p> <b>Name:</b> {{ user.firstname }} 
@@ -35,14 +31,19 @@
                 {% endfor %}
             </ul>
         </p>
-        <p> <b>recommendation:</b> {{ user.recommendation }} </p>
+        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
         <p> <b>Application:</b> {{ user.applications }} </p>
-        <p> <b>Courses:</b> {{ user.courses }} </p>
-        <hr>
+        <p> <b>Courses:</b> 
+            <ul>
+                {% for course in user.get_course_names() %}
+                    <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
+        </p>
 
-
-
-        <hr>
     </div>
+    {% if current_user.id == user.id %}
+        <p><a href="{{ url_for('student.edit_profile') }}" class="btn btn-primary">Edit Profile</a></p>
+    {% endif %}
       
 {% endblock %} 

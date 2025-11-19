@@ -20,7 +20,7 @@ def faculty_profile_view(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
         flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index')) # Redirect to a suitable page, e.g., main index
+        return redirect(url_for('faculty.index'))
 
     return render_template('faculty_profile.html', title=f"{faculty_user.firstname}'s Profile", user=faculty_user)
 
@@ -30,7 +30,7 @@ def faculty_index(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
         flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index')) # Redirect to a suitable page, e.g., main index
+        return redirect(url_for('faculty.index'))
 
     Positions = db.session.scalars(sqla.select(Position))
     return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user, positions=Positions  )
@@ -53,12 +53,12 @@ def create_position(faculty_id):
         new_position = Position(
             name=cform.name.data,
             description=cform.description.data,
-            start_date=datetime.strptime(str(cform.start_date.data), '%Y-%m-%d').date(), # Assuming YYYY-MM-DD format
-            end_date=datetime.strptime(str(cform.end_date.data), '%Y-%m-%d').date(),     # Assuming YYYY-MM-DD format
+            start_date=datetime.strptime(str(cform.start_date.data), '%Y-%m-%d').date(),
+            end_date=datetime.strptime(str(cform.end_date.data), '%Y-%m-%d').date(),
             team_size=int(cform.team_size.data),
             min_gpa=float(cform.min_gpa.data),
             ref_required=cform.ref_required.data,
-            faculty_id=faculty_user.id # Assign the current faculty's ID
+            faculty_id=faculty_user.id
         )
 
 

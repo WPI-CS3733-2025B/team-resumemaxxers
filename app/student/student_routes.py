@@ -25,7 +25,7 @@ def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
         flash('Student not found.', 'error')
-        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
+        return redirect(url_for('student.index'))
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
 

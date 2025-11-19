@@ -126,6 +126,9 @@ class Student(User):
     
     def get_language_names(self):
         return [language.name for language in self.languages]
+    
+    def get_course_names(self):
+        return [enrollment.course.name for enrollment in self.courses]
 
     def apply(self, position):
         if not any(app.position.id == position.id for app in self.applications):
