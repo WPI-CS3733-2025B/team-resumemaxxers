@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 
+from flask import session
+
 from app import db
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
@@ -119,21 +121,27 @@ class Student(User):
         return "student"
     
     def recommended_positions(self):
-        q = Position.query
+        q = None
 
         if self.gpa is not None:
-            q = q.filter(
-                (Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            q = Position.query.filter(
+                Position.min_gpa == None, Position.min_gpa <= self.gpa
             )
 
         if self.majors:
-            q = q.filter(
-                (Position.majors == None, Position.majors == '', Position.majors == self.majors)
+
+            q = Position.query.filter(
+                ~Position.majors.any(
+                    Major.id.notin_([m.id for m in self.majors])
+                )
             )
 
         if self.research_topics:
-            q = q.filter(
-                (Position.research_topics == None, Position.research_topics == '', Position.research_topics == self.research_topics)
+
+            q = Position.query.filter(
+                ~Position.research_topics.any(
+                    ResearchTopic.name.notin_([m.name for m in self.research_topics])
+                )
             )
 
         return q.all()
@@ -194,6 +202,9 @@ class Position(db.Model):
     
     def get_research_topics(self):
         return [topic.name for topic in self.research_topics]
+
+    def get_majors(self):
+        return [major.name for major in self.majors]
 
 
 class Major(db.Model):

@@ -15,7 +15,7 @@ from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
 
-@student.route('/student/<student_id>/index', methods=['GET'])
+@student.route('/student/<student_id>/index', methods=['GET', 'POST'])
 @login_required
 def student_index(student_id):
     student = db.session.get(Student, student_id)
@@ -23,11 +23,10 @@ def student_index(student_id):
         flash('Student not found.', 'error')
         return redirect(url_for('main.index'))
 
-    # Example: get all positions and recommendations for the student
+    # Get all positions and recommendations for the student
     positions = Position.query.all()
     recommendations = []
-    if hasattr(student, 'recommended_positions') and callable(getattr(student, 'recommended_positions')):
-        recommendations = student.recommended_positions()
+    recommendations = student.recommended_positions()
 
     return render_template(
         'student_index.html',
