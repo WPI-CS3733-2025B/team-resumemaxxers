@@ -123,18 +123,37 @@ class Student(User):
 
         if self.gpa is not None:
             q = q.filter(
-                (Position.min_gpa == None, Position.min_gpa <= self.gpa)
+                sqla.or_(Position.min_gpa.is_(None), Position.min_gpa <= self.gpa)
             )
 
         if self.majors:
-            q = q.filter(
-                (Position.majors == None, Position.majors == '', Position.majors == self.majors)
-            )
+            major_ids = [m.id for m in self.majors if getattr(m, 'id', None) is not None]
+            if major_ids:
+                q = q.filter(
+                    sqla.or_(
+                        ~Position.majors.any(),
+                        Position.majors.any(Major.id.in_(major_ids))
+                    )
+                )
+            else:
+                major_names = [m.name for m in self.majors if getattr(m, 'name', None) is not None]
+                if major_names:
+                    q = q.filter(
+                        sqla.or_(
+                            ~Position.majors.any(),
+                            Position.majors.any(Major.name.in_(major_names))
+                        )
+                    )
 
         if self.research_topics:
-            q = q.filter(
-                (Position.research_topics == None, Position.research_topics == '', Position.research_topics == self.research_topics)
-            )
+            topic_names = [t.name for t in self.research_topics if getattr(t, 'name', None) is not None]
+            if topic_names:
+                q = q.filter(
+                    sqla.or_(
+                        ~Position.research_topics.any(),
+                        Position.research_topics.any(ResearchTopic.name.in_(topic_names))
+                    )
+                )
 
         return q.all()
 class Faculty(User):

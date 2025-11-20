@@ -2,7 +2,7 @@ from app import db
 from flask import render_template, flash, redirect, url_for, request, jsonify
 import sqlalchemy as sqla
 
-from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
+from app.main.models import Course, Student, Position, Faculty, Application, Recommendation, Major, ResearchTopic, Language
 from app.main.models import Student
 from app.student.forms import ApplyPositionForm, SortForm
 from app.auth.auth_forms import EditProfileForm
@@ -15,15 +15,32 @@ from app.main import main_blueprint as main
 from app.student import student_blueprint as student
 
 
-@student.route('/student/<student_id>/index', methods=['GET'])
+@student.route('/student/<student_id>/index', methods=['GET', 'POST'])
 @login_required
 def student_index(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
         flash('Student not found.', 'error')
         return redirect(url_for('main.index'))
+    if request.method == 'POST':
+        return redirect(url_for('student.student_index', student_id=student_id))
+    form = SortForm()
 
-    # Example: get all positions and recommendations for the student
+    majors = db.session.scalars(sqla.select(Major)).all()
+    form.majors.choices = [('', 'Select Major')] + [(m.id, m.name) for m in majors]
+
+    courses = db.session.scalars(sqla.select(Course)).all()
+    form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
+
+    instructors = db.session.scalars(sqla.select(Faculty)).all()
+    form.course_instructors.choices = [('', 'Instructor')] + [(i.id, f"{i.firstname} {i.lastname or ''}".strip()) for i in instructors]
+
+    topics = db.session.scalars(sqla.select(ResearchTopic).distinct()).all()
+    form.research_topics.choices = [('', 'Topic')] + [(t.name, t.name) for t in topics]
+
+    languages = db.session.scalars(sqla.select(Language).distinct()).all()
+    form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
+
     positions = Position.query.all()
     recommendations = []
     if hasattr(student, 'recommended_positions') and callable(getattr(student, 'recommended_positions')):
@@ -33,7 +50,8 @@ def student_index(student_id):
         'student_index.html',
         positions=positions,
         recommendations=recommendations,
-        student=student
+        student=student,
+        form=form
     )
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
@@ -42,7 +60,7 @@ def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
         flash('Student not found.', 'error')
-        return redirect(url_for('student.index')) # Redirect to a suitable page, e.g., main index
+        return redirect(url_for('student.index'))
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
 
@@ -122,11 +140,29 @@ def apply_position(position_id):
 @main.route('/recommended')
 @login_required
 def recommended():
-    if not isinstance(current_user._get_current_object(), Student):
-        flash("Only students can view recommended positions.")
-        return redirect(url_for('main.index'))
+    try:
+        if not isinstance(current_user._get_current_object(), Student):
+            flash("Only students can view recommended positions.")
+            return redirect(url_for('main.index'))
 
-    positions = current_user.recommendedPositions()
-    return render_template('recommended_positions.html',
-                           positions=positions,
-                           title="Recommended Positions")
+
+        user_obj = current_user._get_current_object()
+        positions = []
+        if hasattr(user_obj, 'recommended_positions') and callable(getattr(user_obj, 'recommended_positions')):
+            positions = user_obj.recommended_positions()
+
+        try:
+            flash(f"Found {len(positions)} recommended positions.", 'info')
+        except Exception:
+            pass
+
+        return render_template('recommended_positions.html',
+                               positions=positions,
+                               title="Recommended Positions")
+    except Exception:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+        flash('An error occurred while loading recommended positions. Showing details for debugging.', 'error')
+        flash(tb, 'error')
+        return redirect(url_for('main.index'))

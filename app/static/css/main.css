@@ -56,3 +56,21 @@ body {
     border: 1px solid gray;
     background: #f6f6f6;
 }
+
+/* Adjust majors multi-select vertical alignment on student index */
+/* Target the majors select inside the form row and force a vertical shift */
+.d-flex.align-items-center > select[name="majors"],
+.d-flex.align-items-center > select#majors {
+    margin-top: 16px !important; /* stronger offset */
+    transform: translateY(6px) !important; /* nudge down */
+    vertical-align: middle !important;
+    display: inline-block !important;
+}
+
+/* Small tweak for multi-select height to match other inputs */
+.d-flex.align-items-center > select[name="majors"][multiple],
+.d-flex.align-items-center > select#majors[multiple] {
+    height: auto !important;
+    min-height: 36px !important;
+    padding-top: 2px !important;
+}

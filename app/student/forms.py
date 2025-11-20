@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, BooleanField, PasswordField
+from wtforms import StringField, SubmitField, SelectField, BooleanField, PasswordField, SelectMultipleField
 from wtforms.validators import ValidationError, DataRequired, EqualTo, Email
 from wtforms import TextAreaField            
 from wtforms.validators import Length, Optional
@@ -11,7 +11,7 @@ from wtforms.widgets import ListWidget, CheckboxInput
 from app.main.models import Major, Course
 
 class SortForm(FlaskForm):
-    majors = SelectField('Majors', choices=[], default='')
+    majors = SelectMultipleField('Majors', choices=[], coerce=int)
     courses = SelectField('Courses', choices=[], default='')
     grades = StringField('Grades')
     course_instructors = SelectField('Course Instructors', choices=[], default='')
