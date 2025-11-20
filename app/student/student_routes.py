@@ -94,6 +94,11 @@ def edit_profile():
         current_user.gpa = form.gpa.data
         current_user.research_topics = form.research_topics.data
         current_user.languages = form.languages.data
+
+        for enrollment in form.courses.data:
+            # TODO: REPLACE PLACEHOLDER INSTRUCTOR. TAUGHT BY 1ST INSTRUCTOR IN THE DB BY DEFAULT
+            current_user.add_course(enrollment, instructor=db.session.scalars(sqla.select(Faculty)).first())
+
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('student.student_profile_view', student_id=current_user.id))
@@ -104,6 +109,7 @@ def edit_profile():
         form.email.data = current_user.email
         form.majors.data = current_user.majors
         form.gpa.data = current_user.gpa
+        form.courses.data = current_user.courses
         form.research_topics.data = current_user.research_topics
         form.languages.data = current_user.languages
     return render_template('edit_profile.html', title='Edit Profile',

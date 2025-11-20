@@ -23,6 +23,12 @@ class RegistrationForm(FlaskForm):
 
     gpa = StringField('GPA', validators=[DataRequired()])
 
+    courses = QuerySelectMultipleField('Courses',
+                                       query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
+                                       get_label=lambda theCourse: theCourse.name,
+                                       widget=ListWidget(prefix_label=False),
+                                       option_widget=CheckboxInput())
+
     research_topics = QuerySelectMultipleField('Interests',
                                                query_factory=lambda: db.session.scalars(
                                                    sqla.select(ResearchTopic).order_by(ResearchTopic.name)),
@@ -85,7 +91,6 @@ class EditProfileForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
 
 
-
     majors = QuerySelectMultipleField('Majors',
 
                                       query_factory=lambda: db.session.scalars(sqla.select(Major).order_by(Major.name)),
@@ -97,10 +102,13 @@ class EditProfileForm(FlaskForm):
                                       option_widget=CheckboxInput())
 
 
-
     gpa = StringField('GPA', validators=[DataRequired()])
 
-
+    courses = QuerySelectMultipleField('Courses',
+                                       query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
+                                       get_label=lambda theCourse: theCourse.name,
+                                       widget=ListWidget(prefix_label=False),
+                                       option_widget=CheckboxInput())
 
     research_topics = QuerySelectMultipleField('Interests',
 

@@ -21,7 +21,10 @@ def register():
                           research_topics=rform.research_topics.data,
                           languages=rform.languages.data
                           )
-        print(student)
+
+        for enrollment in rform.courses.data:
+            # TODO: REPLACE PLACEHOLDER INSTRUCTOR. TAUGHT BY 1ST INSTRUCTOR IN THE DB BY DEFAULT
+            student.add_course(enrollment, instructor=db.session.scalars(sqla.select(Faculty)).first())
 
         student.set_password(rform.password.data)
         db.session.add(student)
