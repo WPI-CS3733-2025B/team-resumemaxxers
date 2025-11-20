@@ -12,6 +12,9 @@ def instructor_query():
     return Faculty.query.order_by(Faculty.lastname).all()
 
 class CourseEnrollmentForm(FlaskForm):
+    class Meta:
+        csrf = False  # disable CSRF for subforms
+
     course = QuerySelectField(
         'Course',
         query_factory=course_query,

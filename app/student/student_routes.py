@@ -118,9 +118,6 @@ def edit_profile():
         flash('Your changes have been saved.')
         return redirect(url_for('student.student_profile_view', student_id=current_user.id))
 
-    elif not form.validate_on_submit():
-        print([err for err in form.courses.errors])
-
     elif request.method == "GET":
         # prepopulate simple fields
         form.username.data = current_user.username
