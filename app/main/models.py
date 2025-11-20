@@ -1,19 +1,29 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 
+from flask import session
+
 from app import db
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
+from sqlalchemy import or_
 
 @login.user_loader
-def load_user(id):
-    user = db.session.get(Student, int(id))
-    if user:
-        return user
-    return db.session.get(Faculty, int(id))
+def load_user(user_id_str):
+    try:
+        role, user_id = user_id_str.split('-')
+        user_id = int(user_id)
+        if role == 'student':
+            return db.session.get(Student, user_id)
+        elif role == 'faculty':
+            return db.session.get(Faculty, user_id)
+    except (ValueError, TypeError):
+        return None
+    return None
 
 students_majors = sqla.Table(
     'students_majors',
@@ -80,6 +90,9 @@ class User(db.Model, UserMixin):
     email: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(120), unique=True, index=True)
     password_hash: sqlo.Mapped[Optional[str]] = sqlo.mapped_column(sqla.String(256))
 
+    def get_id(self):
+        return f"{self.role}-{self.id}"
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -104,7 +117,110 @@ class Student(User):
 
     def __repr__(self):
         return f'<Student {self.username}>'
+    
+    @property
+    def role(self):
+        return "student"
+    
+    def get_major_names(self):
+        return [major.name for major in self.majors]
+    
+    def get_research_topic_names(self):
+        return [topic.name for topic in self.research_topics]
+    
+    def get_language_names(self):
+        return [language.name for language in self.languages]
+    
+    def get_course_names(self):
+        return [enrollment.course.name for enrollment in self.courses]
 
+    def apply(self, position):
+        if not any(app.position.id == position.id for app in self.applications):
+            new_app = Application(student=self, position=position)
+            db.session.add(new_app)
+            db.session.commit()
+
+    def withdraw(self, old_position):
+        application_to_withdraw = None
+        for app in self.applications:
+            if app.position.id == old_position.id:
+                application_to_withdraw = app
+                break
+
+        if application_to_withdraw:
+            db.session.delete(application_to_withdraw)
+            db.session.commit()
+
+    def add_major(self, major):
+        if major not in self.majors:
+            self.majors.append(major)
+
+    def add_research_topic(self, topic):
+        if topic not in self.research_topics:
+            self.research_topics.append(topic)
+
+    def add_course(self, course, instructor, grade=None):
+        if not any(enrollment.course == course for enrollment in self.courses):
+            new_enrollment = CourseEnrollment(
+                student=self,
+                course=course,
+                instructor=instructor,
+                grade=grade
+            )
+            db.session.add(new_enrollment)
+    
+    def recommended_positions(self):
+        q = Position.query
+
+        if self.gpa is not None:
+            q = q.filter(
+                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            )
+
+        if self.majors:
+            q = q.filter(
+                or_(
+                    ~Position.majors.any(),
+                    Position.majors.any(Major.id.in_([m.id for m in self.majors]))
+                )
+            )
+
+        if self.research_topics:
+            q = q.filter(
+                or_(
+                    ~Position.research_topics.any(), 
+                    Position.research_topics.any(ResearchTopic.name.in_([t.name for t in self.research_topics]))
+                )
+            )
+
+        return q.all()
+
+    def recommended_positions(self):
+        q = Position.query
+
+        # GPA filter
+        if self.gpa is not None:
+            q = q.filter(
+                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            )
+
+        # Majors filter
+        if self.majors:
+            major_ids = [m.id for m in self.majors]
+            q = q.filter(
+                ~Position.majors.any(Major.id.notin_(major_ids))
+            )
+
+        # Research topics filter
+        if self.research_topics:
+            topic_names = [t.name for t in self.research_topics]
+            q = q.filter(
+                ~Position.research_topics.any(
+                    ResearchTopic.name.notin_(topic_names)
+                )
+            )
+
+        return q.all()
 
 class Faculty(User):
     __tablename__ = 'faculty'
@@ -113,6 +229,13 @@ class Faculty(User):
 
     def __repr__(self):
         return f'<Faculty {self.username}>'
+    
+    @property
+    def role(self):
+        return "faculty"
+    
+    def get_position_names(self):
+        return [position.name for position in self.positions]
 
 
 class Application(db.Model):
@@ -156,6 +279,12 @@ class Position(db.Model):
 
     def __repr__(self):
         return f'<Position {self.name}>'
+    
+    def get_research_topics(self):
+        return [topic.name for topic in self.research_topics]
+
+    def get_majors(self):
+        return [major.name for major in self.majors]
 
 
 class Major(db.Model):

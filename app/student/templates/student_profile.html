@@ -1,22 +1,48 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> faculty profile </h1>
-    <p> <strong>username:</strong> {{user.username}} </p>
-    <p> <strong>positions:</strong> {{user.positions}} </p>
-    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
-    <p> <strong></strong></p>
-{% endblock %}
-{% extends "base.html" %}
+    <h1> Sudent profile </h1>
 
-{% block content %}
-    <h1> student profile </h1>
-    <p> <strong>id:</strong> {{user.id}} </p>
-    <p> <strong>major:</strong> {{user.major}} </p>
-    <p> <strong>research_topics:</strong> {{user.research_topics}} </p>
-    <p> <strong>gpa:</strong> {{user.gpa}} </p>
-    <p> <strong>languages:</strong> {{user.languages}} </p>
-    <p> <strong>recommendation:</strong> {{user.recommendation}} </p>
-    <p> <strong>applications:</strong> {{user.applications}} </p>
-    <p> <strong>courses:</strong> {{user.courses}} </p>
-{% endblock %}
+    <div class = "border rounded-3 bg-light p-3 mb-3">
+        <h3> Student username: {{ user.username }} </h3>
+        <h3>Name: {{ user.firstname }} {{ user.lastname }}</h3>
+        <p> <b>ID:</b> {{ user.id }}</p>
+        <p> <b>Email:</b> {{ user.email }}</p>
+        <p> <b>Majors:</b> 
+            <ul>
+                {% for major in user.get_major_names() %}
+                    <li>{{ major }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Research Interests:</b> 
+            <ul>
+                {% for rinter in user.get_research_topic_names() %}
+                    <li>{{ rinter }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>GPA:</b> {{ user.gpa }} </p>
+        <p> <b>Languages:</b> 
+            <ul>
+                {% for lang in user.get_language_names() %}
+                    <li>{{ lang }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
+        <p> <b>Application:</b> {{ user.applications }} </p>
+        <p> <b>Courses:</b> 
+            <ul>
+                {% for course in user.get_course_names() %}
+                    <li>{{ course }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+
+    </div>
+    {% if current_user.id == user.id %}
+        <p><a href="{{ url_for('student.edit_profile') }}" class="btn btn-primary">Edit Profile</a></p>
+    {% endif %}
+      
+{% endblock %} 

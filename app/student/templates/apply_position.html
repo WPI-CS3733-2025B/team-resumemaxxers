@@ -1,0 +1,23 @@
+<form method="post">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.statement.label(class="form-label") }}
+        {{ form.statement(class="form-control", rows="5") }}
+        {% for error in form.statement.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form.reference_email.label(class="form-label") }}
+        {{ form.reference_email(class="form-control") }}
+        {% for error in form.reference_email.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="d-grid">
+        {{ form.submit(class="btn btn-success btn-lg") }}
+    </div>
+</form>

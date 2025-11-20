@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% if title %}
-    <title>{{ title }} - Student App</title>
+    <title>{{ title }} - Research Position Matcher</title>
     {% else %}
-    <title>Welcome to Student App</title>
+    <title>Welcome to Research Position Matcher</title>
     {% endif %}
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -15,11 +15,12 @@
         crossorigin="anonymous">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker-bs5.min.css">
   </head>
   <body>
 
 
-    <nav class="navbar navbar-light navbar-expand-lg" style="background-color: #b4cbdd;">
+    <nav class="navbar navbar-light navbar-expand-xl py-3" style="background-color: #b4cbdd;">
         <div class="container">
           <a class="navbar-brand" href="{{ url_for('main.index') }}">Role Matcher</a>
           <button class="navbar-toggler" type="button" >
@@ -27,16 +28,31 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item border border-light px-3 ms-2 ">
-                <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">Home</a>
-              </li>
               {% if not current_user.is_anonymous %}
-              <li class="nav-item border border-light px-2 ms-2 ">
-                <a class="nav-link" aria-current="page" href="{{ url_for('main.createclass') }}">Create Class</a>
-              </li>
-              <li class="nav-item border border-light px-2 ms-2 " >
-                <a class="nav-link" aria-current="page" href="{{ url_for('main.display_profile') }}">Profile</a>
-              </li>
+                {% if current_user.role == 'student' %}
+                  <li class="nav-item border border-light px-2 ms-2 " >
+                    <a class="nav-link" aria-current="page" href="{{ url_for('student.student_index', student_id = current_user.id) }}">Home</a>
+                  </li>
+                {% elif current_user.role == 'faculty' %}
+                  <li class="nav-item border border-light px-2 ms-2 ">
+                    <a class="nav-link" aria-current="page" href="{{ url_for('faculty.faculty_index', faculty_id = current_user.id) }}">Home</a>
+                  </li>
+                  
+                {% endif %}
+              {% endif %}
+              {% if not current_user.is_anonymous %}
+                {% if current_user.role == 'student' %}
+                  <li class="nav-item border border-light px-2 ms-2 " >
+                    <a class="nav-link" aria-current="page" href="{{ url_for('student.student_profile_view', student_id = current_user.id) }}">Profile</a>
+                  </li>
+                {% elif current_user.role == 'faculty' %}
+                  <li class="nav-item border border-light px-2 ms-2 ">
+                    <a class="nav-link" aria-current="page" href="{{ url_for('faculty.faculty_profile_view', faculty_id = current_user.id) }}">Profile</a>
+                  </li>
+                  <li class="nav-item border border-light px-2 ms-2 ">
+                    <a class="nav-link" aria-current="page" href="{{ url_for('faculty.create_position', faculty_id = current_user.id) }}">Create Position</a>
+                  </li>
+                {% endif %} 
               {% endif %}
             </ul>
             <ul class="navbar-nav mb-2 mb-lg-0">
@@ -48,6 +64,9 @@
                 <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">Login</a>
               </li>
               {% else %}
+              <li class="nav-item">
+                <span class="nav-link">Current user: {{ current_user.firstname or '' }} {{ current_user.lastname or '' }}</span>
+              </li>
               <li class="nav-item border border-light px-2 ms-2">
                 <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
               </li>
@@ -72,6 +91,27 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"></script>
+    <script>
+      const getDatePickerTitle = elem => {
+        // From the label or the aria-label
+        const label = elem.nextElementSibling;
+        let titleText = '';
+        if (label && label.tagName === 'LABEL') {
+          titleText = label.textContent;
+        } else {
+          titleText = elem.getAttribute('aria-label') || '';
+        }
+        return titleText;
+      }
+
+      const elems = document.querySelectorAll('.datepicker-input');
+      for (const elem of elems) {
+        const datepicker = new Datepicker(elem, {
+          'title': getDatePickerTitle(elem)
+        });
+      }
     </script>
 </body>
 </html>

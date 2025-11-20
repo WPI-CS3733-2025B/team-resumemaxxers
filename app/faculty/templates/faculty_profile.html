@@ -1,0 +1,16 @@
+{% extends "bootstrap_base.html" %}
+
+{% block content %}
+    <h1> Faculty profile </h1>
+    <div class = "border rounded-3 bg-light p-3">
+        <h3> Faculty username: {{ user.username }} </h3>
+        <p> <b>Positions:</b> 
+            <ul>
+                {% for name in user.get_position_names() %}
+                    <li>{{ name }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
+    </div>
+{% endblock %}
