@@ -3,7 +3,7 @@
 {% block content %}
     <h1> Faculty profile </h1>
     <div class = "border rounded-3 bg-light p-3">
-        <h2> Faculty username: {{ user.username }} </h2>
+        <h3> Faculty username: {{ user.username }} </h3>
         <p> <b>Positions:</b> 
             <ul>
                 {% for name in user.get_position_names() %}

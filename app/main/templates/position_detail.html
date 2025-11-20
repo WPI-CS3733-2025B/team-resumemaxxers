@@ -7,6 +7,6 @@
     <a href="{{ url_for('main.view_position', position_id=position.id) }}" class="btn btn-primary">View Details</a>
   </div>
   <div class="card-footer text-muted">
-    Posted by: <span class="useritem">{{ position.faculty }}</span>
+    Posted by: <span class="useritem">{{ position.faculty.firstname }} {{ position.faculty.lastname }}</span>
   </div>
 </div>

@@ -3,10 +3,9 @@
 {% block content %}
     <h1> Sudent profile </h1>
 
-    <div class = "border rounded-3 bg-light p-3">
-        <h2> Student username: {{ user.username }} </h2>
-        <p> <b>Name:</b> {{ user.firstname }} 
-                {{ user.lastname }}</p>
+    <div class = "border rounded-3 bg-light p-3 mb-3">
+        <h3> Student username: {{ user.username }} </h3>
+        <h3>Name: {{ user.firstname }} {{ user.lastname }}</h3>
         <p> <b>ID:</b> {{ user.id }}</p>
         <p> <b>Email:</b> {{ user.email }}</p>
         <p> <b>Majors:</b> 
