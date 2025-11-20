@@ -11,6 +11,16 @@ body {
     margin: 0px;
 }
 
+.nav-item {
+    transition: 0.2s;
+    opacity: 100%;
+}
+
+.nav-item:hover {
+    transition: 0.2s;
+    background: #718b9e;
+}
+
 .posttitle {
     text-align: center;    
     font-size: 18px;
