@@ -85,6 +85,10 @@ def student_profile_view(student_id):
 @login_required
 def edit_profile():
     form = EditProfileForm()
+    for entry in form.courses.entries:
+        print(entry.form.course.data)
+        print(entry.form.instructor.data)
+        print(entry.form.grade.data)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.firstname = form.firstname.data
@@ -95,25 +99,51 @@ def edit_profile():
         current_user.research_topics = form.research_topics.data
         current_user.languages = form.languages.data
 
-        for enrollment in form.courses.data:
-            # TODO: REPLACE PLACEHOLDER INSTRUCTOR. TAUGHT BY 1ST INSTRUCTOR IN THE DB BY DEFAULT
-            current_user.add_course(enrollment, instructor=db.session.scalars(sqla.select(Faculty)).first())
+        # Remove all existing records
+        for enrollment in current_user.courses:
+            db.session.delete(enrollment)
+
+        # Re-add all from submitted form
+        for entry in form.courses.entries:
+            db.session.add(
+                CourseEnrollment(
+                    student=current_user,
+                    course=entry.form.course.data,
+                    instructor=entry.form.instructor.data,
+                    grade=entry.form.grade.data
+                )
+            )
 
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('student.student_profile_view', student_id=current_user.id))
-    elif request.method == 'GET':
+
+    elif not form.validate_on_submit():
+        print([err for err in form.courses.errors])
+
+    elif request.method == "GET":
+        # prepopulate simple fields
         form.username.data = current_user.username
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
         form.email.data = current_user.email
         form.majors.data = current_user.majors
         form.gpa.data = current_user.gpa
-        form.courses.data = current_user.courses
         form.research_topics.data = current_user.research_topics
         form.languages.data = current_user.languages
+
+        # prepopulate list
+        form.courses.entries = []
+        for enrollment in current_user.courses:
+            sub = {}
+            sub['course'] = enrollment.course
+            sub['instructor'] = enrollment.instructor
+            sub['grade'] = enrollment.grade
+
+            form.courses.append_entry(sub)
+
     return render_template('edit_profile.html', title='Edit Profile',
-                           form=form)
+                           form=form, Course=Course, Faculty=Faculty)
 
 @student.route('/position/<position_id>/apply', methods=['GET', 'POST'])
 @login_required
