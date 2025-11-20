@@ -20,7 +20,7 @@
   <body>
 
 
-    <nav class="navbar navbar-light navbar-expand-lg" style="background-color: #b4cbdd;">
+    <nav class="navbar navbar-light navbar-expand-xl py-3" style="background-color: #b4cbdd;">
         <div class="container">
           <a class="navbar-brand" href="{{ url_for('main.index') }}">Role Matcher</a>
           <button class="navbar-toggler" type="button" >
@@ -64,6 +64,9 @@
                 <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">Login</a>
               </li>
               {% else %}
+              <li class="nav-item">
+                <span class="nav-link">Current user: {{ current_user.firstname or '' }} {{ current_user.lastname or '' }}</span>
+              </li>
               <li class="nav-item border border-light px-2 ms-2">
                 <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
               </li>
