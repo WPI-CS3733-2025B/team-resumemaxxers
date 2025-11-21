@@ -24,11 +24,8 @@ class RegistrationForm(FlaskForm):
 
     gpa = StringField('GPA', validators=[DataRequired()])
 
-    courses = QuerySelectMultipleField('Courses',
-                                       query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
-                                       get_label=lambda theCourse: theCourse.name,
-                                       widget=ListWidget(prefix_label=False),
-                                       option_widget=CheckboxInput())
+    # Unlimited list of course/instructor/grade tuples
+    courses = FieldList(FormField(CourseEnrollmentForm), min_entries=0)
 
     research_topics = QuerySelectMultipleField('Interests',
                                                query_factory=lambda: db.session.scalars(

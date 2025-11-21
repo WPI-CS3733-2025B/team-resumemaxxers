@@ -2,7 +2,7 @@ from app import db
 from flask import render_template, flash, redirect, url_for
 import sqlalchemy as sqla
 
-from app.main.models import Student, CourseEnrollment, Faculty
+from app.main.models import Student, CourseEnrollment, Faculty, Course
 from app.auth.auth_forms import RegistrationForm, LoginForm, RegistrationFormFaculty
 from flask_login import login_user, current_user, logout_user, login_required
 from app.auth import auth_blueprint as auth
@@ -22,9 +22,15 @@ def register():
                           languages=rform.languages.data
                           )
 
-        for enrollment in rform.courses.data:
-            # TODO: REPLACE PLACEHOLDER INSTRUCTOR. TAUGHT BY 1ST INSTRUCTOR IN THE DB BY DEFAULT
-            student.add_course(enrollment, instructor=db.session.scalars(sqla.select(Faculty)).first())
+        for entry in rform.courses.entries:
+            db.session.add(
+                CourseEnrollment(
+                    student=student,
+                    course=entry.form.course.data,
+                    instructor=entry.form.instructor.data,
+                    grade=entry.form.grade.data
+                )
+            )
 
         student.set_password(rform.password.data)
         db.session.add(student)
@@ -33,7 +39,7 @@ def register():
         login_user(student, remember=True)
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('main.index'))
-    return render_template('register.html', form=rform)
+    return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
 
 
 @auth.route('/faculty/login', methods = ['GET', 'POST'])

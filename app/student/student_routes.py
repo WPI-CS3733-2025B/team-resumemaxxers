@@ -85,10 +85,6 @@ def student_profile_view(student_id):
 @login_required
 def edit_profile():
     form = EditProfileForm()
-    for entry in form.courses.entries:
-        print(entry.form.course.data)
-        print(entry.form.instructor.data)
-        print(entry.form.grade.data)
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.firstname = form.firstname.data
