@@ -20,9 +20,20 @@ def faculty_profile_view(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
         flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index'))
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
 
     return render_template('faculty_profile.html', title=f"{faculty_user.firstname}'s Profile", user=faculty_user)
+
+@faculty.route('/faculty/<application_id>/view', methods=['GET'])
+@login_required
+def view_application(application_id):
+    application = db.session.get(Application, application_id)
+    if application is None:
+        flash('Application not found.', 'error')
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    
+    return render_template('application_detail_page.html', application=application)
+               
 
 @faculty.route('/faculty/<faculty_id>/index', methods=['GET'])
 @login_required
@@ -30,10 +41,11 @@ def faculty_index(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
         flash('Faculty not found.', 'error')
-        return redirect(url_for('faculty.index'))
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
 
-    Positions = db.session.scalars(sqla.select(Position))
-    return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user, positions=Positions  )
+    Positions = db.session.scalars(sqla.select(Position).where(Position.faculty_id == faculty_id)).all()
+    Applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == faculty_id)).all()
+    return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user, positions=Positions, applications=Applications )
 
 @faculty.route('/faculty/<faculty_id>/create_position', methods=['GET', 'POST'])
 @login_required

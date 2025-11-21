@@ -12,6 +12,13 @@
         
     </div>
     <div class="postlist">
+    {% for application in applications %}
+        <div class="post-box">
+        {% include 'application.html' %}
+        </div>
+    {% endfor %}
+    </div>
+    <div class="postlist">
     {% for position in positions %}
         <div class="post-box">
         {% include 'position_detail.html' %} 
