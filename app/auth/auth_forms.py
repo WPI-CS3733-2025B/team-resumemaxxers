@@ -1,11 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField, FormField, FieldList
 from wtforms.validators import Length, DataRequired, Email, EqualTo, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
 
 from app import db
 from app.main.models import *
+from app.auth.course_enrollment_subform import CourseEnrollmentForm
 import sqlalchemy as sqla
 
 
@@ -22,6 +23,9 @@ class RegistrationForm(FlaskForm):
                                       option_widget=CheckboxInput())
 
     gpa = StringField('GPA', validators=[DataRequired()])
+
+    # Unlimited list of course/instructor/grade tuples
+    courses = FieldList(FormField(CourseEnrollmentForm), min_entries=0)
 
     research_topics = QuerySelectMultipleField('Interests',
                                                query_factory=lambda: db.session.scalars(
@@ -74,6 +78,11 @@ class LoginForm(FlaskForm):
 
 
 
+class VerificationForm(FlaskForm):
+    code = StringField('Verification Code', validators=[DataRequired()])
+    submit = SubmitField('Verify')
+
+
 class EditProfileForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
@@ -83,7 +92,6 @@ class EditProfileForm(FlaskForm):
     lastname = StringField('Last Name', validators=[DataRequired()])
 
     email = StringField('Email', validators=[DataRequired(), Email()])
-
 
 
     majors = QuerySelectMultipleField('Majors',
@@ -97,10 +105,10 @@ class EditProfileForm(FlaskForm):
                                       option_widget=CheckboxInput())
 
 
-
     gpa = StringField('GPA', validators=[DataRequired()])
 
-
+    # Unlimited list of course/instructor/grade tuples
+    courses = FieldList(FormField(CourseEnrollmentForm), min_entries=0)
 
     research_topics = QuerySelectMultipleField('Interests',
 

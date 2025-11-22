@@ -87,6 +87,7 @@ class User(db.Model, UserMixin):
     username: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
     firstname: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64))
     lastname: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64))
+    verified: sqlo.Mapped[bool] = sqlo.mapped_column(sqla.Boolean, default=False, nullable=True)
     email: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(120), unique=True, index=True)
     password_hash: sqlo.Mapped[Optional[str]] = sqlo.mapped_column(sqla.String(256))
 
@@ -159,7 +160,7 @@ class Student(User):
         if topic not in self.research_topics:
             self.research_topics.append(topic)
 
-    def add_course(self, course, instructor, grade=None):
+    def add_course(self, course, instructor=None, grade=None):
         if not any(enrollment.course == course for enrollment in self.courses):
             new_enrollment = CourseEnrollment(
                 student=self,
@@ -229,11 +230,11 @@ class Faculty(User):
 
     def __repr__(self):
         return f'<Faculty {self.username}>'
-    
+
     @property
     def role(self):
         return "faculty"
-    
+
     def get_position_names(self):
         return [position.name for position in self.positions]
 
