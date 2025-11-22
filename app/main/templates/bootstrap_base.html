@@ -54,7 +54,7 @@
                   </li>
                 {% endif %} 
               {% endif %}
-                {% if not current_user.verified %}
+                {% if not current_user.verified and not current_user.is_anonymous %}
                     <li class="nav-item border border-light px-2 ms-2 ">
                         <td><a class="nav-link" aria-current="page" href="{{ url_for('auth.verify') }}">Verify</a></td>
                     </li>
