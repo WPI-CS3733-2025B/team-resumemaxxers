@@ -1,11 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField, FormField, FieldList
 from wtforms.validators import Length, DataRequired, Email, EqualTo, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
 
 from app import db
 from app.main.models import *
+from app.auth.course_enrollment_subform import CourseEnrollmentForm
 import sqlalchemy as sqla
 
 
@@ -23,11 +24,8 @@ class RegistrationForm(FlaskForm):
 
     gpa = StringField('GPA', validators=[DataRequired()])
 
-    courses = QuerySelectMultipleField('Courses',
-                                       query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
-                                       get_label=lambda theCourse: theCourse.name,
-                                       widget=ListWidget(prefix_label=False),
-                                       option_widget=CheckboxInput())
+    # Unlimited list of course/instructor/grade tuples
+    courses = FieldList(FormField(CourseEnrollmentForm), min_entries=0)
 
     research_topics = QuerySelectMultipleField('Interests',
                                                query_factory=lambda: db.session.scalars(
@@ -104,11 +102,8 @@ class EditProfileForm(FlaskForm):
 
     gpa = StringField('GPA', validators=[DataRequired()])
 
-    courses = QuerySelectMultipleField('Courses',
-                                       query_factory=lambda: db.session.scalars(sqla.select(Course).order_by(Course.name)),
-                                       get_label=lambda theCourse: theCourse.name,
-                                       widget=ListWidget(prefix_label=False),
-                                       option_widget=CheckboxInput())
+    # Unlimited list of course/instructor/grade tuples
+    courses = FieldList(FormField(CourseEnrollmentForm), min_entries=0)
 
     research_topics = QuerySelectMultipleField('Interests',
 

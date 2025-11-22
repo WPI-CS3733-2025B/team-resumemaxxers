@@ -1,21 +1,99 @@
 {% extends "bootstrap_base.html" %}
 {% import 'bootstrap_wtf.html' as wtf %}
- 
 
 {% block content %}
-<h1> Edit Profile </h1>
+<h1>Edit Profile</h1>
 
-<form action = "{{url_for('student.edit_profile')}}" method = "POST">
-    {{ form.hidden_tag()}}
-    {{wtf.form_field(form.username)}}
-    {{wtf.form_field(form.firstname)}}
-    {{wtf.form_field(form.lastname)}}
-    {{wtf.form_field(form.email)}}
-    {{wtf.form_field(form.majors)}}
-    {{wtf.form_field(form.gpa)}}
-    {{wtf.form_field(form.courses)}}
-    {{wtf.form_field(form.research_topics)}}
-    {{wtf.form_field(form.languages)}}
-    {{wtf.form_field(form.submit)}}
+<form action="{{ url_for('student.edit_profile') }}" method="POST">
+    {{ form.hidden_tag() }}
+
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.firstname) }}
+    {{ wtf.form_field(form.lastname) }}
+    {{ wtf.form_field(form.email) }}
+    {{ wtf.form_field(form.majors) }}
+    {{ wtf.form_field(form.gpa) }}
+
+    <h3>Courses</h3>
+
+    <div id="course-list">
+        {% for entry in form.courses %}
+        <div class="course-row border rounded p-2 my-2">
+
+            <div class="mb-2">
+                {{ entry.course.label }}
+                {{ entry.course(class="form-select") }}
+            </div>
+
+            <div class="mb-2">
+                {{ entry.instructor.label }}
+                {{ entry.instructor(class="form-select") }}
+            </div>
+
+            <div class="mb-2">
+                {{ entry.grade.label }}
+                {{ entry.grade(class="form-control") }}
+            </div>
+
+            <button type="button" class="btn btn-danger remove-row">Remove</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-row" class="btn btn-secondary my-3">Add Course</button>
+
+    {{ wtf.form_field(form.research_topics) }}
+    {{ wtf.form_field(form.languages) }}
+
+    <hr>
+    {{ wtf.form_field(form.submit) }}
 </form>
+
+<script>
+    document.getElementById("add-row").onclick = function() {
+        const list = document.getElementById("course-list");
+        const index = list.children.length;
+
+        const template = `
+        <div class="course-row border rounded p-2 my-2">
+
+            <div class="mb-2">
+                <label>Course</label>
+                <select name="courses-${index}-course" class="form-select">
+                    {% for c in Course.query.order_by(Course.coursenum).all() %}
+                        <option value="{{ c.id }}">{{ c.coursenum }} – {{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label>Instructor</label>
+                <select name="courses-${index}-instructor" class="form-select">
+                    <option value="">-- None --</option>
+                    {% for f in Faculty.query.order_by(Faculty.lastname).all() %}
+                        <option value="{{ f.id }}">{{ f.lastname }}, {{ f.firstname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label>Grade</label>
+                <input name="courses-${index}-grade" class="form-control">
+            </div>
+
+            <button type="button" class="btn btn-danger remove-row">Remove</button>
+        </div>`;
+
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = template;
+        list.appendChild(wrapper);
+    };
+
+    document.addEventListener("click", e => {
+        if (e.target.classList.contains("remove-row")) {
+            e.target.closest(".course-row").remove();
+        }
+    });
+</script>
+
 {% endblock %}
