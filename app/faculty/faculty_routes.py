@@ -33,6 +33,32 @@ def view_application(application_id):
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
     
     return render_template('application_detail_page.html', application=application)
+
+
+@faculty.route('/faculty/<application_id>/approve', methods=['GET'])
+@login_required
+def student_approve(application_id):
+    application = db.session.get(Application, application_id)
+    if application is None:
+        flash('Application not found.', 'error')
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    application.status = "approved"
+    db.session.commit()
+    flash("Student approved :)")
+    return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+
+
+@faculty.route('/faculty/<application_id>/reject', methods=['GET'])
+@login_required
+def student_reject(application_id):
+    application = db.session.get(Application, application_id)
+    if application is None:
+        flash('Application not found.', 'error')
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    application.status = "rejected"
+    db.session.commit()
+    flash("Student rejected :(")
+    return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
                
 
 @faculty.route('/faculty/<faculty_id>/index', methods=['GET'])

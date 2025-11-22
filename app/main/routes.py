@@ -72,6 +72,9 @@ def view_position(position_id):
 
 @main.route('/student_list/<position_id>/view', methods=['GET'])
 @login_required
-def view_student_list(position_id):
-    position=Position.query.get_or_404(position_id)
-    return render_template('apply_student_list.html',position=position) 
+def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES I GUESS...
+    if isinstance(current_user, Faculty):  # if current user is faculty
+        position=Position.query.get_or_404(position_id)
+        return render_template('apply_student_list.html',position=position)
+    else:
+        return "Permission denied: you are not a faculty member"
