@@ -1,0 +1,7 @@
+<div class="card text-center w-100">
+  <div class="card-body">
+    <h5 class="card-title"> {{ student.student.firstname }} {{ student.student.lastname }}</h5>
+    <a href="{{ url_for('faculty.view_application', application_id=student.id) }}" class="btn btn-primary">View Details</a>
+    <a href="{{ url_for('student.student_profile_view', student_id=student.student.id) }}" class="btn btn-primary">View Profile</a>
+</div>
+</div>

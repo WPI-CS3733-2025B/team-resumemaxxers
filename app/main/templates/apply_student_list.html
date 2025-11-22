@@ -5,18 +5,17 @@
 
     <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
 
-        <div class="me-3">
-            <h1 class="mb-1">Welcome, faculty member!</h1>
-        </div>
+    
 
         
     </div>
     <div class="postlist">
-    {% for position in positions %}
-        <div class="post-box">
-        {% include 'position_detail.html' %} 
-        </div>
-    {% endfor %}
+        
+        {% for student in position.applications %}
+            <div class="post-box">
+            {% include 'student_card.html' %} 
+            </div>
+        {% endfor %}
     </div>
-  
+    
 {% endblock %}  
