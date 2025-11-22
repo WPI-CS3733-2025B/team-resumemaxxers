@@ -87,6 +87,7 @@ class User(db.Model, UserMixin):
     username: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64), unique=True, index=True)
     firstname: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64))
     lastname: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(64))
+    verified: sqlo.Mapped[bool] = sqlo.mapped_column(sqla.Boolean, default=False, nullable=True)
     email: sqlo.Mapped[str] = sqlo.mapped_column(sqla.String(120), unique=True, index=True)
     password_hash: sqlo.Mapped[Optional[str]] = sqlo.mapped_column(sqla.String(256))
 
