@@ -1,0 +1,21 @@
+{% extends "bootstrap_base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
+
+{% block content %}
+
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+
+    
+
+        
+    </div>
+    <div class="postlist">
+        
+        {% for student in position.applications %}
+            <div class="post-box">
+            {% include 'student_card.html' %} 
+            </div>
+        {% endfor %}
+    </div>
+    
+{% endblock %}  
