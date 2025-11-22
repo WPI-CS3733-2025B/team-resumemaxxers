@@ -91,3 +91,40 @@ def create_position(faculty_id):
                 print(err)
 
     return render_template('create_position.html', title='Create Position', form=cform, user=faculty_user)
+
+
+@faculty.route('/faculty/<position_id>/edit_position', methods=['GET', 'POST'])
+@login_required
+def edit_position(position_id):
+    form = EditPositionForm()
+    position=Position.query.get_or_404(position_id)
+    if form.validate_on_submit():
+        position.name = form.name.data
+        position.description = form.description.data
+        position.start_date = form.start_date.data
+        position.end_date = form.end_date.data
+        position.team_size = form.team_size.data
+        position.min_gpa = form.min_gpa.data
+        position.ref_required = form.ref_required.data
+        position.faculty = form.faculty.data
+        position.majors = form.majors.data
+        position.research_topics = form.research_topics.data
+        position.courses = form.courses.data
+        position.languages = form.languages.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('main.view_position', position_id=position.id))
+    elif request.method == 'GET':
+        form.name.data = position.name
+        form.description.data = position.description
+        form.start_date.data = position.start_date
+        form.end_date.data = position.end_date
+        form.team_size.data = position.team_size
+        form.min_gpa.data = position.min_gpa
+        form.ref_required.data = position.ref_required
+        form.faculty.data = position.faculty
+        form.majors.data = position.majors
+        form.research_topics.data = position.research_topics
+        form.courses.data = position.courses
+        form.languages.data = position.languages
+    return render_template('edit_position.html', title='Edit Position', form=form, position=position)

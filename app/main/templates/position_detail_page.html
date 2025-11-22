@@ -103,6 +103,9 @@
                       Apply for this Position
                   </a>
               {% endif %}
+              {% if current_user.role == 'faculty' %}
+                    <p><a href="{{ url_for('faculty.edit_position', position_id=position.id) }}" class="btn btn-primary">Edit Position</a></p>
+              {% endif %}
   
           </section>
         
