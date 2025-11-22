@@ -54,6 +54,14 @@
                   </li>
                 {% endif %} 
               {% endif %}
+                {% if not current_user.verified and not current_user.is_anonymous %}
+                    <li class="nav-item border border-light px-2 ms-2 ">
+                        <td><a class="nav-link" aria-current="page" href="{{ url_for('auth.verify') }}">Verify</a></td>
+                    </li>
+                    <li class="nav-item border border-light px-2 ms-2 ">
+                        <td><a class="nav-link" aria-current="page" href="{{ url_for('auth.resend_verification') }}">Resend Verification Code</a></td>
+                    </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav mb-2 mb-lg-0">
               {% if current_user.is_anonymous %}
