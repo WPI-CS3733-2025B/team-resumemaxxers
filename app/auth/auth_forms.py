@@ -78,6 +78,11 @@ class LoginForm(FlaskForm):
 
 
 
+class VerificationForm(FlaskForm):
+    code = StringField('Verification Code', validators=[DataRequired()])
+    submit = SubmitField('Verify')
+
+
 class EditProfileForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
