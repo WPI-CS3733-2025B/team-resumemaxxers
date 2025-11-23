@@ -17,58 +17,44 @@ from app.student import student_blueprint as student
 @student.route('/student/<student_id>/index', methods=['GET', 'POST'])
 @login_required
 def student_index(student_id):
-    student = db.session.get(Student, student_id)
-    if student is None:
-        flash('Student not found.', 'error')
-        return redirect(url_for('main.index'))
+        form = SortForm()
 
-    # Get all positions and recommendations for the student
-    positions = Position.query.all()
-    recommendations = []
-    recommendations = student.recommended_positions()
+        majors = db.session.scalars(sqla.select(Major)).all()
+        form.majors.choices = [(m.id, m.name) for m in majors]
 
-    form = SortForm()
+        courses = db.session.scalars(sqla.select(Course)).all()
+        form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
 
-    Positions = sqla.select(Position)
-    majors = db.session.scalars(sqla.select(Major)).all()
-    form.majors.choices = [('', 'Select Major')] + [(m.id, m.name) for m in majors]
+        instructors = db.session.scalars(sqla.select(Faculty)).all()
+        form.course_instructors.choices = [('', 'Instructor')] + [(i.id, f"{i.firstname} {i.lastname or ''}".strip())
+                                                                  for i in instructors]
 
-    courses = db.session.scalars(sqla.select(Course)).all()
-    form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
+        topics = db.session.scalars(sqla.select(ResearchTopic).distinct()).all()
+        form.research_topics.choices = [('', 'Topic')] + [(t.name, t.name) for t in topics]
 
-    instructors = db.session.scalars(sqla.select(Faculty)).all()
-    form.course_instructors.choices = [('', 'Instructor')] + [(i.id, f"{i.firstname} {i.lastname or ''}".strip()) for i
-                                                              in instructors]
+        languages = db.session.scalars(sqla.select(Language).distinct()).all()
+        form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
 
-    topics = db.session.scalars(sqla.select(ResearchTopic).distinct()).all()
-    form.research_topics.choices = [('', 'Topic')] + [(t.name, t.name) for t in topics]
+        Positions = sqla.select(Position)
+        if form.validate_on_submit():
+            if form.majors.data and len(form.majors.data) > 0:
+                Positions = Positions.join(Position.majors).where(Major.id.in_(form.majors.data)).distinct()
+            if form.courses.data:
+                Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
+            if form.grades.data:
+                Positions = Positions.where(Position.min_gpa >= float(form.grades.data))
+            if form.course_instructors.data:
+                Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
+            if form.research_topics.data:
+                Positions = Positions.join(Position.research_topics).where(
+                    ResearchTopic.name == form.research_topics.data)
+            if form.languages.data:
+                Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
 
-    languages = db.session.scalars(sqla.select(Language).distinct()).all()
-    form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
-
-    if form.validate_on_submit():
-        if form.majors.data:
-            Positions = Positions.join(Position.majors).where(Major.id == form.majors.data)
-        if form.courses.data:
-            Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
-        if form.grades.data:
-            Positions = Positions.where(Position.min_gpa >= float(form.grades.data))
-        if form.course_instructors.data:
-            Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
-        if form.research_topics.data:
-            Positions = Positions.join(Position.research_topics).where(ResearchTopic.name == form.research_topics.data)
-        if form.languages.data:
-            Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
-
-    PositionsA = db.session.scalars(Positions).all()
-
-    return render_template(
-        'student_index.html',
-        positions=PositionsA,
-        recommendations=recommendations,
-        student=student,
-        form=form
-    )
+        Students = db.session.scalars(sqla.select(Student))
+        PositionsA = db.session.scalars(Positions).all()
+        return render_template('student_index.html', title="Course List", students=Students, form=form,
+                               positions=PositionsA)
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
 @login_required
@@ -76,7 +62,7 @@ def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:
         flash('Student not found.', 'error')
-        return redirect(url_for('student.index'))
+        return redirect(url_for('main.index'))
 
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
 
