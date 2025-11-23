@@ -16,36 +16,36 @@
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.majors.id }}">Majors</label>
-                    {{ form.majors(multiple='multiple', class_="form-select form-select-sm") }}
+                    {{ form.majors() }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.courses.id }}">Courses</label>
-                    {{ form.courses(class_="form-select form-select-sm") }}
+                    {{ form.courses() }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.grades.id }}">Grades</label>
-                    {{ form.grades(class_="form-control form-control-sm") }}
+                    {{ form.grades() }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.course_instructors.id }}">Course instructors</label>
-                    {{ form.course_instructors(class_="form-select form-select-sm") }}
+                    {{ form.course_instructors() }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.research_topics.id }}">Research topics</label>
-                    {{ form.research_topics(class_="form-select form-select-sm") }}
+                    {{ form.research_topics() }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.languages.id }}">Programming languages</label>
-                    {{ form.languages(class_="form-select form-select-sm") }}
+                    {{ form.languages() }}
                 </div>
 
                 <div class="d-flex align-items-end">
-                    {{ form.Refresh(class_="btn btn-outline-success btn-sm") }}
+                    {{ form.Refresh() }}
                 </div>
 
                 <div class="d-flex align-items-end">

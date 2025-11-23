@@ -23,33 +23,33 @@ def student_index(student_id):
         form.majors.choices = [(m.id, m.name) for m in majors]
 
         courses = db.session.scalars(sqla.select(Course)).all()
-        form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
+        form.courses.choices = [(c.id, c.name) for c in courses]
 
         instructors = db.session.scalars(sqla.select(Faculty)).all()
-        form.course_instructors.choices = [('', 'Instructor')] + [(i.id, f"{i.firstname} {i.lastname or ''}".strip())
+        form.course_instructors.choices = [(i.id, f"{i.firstname} {i.lastname or ''}".strip())
                                                                   for i in instructors]
 
         topics = db.session.scalars(sqla.select(ResearchTopic).distinct()).all()
-        form.research_topics.choices = [('', 'Topic')] + [(t.name, t.name) for t in topics]
+        form.research_topics.choices = [(t.name, t.name) for t in topics]
 
         languages = db.session.scalars(sqla.select(Language).distinct()).all()
-        form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
+        form.languages.choices = [(l.name, l.name) for l in languages]
 
         Positions = sqla.select(Position)
         if form.validate_on_submit():
             if form.majors.data and len(form.majors.data) > 0:
                 Positions = Positions.join(Position.majors).where(Major.id.in_(form.majors.data)).distinct()
             if form.courses.data:
-                Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
+                Positions = Positions.join(Position.courses).where(Position.id.in_(form.courses.data))
             if form.grades.data:
                 Positions = Positions.where(Position.min_gpa >= float(form.grades.data))
             if form.course_instructors.data:
-                Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
+                Positions = Positions.join(Position.faculty).where(Faculty.id.in_(form.course_instructors.data))
             if form.research_topics.data:
                 Positions = Positions.join(Position.research_topics).where(
-                    ResearchTopic.name == form.research_topics.data)
+                    ResearchTopic.name.in_(form.research_topics.data))
             if form.languages.data:
-                Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
+                Positions = Positions.join(Position.languages).where(Language.name.in_(form.languages.data))
 
         Students = db.session.scalars(sqla.select(Student))
         PositionsA = db.session.scalars(Positions).all()
