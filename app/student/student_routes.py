@@ -210,3 +210,18 @@ def recommended():
     return render_template('recommended_positions.html',
                            positions=positions,
                            title="Recommended Positions")
+
+@student.route('/student/dashboard', methods=['GET'])
+@login_required
+def student_dashboard():
+    if not isinstance(current_user._get_current_object(), Student):
+        flash("Only students can view the dashboard.")
+        return redirect(url_for('main.index'))
+
+    applications = current_user.applications
+    recommendations = current_user.recommendations
+
+    return render_template('student_dashboard.html',
+                           applications=applications,
+                           recommendations=recommendations,
+                           title="Student Dashboard")

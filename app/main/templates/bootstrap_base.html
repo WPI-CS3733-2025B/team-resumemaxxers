@@ -45,6 +45,9 @@
                   <li class="nav-item border border-light px-2 ms-2 " >
                     <a class="nav-link" aria-current="page" href="{{ url_for('student.student_profile_view', student_id = current_user.id) }}">Profile</a>
                   </li>
+                  <li class="nav-item border border-light px-2 ms-2 " >
+                    <a class="nav-link" aria-current="page" href="{{ url_for('student.student_dashboard') }}">Dashboard</a>
+                  </li>
                 {% elif current_user.role == 'faculty' %}
                   <li class="nav-item border border-light px-2 ms-2 ">
                     <a class="nav-link" aria-current="page" href="{{ url_for('faculty.faculty_profile_view', faculty_id = current_user.id) }}">Profile</a>
@@ -86,9 +89,9 @@
 
       
     <div class="container mt-3">
-      {% with messages = get_flashed_messages() %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for message in messages %}
+        {% for category, message in messages %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
         {% endfor %}
       {% endif %}

@@ -56,6 +56,7 @@ def init_database(request, test_client):
     dr_grace_hopper = Faculty(username='dr_grace_hopper', email='grace@hopper.com', firstname='Grace',
                               lastname='Hopper', id=68)
 
+    jane_doe.set_password("testing")
     john_smith.set_password("67")
     dr_grace_hopper.set_password("68")
 
@@ -107,6 +108,33 @@ def init_database(request, test_client):
     yield  # this is where the testing happens!
 
     db.drop_all()
+
+
+def test_student_dashboard_loads(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/student/dashboard' page is requested (GET)
+    THEN check that the response is valid
+    """
+    do_login(test_client, path='/login', username='jane_doe', passwd='testing', user_role="student")
+
+    response = test_client.get('/student/dashboard')
+    assert response.status_code == 200
+    assert b"Student Dashboard" in response.data
+    assert b"My Applications" in response.data
+    assert b"My Recommendations" in response.data
+
+    # Check for application details
+    assert b"Research Assistant" in response.data
+    assert b"pending" in response.data
+
+    # Check for recommendation details
+    assert b"Research Assistant" in response.data
+    assert b"Grace" in response.data
+    assert b"Hopper" in response.data
+    assert b"Approved" in response.data
+
+    do_logout(test_client, path='/logout')
 
 
 def test_student_registration_page_loads(request, test_client, init_database):
@@ -205,8 +233,11 @@ def test_faculty_can_create_position(request, test_client, init_database):
         'ref_required': 'y',  # 'y' for 'True' in some WTForms BooleanField handling
         'start_date': '2023-01-01',
         'end_date': '2023-12-31',
-        'csrf_token': 'test'
-        # CSRF token often required for POST forms, use a dummy for testing if WTF_CSRF_ENABLED is False
+        'csrf_token': 'test',
+        'majors': [],
+        'research_topics': [],
+        'languages': [],
+        'courses': []
     }
 
     # POST request to submit the form
