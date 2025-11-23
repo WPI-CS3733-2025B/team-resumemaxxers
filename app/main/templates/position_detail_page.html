@@ -104,7 +104,8 @@
                   </a>
               {% endif %}
               {% if current_user.role == 'faculty' %}
-                    <p><a href="{{ url_for('faculty.edit_position', position_id=position.id) }}" class="btn btn-primary">Edit Position</a></p>
+                    <a href="{{ url_for('faculty.edit_position', position_id=position.id) }}" class="btn btn-secondary">Edit Position</a>
+                    <a href="{{ url_for('faculty.delete_position', position_id=position.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this position?');">Delete Position</a>
               {% endif %}
   
           </section>

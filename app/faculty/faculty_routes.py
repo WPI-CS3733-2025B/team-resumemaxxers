@@ -154,3 +154,22 @@ def edit_position(position_id):
         form.courses.data = position.courses
         form.languages.data = position.languages
     return render_template('edit_position.html', title='Edit Position', form=form, position=position)
+
+
+@faculty.route('/faculty/<position_id>/delete_position', methods=['GET', 'POST'])
+@login_required
+def delete_position(position_id):
+    position = Position.query.get_or_404(position_id)
+    
+    # Check authorization - only the faculty who created it can delete
+    if current_user.role != 'faculty' or position.faculty_id != current_user.id:
+        flash('You are not authorized to delete this position.', 'error')
+        return redirect(url_for('main.index'))
+    
+    # Delete related applications first to maintain referential integrity
+    Application.query.filter_by(position_id=position.id).delete()
+    
+    db.session.delete(position)
+    db.session.commit()
+    flash('Position deleted successfully!', 'success')
+    return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
