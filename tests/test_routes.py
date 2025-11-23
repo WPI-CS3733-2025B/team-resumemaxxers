@@ -2,8 +2,7 @@ import os
 import pytest
 from flask import url_for
 from app import create_app, db
-from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, Course, ResearchTopic, \
-    Language, CourseEnrollment
+from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, Course, ResearchTopic,     Language, CourseEnrollment
 from config import Config
 import sqlalchemy as sqla
 
@@ -158,7 +157,6 @@ def test_login_with_invalid_credentials_fails(request, test_client, init_databas
     assert response.status_code == 200
     assert b"Sign In" in response.data
 
-
 def do_login(test_client, path, username, passwd, user_role):
     response = test_client.post(path,
                                 data=dict(username=username, password=passwd, role=user_role, remember_me=False),
@@ -166,14 +164,12 @@ def do_login(test_client, path, username, passwd, user_role):
     assert response.status_code == 200
     assert b"Logout" in response.data
 
-
 def do_logout(test_client, path):
     response = test_client.get(path,
                                follow_redirects=True)
     assert response.status_code == 200
     # Assuming the application re-directs to login page after logout.
     assert b"Sign In" in response.data
-
 
 def test_student_login_and_logout_succeeds(request, test_client, init_database):
     """
@@ -297,3 +293,27 @@ def test_edit_student_profile(request, test_client, init_database):
     # Assert the response after redirect
     assert response.status_code == 200
     assert b"3.4" in response.data
+
+def test_student_cannot_apply_twice(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a student tries to apply for the same position twice
+    THEN the second application should be rejected
+    """
+    do_login(test_client, path='/login', username='john_smith', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
+        assert position is not None
+
+    # First application
+    response = test_client.post(f'/position/{position.id}/apply', data={'statement': 'Test application'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Application submitted successfully!" in response.data
+
+    # Second application
+    response = test_client.post(f'/position/{position.id}/apply', data={'statement': 'Another test application'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"You have already applied for this position." in response.data
+
+    do_logout(test_client, path='/logout')

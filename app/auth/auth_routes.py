@@ -43,7 +43,7 @@ def register():
         Head of Vibe Coding | Research App Development Team
         """
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server = smtplib.SMTP("smtp.gmail.com", 587, local_hostname="localhost")
         server.starttls()
         server.login("louisdothong@gmail.com", "csoh iypq lzib qpzm")  # this is just a throwaway email, I don't really care abt my password being here. If you want, make a .env
         server.sendmail("louisdothong@gmail.com", rform.email.data, message, subject)
@@ -145,7 +145,7 @@ def resend_verification():
             Head of Vibe Coding | Research App Development Team
             """
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server = smtplib.SMTP("smtp.gmail.com", 587, local_hostname="localhost")
     server.starttls()
     server.login("louisdothong@gmail.com",
                  "csoh iypq lzib qpzm")  # this is just a throwaway email, I don't really care abt my password being here. If you want, make a .env
