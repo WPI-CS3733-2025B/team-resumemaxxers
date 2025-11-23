@@ -16,3 +16,8 @@ class Config(object):
     TEMPLATE_FOLDER_AUTH = os.path.join(basedir, 'app//auth//templates')
     TEMPLATE_FOLDER_STUDENT = os.path.join(basedir, 'app//student//templates')
     TEMPLATE_FOLDER_FACULTY = os.path.join(basedir, 'app//faculty//templates')
+    # Email settings
+    SMTP_SERVER = 'smtp.gmail.com'
+    SMTP_PORT = 587
+    SMTP_USERNAME = os.environ.get('SMTP_USERNAME') or 'louisdothong@gmail.com'
+    SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD') or 'csoh iypq lzib qpzm'

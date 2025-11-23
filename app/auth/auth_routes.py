@@ -6,7 +6,7 @@ from app.main.models import Student, CourseEnrollment, Faculty, Course
 from app.auth.auth_forms import RegistrationForm, LoginForm, RegistrationFormFaculty, VerificationForm
 from flask_login import login_user, current_user, logout_user, login_required
 from app.auth import auth_blueprint as auth
-import smtplib
+from app.email import send_email
 import hashlib
 
 
@@ -28,8 +28,6 @@ def register():
         vercode_unhashed = student.email + "SALT!!!"
         subject = "Your Verification Code For Research App"
         message = f"""
-        Subject: {subject}
-
         Greetings, {rform.username.data}!
 
         Please find your verification code below:
@@ -43,11 +41,7 @@ def register():
         Head of Vibe Coding | Research App Development Team
         """
 
-        server = smtplib.SMTP("smtp.gmail.com", 587, local_hostname="localhost")
-        server.starttls()
-        server.login("louisdothong@gmail.com", "csoh iypq lzib qpzm")  # this is just a throwaway email, I don't really care abt my password being here. If you want, make a .env
-        server.sendmail("louisdothong@gmail.com", rform.email.data, message, subject)
-        server.quit()
+        send_email(rform.email.data, subject, message)
 
         for entry in rform.courses.entries:
             db.session.add(
@@ -130,8 +124,6 @@ def resend_verification():
     vercode_unhashed = current_user.email + "SALT!!!"
     subject = "Your Verification Code For Research App"
     message = f"""
-            Subject: {subject}
-
             Greetings, {current_user.username}!
 
             Please find your verification code below:
@@ -145,12 +137,7 @@ def resend_verification():
             Head of Vibe Coding | Research App Development Team
             """
 
-    server = smtplib.SMTP("smtp.gmail.com", 587, local_hostname="localhost")
-    server.starttls()
-    server.login("louisdothong@gmail.com",
-                 "csoh iypq lzib qpzm")  # this is just a throwaway email, I don't really care abt my password being here. If you want, make a .env
-    server.sendmail("louisdothong@gmail.com", current_user.email, message, subject)
-    server.quit()
+    send_email(current_user.email, subject, message)
 
     flash(
         'Please check your email (and your spam folder) for a verification code.')
