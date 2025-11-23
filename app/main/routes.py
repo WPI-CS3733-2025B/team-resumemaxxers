@@ -24,16 +24,16 @@ def index():
     form.majors.choices = [(m.id, m.name) for m in majors]
 
     courses = db.session.scalars(sqla.select(Course)).all()
-    form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
+    form.courses.choices = [(c.id, c.name) for c in courses]
 
     instructors = db.session.scalars(sqla.select(Faculty)).all()
-    form.course_instructors.choices = [('', 'Instructor')] + [(i.id, f"{i.firstname} {i.lastname or ''}".strip()) for i in instructors]
+    form.course_instructors.choices = [(i.id, f"{i.firstname} {i.lastname or ''}".strip()) for i in instructors]
 
     topics = db.session.scalars(sqla.select(ResearchTopic).distinct()).all()
-    form.research_topics.choices = [('', 'Topic')] + [(t.name, t.name) for t in topics]
+    form.research_topics.choices = [(t.name, t.name) for t in topics]
 
     languages = db.session.scalars(sqla.select(Language).distinct()).all()
-    form.languages.choices = [('', 'Language')] + [(l.name, l.name) for l in languages]
+    form.languages.choices = [(l.name, l.name) for l in languages]
 
     Positions = sqla.select(Position)
     if form.validate_on_submit(): 
@@ -51,6 +51,7 @@ def index():
             Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
 
     Students = db.session.scalars(sqla.select(Student))
+    Faculties = db.session.scalars(sqla.select(Faculty))
     PositionsA = db.session.scalars(Positions).all()
     if current_user.is_authenticated:
         if current_user.role == 'faculty':
