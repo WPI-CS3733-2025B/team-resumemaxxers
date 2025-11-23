@@ -14,8 +14,8 @@
     {{ wtf.form_field(form.majors) }}
     {{ wtf.form_field(form.gpa) }}
 
-    <h3>Courses</h3>
-
+    <h6>Courses</h6>
+    <button type="button" id="add-row" class="btn btn-secondary my-3">Add Course</button>
     <div id="course-list">
         {% for entry in form.courses %}
         <div class="course-row border rounded p-2 my-2">
@@ -40,12 +40,11 @@
         {% endfor %}
     </div>
 
-    <button type="button" id="add-row" class="btn btn-secondary my-3">Add Course</button>
+
 
     {{ wtf.form_field(form.research_topics) }}
     {{ wtf.form_field(form.languages) }}
 
-    <hr>
     {{ wtf.form_field(form.submit) }}
 </form>
 
