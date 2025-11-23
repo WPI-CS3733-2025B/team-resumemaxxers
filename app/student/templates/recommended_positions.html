@@ -7,20 +7,20 @@
     <ul class="list-group">
       {% for p in positions %}
         <li class="list-group-item">
-          <h4>{{ p.title }}</h4>
-          {% if p.major %}<p><strong>Preferred major:</strong> {{ p.major }}</p >{% endif %}
-          {% if p.min_gpa %}<p><strong>Minimum GPA:</strong> {{ p.min_gpa }}</p >{% endif %}
-          {% if p.tags %}<p><strong>Tags:</strong> {{ p.tags }}</p >{% endif %}
-          <p>{{ p.description }}</p >
+          <h4>{{ p.name }}</h4>
+          {% if p.majors %}<p><strong>Preferred majors:</strong> {% for m in p.majors %}{{ m.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+          {% if p.min_gpa %}<p><strong>Minimum GPA:</strong> {{ p.min_gpa }}</p>{% endif %}
+          {% if p.research_topics %}<p><strong>Research Topics:</strong> {% for t in p.research_topics %}{{ t.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+          <p>{{ p.description }}</p>
 
           <a class="btn btn-sm btn-primary"
-             href=" {{ url_for('student.apply_position', position_id=p.id) }}">
+             href="{{ url_for('student.apply_position', position_id=p.id) }}">
             Apply
-          </a >
+          </a>
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>No positions match your profile yet. Try updating your profile or check back later.</p >
+    <p>No positions match your profile yet. Try updating your profile or check back later.</p>
   {% endif %}
 {% endblock %}

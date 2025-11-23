@@ -182,7 +182,31 @@ def recommended():
         flash("Only students can view recommended positions.")
         return redirect(url_for('main.index'))
 
-    positions = current_user.recommended_positions()
+    try:
+        # Get all positions for comparison
+        all_positions = Position.query.all()
+        print(f"\nDEBUG: Total positions in database: {len(all_positions)}")
+        print(f"DEBUG: Student GPA: {current_user.gpa}")
+        print(f"DEBUG: Student majors: {[m.name for m in current_user.majors]}")
+        print(f"DEBUG: Student research topics: {[t.name for t in current_user.research_topics]}")
+        
+        for pos in all_positions:
+            print(f"\nPosition: {pos.name}")
+            print(f"  - Min GPA: {pos.min_gpa}")
+            print(f"  - Majors: {[m.name for m in pos.majors]}")
+            print(f"  - Research Topics: {[t.name for t in pos.research_topics]}")
+        
+        positions = current_user.recommended_positions()
+        print(f"\nDEBUG: Found {len(positions)} recommended positions for student {current_user.username}")
+        
+        flash(f"Found {len(positions)} recommended positions out of {len(all_positions)} total positions.", "info")
+    except Exception as e:
+        print(f"ERROR in recommended_positions: {e}")
+        import traceback
+        traceback.print_exc()
+        flash(f"Error getting recommendations: {str(e)}", "error")
+        positions = []
+    
     return render_template('recommended_positions.html',
                            positions=positions,
                            title="Recommended Positions")

@@ -171,57 +171,54 @@ class Student(User):
             db.session.add(new_enrollment)
     
     def recommended_positions(self):
-        q = Position.query
+        """
+        Return positions that match the student's profile.
+        A position is recommended if the student meets ALL of these:
+        1. Meets the GPA requirement (or position has no GPA requirement)
+        2. Has at least one matching major (or position has no major requirement)
+        3. Has at least one matching research topic (or position has no topic requirement)
+        """
+        from sqlalchemy import and_, or_
+        
+        filters = []
 
+        # GPA filter: student must meet the requirement
         if self.gpa is not None:
-            q = q.filter(
-                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
+            filters.append(
+                or_(Position.min_gpa.is_(None), Position.min_gpa <= self.gpa)
             )
+        else:
+            # If student has no GPA, only show positions with no GPA requirement
+            filters.append(Position.min_gpa.is_(None))
 
-        if self.majors:
-            q = q.filter(
-                or_(
-                    ~Position.majors.any(),
-                    Position.majors.any(Major.id.in_([m.id for m in self.majors]))
-                )
-            )
-
-        if self.research_topics:
-            q = q.filter(
-                or_(
-                    ~Position.research_topics.any(), 
-                    Position.research_topics.any(ResearchTopic.name.in_([t.name for t in self.research_topics]))
-                )
-            )
-
-        return q.all()
-
-    def recommended_positions(self):
-        q = Position.query
-
-        # GPA filter
-        if self.gpa is not None:
-            q = q.filter(
-                or_(Position.min_gpa == None, Position.min_gpa <= self.gpa)
-            )
-
-        # Majors filter
+        # Majors filter: student must have at least one matching major OR position has no requirements
         if self.majors:
             major_ids = [m.id for m in self.majors]
-            q = q.filter(
-                ~Position.majors.any(Major.id.notin_(major_ids))
-            )
-
-        # Research topics filter
-        if self.research_topics:
-            topic_names = [t.name for t in self.research_topics]
-            q = q.filter(
-                ~Position.research_topics.any(
-                    ResearchTopic.name.notin_(topic_names)
+            filters.append(
+                or_(
+                    ~Position.majors.any(),  # Position has no major requirements
+                    Position.majors.any(Major.id.in_(major_ids))  # Match at least one major
                 )
             )
+        else:
+            # If student has no majors, only show positions with no major requirements
+            filters.append(~Position.majors.any())
 
-        return q.all()
+        # Research topics filter: student must have at least one matching topic OR position has no requirements
+        if self.research_topics:
+            topic_names = [t.name for t in self.research_topics]
+            filters.append(
+                or_(
+                    ~Position.research_topics.any(),  # Position has no topic requirements
+                    Position.research_topics.any(ResearchTopic.name.in_(topic_names))  # Match at least one topic
+                )
+            )
+        else:
+            # If student has no topics, only show positions with no topic requirements
+            filters.append(~Position.research_topics.any())
+
+        # Apply all filters
+        return Position.query.filter(and_(*filters)).all()
 
 class Faculty(User):
     __tablename__ = 'faculty'
