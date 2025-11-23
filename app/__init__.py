@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from authlib.integrations.flask_client import OAuth  # OAuth client for third-party authentication
 from flask_login import LoginManager    
 from config import Config
 from flask_moment import Moment
@@ -25,7 +26,6 @@ def create_app(config_class = Config):
     migrate.init_app(app,db)
     login.init_app(app)
     moment.init_app(app)
-
     # register blueprints
 
     from app.main import main_blueprint as main

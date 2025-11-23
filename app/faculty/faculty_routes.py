@@ -6,6 +6,7 @@ from datetime import datetime
 from app.faculty.faculty_forms import *
 from app.main.models import Course, Student, Position, Faculty, Application
 from app.main.models import Faculty
+from app.email import send_email
 #from app.main.forms import CourseForm, EditForm, EmptyForm
 from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
@@ -44,8 +45,23 @@ def student_approve(application_id):
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
     application.status = "approved"
     db.session.commit()
+    # Send a notification email to the student
+    subject = f"{application.position.name} - approved"
+    message = f"""
+            Greetings, {application.student.username}!
+
+            Get excited! Your application for the role {application.position.name} has been approved!
+
+            May your research be epic.
+
+            Best wishes,
+            Matvei "G-Chist" Shestopalov
+            Head of Vibe Coding | Research App Development Team
+            """
+
+    send_email(application.student.email, subject, message)
     flash("Student approved :)")
-    return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    return redirect(url_for('main.view_student_list', position_id=application.position_id))
 
 
 @faculty.route('/faculty/<application_id>/reject', methods=['GET'])
@@ -57,8 +73,23 @@ def student_reject(application_id):
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
     application.status = "rejected"
     db.session.commit()
+    # Send a notification email to the student
+    subject = f"{application.position.name} - rejected"
+    message = f"""
+            Greetings, {application.student.username}!
+
+            We are sorry to inform you that your application for the role {application.position.name} has been rejected.
+
+            May your research be epic.
+
+            Best wishes,
+            Matvei "G-Chist" Shestopalov
+            Head of Vibe Coding | Research App Development Team
+            """
+
+    send_email(application.student.email, subject, message)
     flash("Student rejected :(")
-    return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    return redirect(url_for('main.view_student_list', position_id=application.position_id))
                
 
 @faculty.route('/faculty/<faculty_id>/index', methods=['GET'])
