@@ -64,10 +64,10 @@
     </div>
     <div class="postlist mt-3">
         <h2>Recommended for You:</h2>
-        {% if recommendations %}s
-            {% for recommendation in recommendations %}
+        {% if recommendations %}
+            {% for position in recommendations %}
                 <div class="post-box">
-                    {% include 'position_detail.html' with context %}
+                    {% include 'position_detail.html' %}
                 </div>
             {% endfor %}
         {% else %}

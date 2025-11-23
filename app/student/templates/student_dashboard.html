@@ -1,0 +1,53 @@
+{% extends "bootstrap_base.html" %}
+
+{% block content %}
+    <h1>Student Dashboard</h1>
+
+    <h2>My Applications</h2>
+    {% if applications %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td><a href="{{ url_for('main.view_position', position_id=app.position.id) }}">{{ app.position.name }}</a></td>
+                        <td>{{ app.status }}</td>
+                        <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have not submitted any applications yet.</p>
+    {% endif %}
+
+    <h2>My Recommendations</h2>
+    {% if recommendations %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Faculty</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in recommendations %}
+                    <tr>
+                        <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
+                        <td>{{ rec.faculty.firstname }} {{ rec.faculty.lastname }}</td>
+                        <td>{{ rec.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have no recommendations yet.</p>
+    {% endif %}
+{% endblock %}
