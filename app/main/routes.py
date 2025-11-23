@@ -51,7 +51,13 @@ def index():
             Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
 
     Students = db.session.scalars(sqla.select(Student))
+    Faculties = db.session.scalars(sqla.select(Faculty))
     PositionsA = db.session.scalars(Positions).all()
+    if current_user.is_authenticated:
+        if current_user.role == 'faculty':
+            return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+        elif current_user.role == 'student':
+            return redirect(url_for('student.student_index', student_id=current_user.id))
     return render_template('student_index.html', title="Course List", students = Students, form = form, positions=PositionsA)
 
 @main.route('/faculty', methods=['GET'])
