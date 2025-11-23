@@ -3,6 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 import sqlalchemy as sqla
 
 from app.main.models import *
+from app.email import send_email
 from app.student.forms import ApplyPositionForm, SortForm
 from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
@@ -149,6 +150,21 @@ def apply_position(position_id):
         faculty_ref = None
         if reference_email:
             faculty_ref = Faculty.query.filter_by(email=reference_email).first()
+            # Send a notification email to the faculty member
+            subject = f"{current_user.firstname} {current_user.lastname} is requesting your recommendation!"
+            message = f"""
+                        Greetings, {faculty_ref.firstname}!
+
+                        We are writing to inform you that {current_user.firstname} {current_user.lastname} has requested your recommendation for a research position.
+
+                        May your research be epic.
+
+                        Best wishes,
+                        Matvei "G-Chist" Shestopalov
+                        Head of Vibe Coding | Research App Development Team
+                        """
+
+            send_email(faculty_ref.email, subject, message)
             if not faculty_ref:
                 flash("No faculty with this email found.")
                 return render_template('apply_position.html', position=position, form=form)
