@@ -21,7 +21,7 @@ def index():
     form = SortForm()
 
     majors = db.session.scalars(sqla.select(Major)).all()
-    form.majors.choices = [('', 'Select Major')] + [(m.id, m.name) for m in majors]
+    form.majors.choices = [(m.id, m.name) for m in majors]
 
     courses = db.session.scalars(sqla.select(Course)).all()
     form.courses.choices = [('', 'Select Course')] + [(c.id, c.name) for c in courses]
@@ -37,8 +37,8 @@ def index():
 
     Positions = sqla.select(Position)
     if form.validate_on_submit(): 
-        if form.majors.data:
-            Positions = Positions.join(Position.majors).where(Major.id == form.majors.data)
+        if form.majors.data and len(form.majors.data) > 0:
+            Positions = Positions.join(Position.majors).where(Major.id.in_(form.majors.data)).distinct()
         if form.courses.data:
             Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
         if form.grades.data:
