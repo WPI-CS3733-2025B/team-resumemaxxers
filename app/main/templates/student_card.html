@@ -1,20 +1,87 @@
-<div class="card text-center w-100">
+{% set collapse_id = "application-" ~ application.id ~ "-details" %}
+
+<div class="card mb-3 shadow-sm">
+
   <div class="card-body">
-    <h5 class="card-title"> {{ student.student.firstname }} {{ student.student.lastname }}</h5>
-    <p class="card-text">Status: {{ student.status }}</p>
-    <a href="{{ url_for('faculty.view_application', application_id=student.id) }}" class="btn btn-primary">View Details</a>
-    <a href="{{ url_for('student.student_profile_view', student_id=student.student.id) }}" class="btn btn-primary">View Profile</a>
-      <div class="mt-3">
-        {% if student.status|lower == 'approved' %}
+    <div class="d-flex justify-content-between align-items-center">
+
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="mb-1">
+            {{ application.student.firstname }} {{ application.student.lastname }}
+          </h5>
+
+          <a href="{{ url_for('student.student_profile_view', student_id=application.student.id) }}"
+             class="btn btn-primary btn-sm">
+            View profile
+          </a>
+        </div>
+
+        <div class="small text-muted">
+          Applied on
+          {% if application.created_at %}
+            {{ application.created_at.strftime('%Y-%m-%d %H:%M') }}
+          {% else %}
+            (date unknown)
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+
+        {% if application.status == 'approved' %}
+          <span class="badge bg-success">Approved</span>
+        {% elif application.status == 'rejected' %}
+          <span class="badge bg-danger">Rejected</span>
+        {% else %}
+          <span class="badge bg-secondary">Pending</span>
+        {% endif %}
+
+
+
+        <button class="btn btn-link btn-sm text-decoration: underline" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}">
+          Application Details
+        </button>
+      </div>
+    </div>
+
+    <div class="collapse mt-3" id="{{ collapse_id }}">
+      <hr class="mt-0 mb-3">
+
+      <h6>Short Statement</h6>
+      <p class="mb-3">
+        {{ application.statement or 'No statement provided.' }}
+      </p>
+
+      <h6>References</h6>
+      {% if application.recommendations %}
+        <ul class="mb-3">
+          {% for recommendation in application.recommendations %}
+            <li>
+              {{ recommendation.faculty.firstname }} {{ recommendation.faculty.lastname }}
+              {% if recommendation.faculty.email %}
+                – <a href="mailto:{{ recommendation.faculty.email }}">
+                    {{ recommendation.faculty.email }}
+                  </a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-3">No references listed.</p>
+      {% endif %}
+
+      {% if application.status|lower == 'approved' %}
           <button class="btn btn-success" disabled>Approved</button>
-          <a href="{{ url_for('faculty.student_reject', application_id=student.id) }}" class="btn btn-danger">Reject</a>
-        {% elif student.status|lower == 'rejected' %}
-          <a href="{{ url_for('faculty.student_approve', application_id=student.id) }}" class="btn btn-success">Approve</a>
+          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-danger">Reject</a>
+        {% elif application.status|lower == 'rejected' %}
+          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-success">Approve</a>
           <button class="btn btn-danger" disabled>Rejected</button>
         {% else %}
-          <a href="{{ url_for('faculty.student_approve', application_id=student.id) }}" class="btn btn-success">Approve</a>
-          <a href="{{ url_for('faculty.student_reject', application_id=student.id) }}" class="btn btn-danger">Reject</a>
+          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-success">Approve</a>
+          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-danger">Reject</a>
         {% endif %}
-      </div>
-</div>
+    </div>
+
+  </div>
 </div>
