@@ -66,3 +66,7 @@ body {
     border: 1px solid gray;
     background: #f6f6f6;
 }
+
+.btn-wide {
+    min-width: 100px;
+}

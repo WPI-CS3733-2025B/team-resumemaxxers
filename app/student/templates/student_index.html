@@ -16,40 +16,40 @@
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.majors.id }}">Majors</label>
-                    {{ form.majors(multiple='multiple', class_="form-select form-select-sm") }}
+                    {{ form.majors(multiple='multiple', size="1", class_="form-select form-select-sm compact-multi") }}
                 </div>
 
                 <div class="d-flex flex-column">
-                    <label class="mb-1 me-2" for="{{ form.courses.id }}">Courses</label>
-                    {{ form.courses(class_="form-select form-select-sm") }}
+                    <label class="mb-1 me-2" for="{{ form.courses.id }}">Required Courses</label>
+                    {{ form.courses(multiple='multiple', size="1", class_="form-select form-select-sm compact-multi") }}
                 </div>
 
                 <div class="d-flex flex-column">
-                    <label class="mb-1 me-2" for="{{ form.grades.id }}">Grades</label>
+                    <label class="mb-1 me-2" for="{{ form.grades.id }}">Minimum GPA</label>
                     {{ form.grades(class_="form-control form-control-sm") }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.course_instructors.id }}">Course instructors</label>
-                    {{ form.course_instructors(class_="form-select form-select-sm") }}
+                    {{ form.course_instructors(multiple='multiple', size="1", class_="form-select form-select-sm compact-multi") }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.research_topics.id }}">Research topics</label>
-                    {{ form.research_topics(class_="form-select form-select-sm") }}
+                    {{ form.research_topics(multiple='multiple', size="1", class_="form-select form-select-sm compact-multi") }}
                 </div>
 
                 <div class="d-flex flex-column">
                     <label class="mb-1 me-2" for="{{ form.languages.id }}">Programming languages</label>
-                    {{ form.languages(class_="form-select form-select-sm") }}
+                    {{ form.languages(multiple='multiple', size="1", class_="form-select form-select-sm compact-multi") }}
                 </div>
 
                 <div class="d-flex align-items-end">
-                    {{ form.Refresh(class_="btn btn-success btn-sm") }}
+                    {{ form.Refresh(class_="btn btn-success btn-sm btn-wide") }}
                 </div>
 
                 <div class="d-flex align-items-end">
-                    <a href="{{ url_for('main.recommended') }}" class="btn btn-primary btn-sm">View Recommended</a>
+                    <a href="{{ url_for('main.recommended') }}" class="btn btn-primary btn-sm btn-wide">View Recommended</a>
                 </div>
             </form>
         </div>

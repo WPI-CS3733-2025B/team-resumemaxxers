@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from authlib.integrations.flask_client import OAuth  # OAuth client for third-party authentication
+#from authlib.integrations.flask_client import OAuth  # OAuth client for third-party authentication
 from flask_login import LoginManager    
 from config import Config
 from flask_moment import Moment
