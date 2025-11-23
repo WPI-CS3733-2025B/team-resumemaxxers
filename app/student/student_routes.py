@@ -141,7 +141,13 @@ def edit_profile():
 @student.route('/position/<position_id>/apply', methods=['GET', 'POST'])
 @login_required
 def apply_position(position_id):
+
     position=Position.query.get_or_404(position_id)
+
+    existing_application = Application.query.filter_by(student_id=current_user.id, position_id=position.id).first()
+    if existing_application:
+        flash('You have already applied for this position.', 'error')
+        return redirect(url_for('main.view_position', position_id=position.id))
 
     form = ApplyPositionForm()
 
@@ -150,8 +156,9 @@ def apply_position(position_id):
                                            Email(message="Invalid email address.")]
 
     if form.validate_on_submit():
+
         statement = form.statement.data
-        reference_email = form.reference_email.data.strip()
+        reference_email = form.reference_email.data.strip() if form.reference_email.data else None
 
         faculty_ref = None
         if reference_email:
