@@ -232,7 +232,7 @@ def recommended():
 def student_dashboard():
     if not isinstance(current_user._get_current_object(), Student):
         flash("Only students can view the dashboard.")
-        return redirect(url_for('main.index'))
+        return redirect(url_for('student.student_index'))
 
     applications = current_user.applications
     recommendations = current_user.recommendations

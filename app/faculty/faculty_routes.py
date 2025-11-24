@@ -4,7 +4,7 @@ import sqlalchemy as sqla
 from datetime import datetime
 
 from app.faculty.faculty_forms import *
-from app.main.models import Course, Student, Position, Faculty, Application
+from app.main.models import Course, Student, Position, Faculty, Application, Recommendation
 from app.main.models import Faculty
 from app.email import send_email
 #from app.main.forms import CourseForm, EditForm, EmptyForm
@@ -204,3 +204,18 @@ def delete_position(position_id):
     db.session.commit()
     flash('Position deleted successfully!', 'success')
     return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+
+@faculty.route('/faculty/dashboard', methods=['GET'])
+@login_required
+def faculty_dashboard():
+    if not isinstance(current_user._get_current_object(), Faculty):
+        flash("Only students can view the dashboard.")
+        return redirect(url_for('faculty.faculty_index'))
+
+    applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == current_user.id))
+    recommendations = db.session.scalars(sqla.select(Recommendation).join(Faculty).where(Faculty.id == current_user.id))
+    
+    return render_template('faculty_dashboard.html',
+                           applications=applications,
+                           recommendations=recommendations,
+                           title="Faculty Dashboard")
