@@ -19,6 +19,51 @@
                         <td><a href="{{ url_for('main.view_position', position_id=app.position.id) }}">{{ app.position.name }}</a></td>
                         <td>{{ app.status }}</td>
                         <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% set collapse_id = 'collapse-' ~ app.id %}
+                            <button class="btn btn-link btn-sm text-decoration: underline" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}">
+                                Application Details
+                            </button>
+
+                            <div class="collapse mt-3" id="{{ collapse_id }}">
+                                <hr class="mt-0 mb-3">
+
+                                <h6>Short Statement</h6>
+                                <p class="mb-3">
+                                    {{ app.statement or 'No statement provided.' }}
+                                </p>
+
+                                <h6>References</h6>
+                                {% if app.recommendations %}
+                                    <ul class="mb-3">
+                                    {% for recommendation in app.recommendations %}
+                                        <li>
+                                        {{ recommendation.faculty.firstname }} {{ recommendation.faculty.lastname }}
+                                        {% if recommendation.faculty.email %}
+                                            – <a href="mailto:{{ recommendation.faculty.email }}">
+                                                {{ recommendation.faculty.email }}
+                                            </a>
+                                        {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted mb-3">No references listed.</p>
+                                {% endif %}
+
+                                {% if app.status|lower == 'approved' %}
+                                    <button class="btn btn-success" disabled>Approved</button>
+                                    <a href="{{ url_for('faculty.student_reject', application_id=app.id) }}" class="btn btn-danger">Reject</a>
+                                    {% elif app.status|lower == 'rejected' %}
+                                    <a href="{{ url_for('faculty.student_approve', application_id=app.id) }}" class="btn btn-success">Approve</a>
+                                    <button class="btn btn-danger" disabled>Rejected</button>
+                                    {% else %}
+                                    <a href="{{ url_for('faculty.student_approve', application_id=app.id) }}" class="btn btn-success">Approve</a>
+                                    <a href="{{ url_for('faculty.student_reject', application_id=app.id) }}" class="btn btn-danger">Reject</a>
+                                    {% endif %}
+                                </div>
+                        </td>
+                    
                     </tr>
                 {% endfor %}
             </tbody>
