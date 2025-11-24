@@ -11,6 +11,43 @@
                 {% endfor %}
             </ul>
         </p>
-        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
+
+        <h2>My Recommendations</h2>
+            {% if user.recommendations %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>From</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in user.recommendations %}
+                            <tr>
+                                <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
+                                <td>{{ rec.student.firstname }} {{ rec.student.lastname }}</td>
+                                <td>{{ rec.status }}</td>
+                                <td>
+
+                                        {% if rec.status|lower == 'approved' %}
+                                            <button class="btn btn-success" disabled>Approved</button>
+                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                            {% elif rec.status|lower == 'rejected' %}
+                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
+                                            <button class="btn btn-danger" disabled>Rejected</button>
+                                            {% else %}
+                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
+                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                            {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>You have no recommendations yet.</p>
+            {% endif %}
     </div>
 {% endblock %}

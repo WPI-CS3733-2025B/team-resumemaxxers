@@ -61,8 +61,7 @@ def student_approve(application_id):
 
     send_email(application.student.email, subject, message)
     flash("Student approved :)")
-    return redirect(url_for('main.view_student_list', position_id=application.position_id))
-
+    return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
 
 @faculty.route('/faculty/<application_id>/reject', methods=['GET'])
 @login_required
@@ -89,8 +88,62 @@ def student_reject(application_id):
 
     send_email(application.student.email, subject, message)
     flash("Student rejected :(")
-    return redirect(url_for('main.view_student_list', position_id=application.position_id))
+    return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
                
+@faculty.route('/faculty/recommendation/<recommendation_id>/approve', methods=['GET'])
+@login_required
+def recommendation_approve(recommendation_id):
+    recommendation = db.session.get(Recommendation, recommendation_id)
+    if recommendation is None:
+        flash('Recommendation not found.', 'error')
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    recommendation.status = "approved"
+    db.session.commit()
+    # Send a notification email to the student
+    subject = f"{recommendation.application.position.name} - approved"
+    message = f"""
+            Greetings, {recommendation.student.username}!
+
+            Get excited! Your application for the role {recommendation.application.position.name} has been approved!
+
+            May your research be epic.
+
+            Best wishes,
+            Matvei "G-Chist" Shestopalov
+            Head of Vibe Coding | Research App Development Team
+            """
+
+    send_email(recommendation.student.email, subject, message)
+    flash("Student approved :)")
+    return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
+
+
+@faculty.route('/faculty/recommendation/<recommendation_id>/reject', methods=['GET'])
+@login_required
+def recommendation_reject(recommendation_id):
+    recommendation = db.session.get(Recommendation, recommendation_id)
+    if recommendation is None:
+        flash('Application not found.', 'error')
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    recommendation.status = "rejected"
+    db.session.commit()
+    # Send a notification email to the student
+    subject = f"{recommendation.application.position.name} - rejected"
+    message = f"""
+            Greetings, {recommendation.application.student.username}!
+
+            We are sorry to inform you that your application for the role {recommendation.application.position.name} has been rejected.
+
+            May your research be epic.
+
+            Best wishes,
+            Matvei "G-Chist" Shestopalov
+            Head of Vibe Coding | Research App Development Team
+            """
+
+    send_email(recommendation.student.email, subject, message)
+    flash("Student rejected :(")
+    return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
 
 @faculty.route('/faculty/<faculty_id>/index', methods=['GET'])
 @login_required

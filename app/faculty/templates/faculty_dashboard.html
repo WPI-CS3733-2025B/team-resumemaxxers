@@ -9,14 +9,17 @@
             <thead>
                 <tr>
                     <th>Position</th>
+                    <th>From</th>
                     <th>Status</th>
                     <th>Applied On</th>
+                    <th>Details</th>
                 </tr>
             </thead>
             <tbody>
                 {% for app in applications %}
                     <tr>
                         <td><a href="{{ url_for('main.view_position', position_id=app.position.id) }}">{{ app.position.name }}</a></td>
+                        <td>{{ app.student.firstname }} {{ app.student.lastname }} </td>
                         <td>{{ app.status }}</td>
                         <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
                         <td>
@@ -78,8 +81,9 @@
             <thead>
                 <tr>
                     <th>Position</th>
-                    <th>Faculty</th>
+                    <th>From</th>
                     <th>Status</th>
+                    <th>Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,6 +92,27 @@
                         <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
                         <td>{{ rec.student.firstname }} {{ rec.student.lastname }}</td>
                         <td>{{ rec.status }}</td>
+                        <td>
+                            {% set collapse_id = 'collapse-' ~ rec.id %}
+                            <button class="btn btn-link btn-sm text-decoration: underline" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}">
+                                Recommendation Details
+                            </button>
+
+                            <div class="collapse mt-3" id="{{ collapse_id }}">
+                                <hr class="mt-0 mb-3">
+
+                                {% if rec.status|lower == 'approved' %}
+                                    <button class="btn btn-success" disabled>Approved</button>
+                                    <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                    {% elif rec.status|lower == 'rejected' %}
+                                    <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
+                                    <button class="btn btn-danger" disabled>Rejected</button>
+                                    {% else %}
+                                    <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
+                                    <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                    {% endif %}
+                                </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

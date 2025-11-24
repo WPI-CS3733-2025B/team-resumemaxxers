@@ -150,6 +150,11 @@ def apply_position(position_id):
         faculty_ref = None
         if reference_email:
             faculty_ref = Faculty.query.filter_by(email=reference_email).first()
+
+            if not faculty_ref:
+                flash("No faculty with this email found.")
+                return render_template('apply_position.html', position=position, form=form)
+            
             # Send a notification email to the faculty member
             subject = f"{current_user.firstname} {current_user.lastname} is requesting your recommendation!"
             message = f"""
@@ -165,9 +170,7 @@ def apply_position(position_id):
                         """
 
             send_email(faculty_ref.email, subject, message)
-            if not faculty_ref:
-                flash("No faculty with this email found.")
-                return render_template('apply_position.html', position=position, form=form)
+        
 
         application = Application(
             student_id=current_user.id,
