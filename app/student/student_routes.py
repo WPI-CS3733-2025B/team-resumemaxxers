@@ -244,3 +244,19 @@ def student_dashboard():
                            applications=applications,
                            recommendations=recommendations,
                            title="Student Dashboard")
+
+@student.route('/application/<application_id>/withdraw', methods=['GET'])
+@login_required
+def withdraw_application(application_id): 
+    application=Application.query.get_or_404(application_id)
+
+    if current_user.role != 'student' or application.student_id != current_user.id:
+        flash('You are not authorized to delete this position.', 'error')
+        return redirect(url_for('student.student_index'))
+    
+    Recommendation.query.filter_by(application_id=application.id).delete()
+    
+    db.session.delete(application)
+    db.session.commit()
+    flash('Application withdrawn successfully!', 'success')
+    return redirect(url_for('student.student_dashboard'))

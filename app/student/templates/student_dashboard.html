@@ -11,6 +11,7 @@
                     <th>Position</th>
                     <th>Status</th>
                     <th>Applied On</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -19,6 +20,17 @@
                         <td><a href="{{ url_for('main.view_position', position_id=app.position.id) }}">{{ app.position.name }}</a></td>
                         <td>{{ app.status }}</td>
                         <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
+                
+                        <td>
+                            {% if app.status|lower == 'pending' %}
+                                <a href="{{ url_for('student.withdraw_application', application_id=app.id) }}"
+                                    class="btn btn-danger">
+                                    Withdraw
+                                </a>
+                            {% else %}
+                                <button class="btn btn-danger" disabled>Withdraw</button>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

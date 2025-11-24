@@ -248,7 +248,7 @@ def delete_position(position_id):
     # Check authorization - only the faculty who created it can delete
     if current_user.role != 'faculty' or position.faculty_id != current_user.id:
         flash('You are not authorized to delete this position.', 'error')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('faculty.faculty_index'))
     
     # Delete related applications first to maintain referential integrity
     Application.query.filter_by(position_id=position.id).delete()

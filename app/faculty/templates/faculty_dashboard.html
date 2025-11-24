@@ -53,7 +53,11 @@
                                 {% else %}
                                     <p class="text-muted mb-3">No references listed.</p>
                                 {% endif %}
-
+                                <a href="{{ url_for('student.student_profile_view', student_id=app.student.id) }}"
+                                    class="btn btn-primary btn-sm">
+                                    View profile
+                                </a>
+                                
                                 {% if app.status|lower == 'approved' %}
                                     <button class="btn btn-success" disabled>Approved</button>
                                     <a href="{{ url_for('faculty.student_reject', application_id=app.id) }}" class="btn btn-danger">Reject</a>
@@ -100,7 +104,10 @@
 
                             <div class="collapse mt-3" id="{{ collapse_id }}">
                                 <hr class="mt-0 mb-3">
-
+                                <a href="{{ url_for('student.student_profile_view', student_id=rec.student_id) }}"
+                                    class="btn btn-primary btn-sm">
+                                    View profile
+                                </a>
                                 {% if rec.status|lower == 'approved' %}
                                     <button class="btn btn-success" disabled>Approved</button>
                                     <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
