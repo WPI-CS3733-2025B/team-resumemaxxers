@@ -280,10 +280,10 @@ Include a detailed description of the routes your application will implement.
 |:---|:------------------|:-----------|:--------------------------|
 | 1. |  'GET', 'POST'  | student/login | student login page        |
 | 2. |   'GET', 'POST'  | student/register | student registration page |
-| 3. |   'GET'  | student/logout | student logout            |
+| 3. |   'GET'  | logout | student and faculty logout            |
 | 4. |  'GET', 'POST'  | faculty/login   | faculty login page        |
-| 5. | 'GET'  | faculty/logout | faculty logout            |
-| 6. | 'GET'  | faculty/verify/<token> | faculty verifies email          |
+| 5. | 'GET'  | verify/<token> | faculty verifies email          |
+| 6. | 'GET'  | resend_verification | faculty verifies email          |
 | 7. | 'GET'  | faculty/login/sso | faculty login with Auth0 SSO          |
 
 
@@ -292,52 +292,34 @@ Include a detailed description of the routes your application will implement.
 |   | Methods      | URL Path                          | Description                              |
 |:--|:-------------|:----------------------------------|:-----------------------------------------|
 |1. | 'GET'        | student/<student_id>/profile/view | students or faculty view student profile |
-|2. | 'GET', 'POST' | student/<student_id>/profile/edit              | student edits their profile              |
-|3. | 'GET'        | student/positions | students views positions |
-|4. | 'GET'        | student/positions/recommended | students views recommended positions |
-| 5. | 'GET', 'POST' | student                 | main route for student |
-
+|2. | 'GET', 'POST' | student/edit_profile        | student edits their profile              |
+|3. | 'GET', 'POST' | student/<student_id>/index        | student view main page (positions) |
+| 4. | 'GET', 'POST' | position/<position_id>/apply | student-only method for applying to a position |
+|5. | 'GET'        | recommended | students views recommended positions |
+|6. | 'GET', 'POST' | student/dashboard        | student view the dashboard (their applications and recommendations) |
+|7. | 'POST'  | application/<application_id>/withdraw                | student withdraw their 'pending' applications |
+| 8. | 'GET'       | position/<position_id>/view                | page for viewing position info                 |
+|9. | 'POST'  | recommendation/request | student-only method for requesting a faculty recommendation    |
 
 #### 2.2.2.3 \<Blueprint3> Routes main.faculty.routes -- faculty
 
 |   | Methods           | URL Path                          | Description  |
 |:--|:------------------|:----------------------------------|:-------------|
 |1. | 'GET' | faculty/<faculty_id>/profile/view | faculty view their profile |
-|2. | 'GET', 'POST' | faculty/editlists                 | faculty edit the predefined lists |
-| 3. | 'GET', 'POST' | faculty/recommendations           | faculty viewing reference requests from students |
-| 4. | 'GET', 'POST' | faculty/positions           | faculty viewing their own positions |
-| 5. | 'GET', 'POST' | faculty                 | main route for faculty |
+|2. | 'POST'  | faculty/<application_id>/view                | page for viewing application details |
+|3. | 'POST'  | faculty/<application_id>/approve                 | faculty approve students' application         |
+|4. | 'POST'  | faculty/<application_id>/reject | faculty reject students' application          |
+|5. | 'POST'  | faculty/recommendation/<recommendation_id>/approve                      | faculty-only method for accepting a student rec. request       |
+|6. | 'POST'  | faculty/recommendation/<recommendation_id>/reject                      | faculty-only method for rejecting a student rec. request       |
+|7. | 'GET', 'POST' | faculty/<faculty_id>/index        | faculty view main page (their own positions) |
+| 8. | 'POST'      | /faculty/<faculty_id>/create_position              | faculty-only method for creating positions     |
+| 9. | 'GET', 'POST' | faculty/<position_id>/edit_position                | faculty-only page for editing positions        |
+| 10. | 'GET', 'POST' | faculty/<position_id>/delete_position              | faculty-only method for deleting a position    |
+|11. | 'GET', 'POST' | faculty/dashboard        | faculty view the dashboard (their applications and recommendations) |
+|12. | 'GET'   | student_list/<position_id>/view                         | page to view all the applications of a position            |
+|13. | 'GET', 'POST' | faculty/editlists                 | faculty edit the predefined lists |
+| 14. | 'GET', 'POST' | faculty/recommendations           | faculty viewing reference requests from students |
 
-#### 2.2.2.4 \<Blueprint4> Routes main.application.routes -- application
-
-|   | Methods | URL Path                            | Description                                   |
-|:--|:--------|:------------------------------------|:----------------------------------------------|
-|1. | 'POST'  | application/<application_id>/reject | faculty reject students' application          |
-|2. | 'POST'  | application/<application_id>/approve                 | faculty approve students' application         |
-|3. | 'POST'  | application/<application_id>/withdraw                | student withdraw their 'pending' applications |
-|3. | 'POST'  | application/<application_id>                | page for viewing application details |
-|4. | 'GET'   | application                         | page to view all the applications             |
-
-#### 2.2.2.5 \<Blueprint5> Routes main.position.routes -- position
-
-|    | Methods     | URL Path                     | Description                                    |
-|:---|:------------|:-----------------------------|:-----------------------------------------------|
-| 1. | 'POST'      | position/create              | faculty-only method for creating positions     |
-| 2. | 'GET', 'POST' | position/<position_id>/edit                | faculty-only page for editing positions        |
-| 3. | 'GET', 'POST' | position/<position_id>/delete              | faculty-only method for deleting a position    |
-| 4. | 'GET'       | position/<position_id>/view                | page for viewing position info                 |
-| 5. | 'GET', 'POST' | position/<position_id>/apply | student-only method for applying to a position |
-
-
-
-#### 2.2.2.6 \<Blueprint6> Routes main.recommendation.routes -- recommendation
-
-|   | Methods | URL Path                                   | Description                                                    |
-|:--|:--------|:-------------------------------------------|:---------------------------------------------------------------|
-|1. | 'POST'  | recommendation/request | student-only method for requesting a faculty recommendation    |
-|2. | 'POST'  | recommendation/<recommendation_id>/reject                      | faculty-only method for rejecting a student rec. request       |
-|3. | 'POST'  | recommendation/<recommendation_id>/accept                      | faculty-only method for accepting a student rec. request       |
-|4. | 'GET'   | recommendation                             | view incoming (faculty) or sent (student) rec. requests (page) |
 
 Repeat the above for other modules you included in your application. 
 
@@ -363,6 +345,7 @@ Provide UI sketches or screenshots for the following pages:
  * Student applying for a position
 
 <img src ="../md-images/application_page.png"></img>
+
 
 
 
