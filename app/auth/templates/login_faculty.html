@@ -5,7 +5,7 @@
 {% block content %}
 <h1> Login </h1>
 
-<form action = "{{url_for('auth.register_faculty')}}" method = "POST">
+<form action = "{{url_for('auth.login_faculty')}}" method = "POST">
     {{ form.hidden_tag()}}
     {{wtf.form_field(form.username)}}
     {{wtf.form_field(form.password)}}

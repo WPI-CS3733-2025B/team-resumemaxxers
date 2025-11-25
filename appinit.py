@@ -12,10 +12,10 @@ app.config['SECRET_KEY'] = 'REPLACE_LATER'
 def make_shell_context():
     return {'sqla': sqla, 'sqlo': sqlo, 'db': db, 'Major': Major, 'Interest': ResearchTopic, 'Language': Language, 'Course': Course}
 
-majors = ["CS", "RBE", "ME", "ECE", "AE", "DS", "MATH"]
-interests = ["ML", "HPC", "AI", "Cybersecurity", "KDD", "Graphics"]
+majors = ["Aerospace Engineering", "Biomedical Engineering", "Chemical Engineering", "Civil Engineering", "Computer Science", "Electrical & Computer Engineering", "Environmental Engineering", "Industrial Engineering", "Data Science", "Robotics Engineering", "Mechanical Engineering", "Mathematical Sciences", "Physics", "Actuarial Mathematics", "Biology & Biotechnology", "Chemistry", "Management Information Systems"]
+interests = ["Machine Learning", "High Performance Computing", "Artificial Intelligence", "Cybersecurity", "Knowledge Discovery & Data Mining", "Computer Graphics", "Human-Robot Interaction", "Biomechanics", "Sustainable Energy Systems", "Materials Science", "Bioinformatics", "Environmental Modeling", "Quantum Computing", "Game Development"]
 languages = ["C", "C++", "Python", "Haskell", "Java", "JavaScript", "Lisp", "Rust"]
-courses = ["CS1004", "CS2011", "CS2102", "CS2201", "CS3013", "CS3133", "CS3431", "CS3516", "CS3733", "CS4233", "CS4001", "CS4002", "CS4003"]
+courses = ["CS1101", "CS1102", "CS2011", "CS220X", "CS2301", "CS3013", "CS3041", "CS3431", "CS3516", "CS3733", "CS4233", "CS4341", "CS4401", "CS4514", "CS4518", "CS4731", "CS4732"]
 
 # Default faculty info table
 fac_ids = [1, 2, 3]

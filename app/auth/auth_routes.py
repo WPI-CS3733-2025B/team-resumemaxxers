@@ -64,19 +64,19 @@ def register():
 
 
 @auth.route('/faculty/login', methods = ['GET', 'POST'])
-def register_faculty():
+def login_faculty():
     rform = RegistrationFormFaculty()
     if rform.validate_on_submit():
-        query = sqla.select(Faculty).where(Faculty.username == rform.username.data)
+        query = sqla.select(Faculty).where(Faculty.username == rform.username.data.username)
         fac = db.session.scalars(query).first()
 
         if (fac is None) or (fac.check_password(rform.password.data) == False):
-            return redirect(url_for('auth.register_faculty'))
+            return redirect(url_for('auth.login_faculty'))
 
         login_user(fac, remember=True)
         flash('The user {} has successfully logged in!'.format(current_user.username))
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
-    return render_template('register_faculty.html', form = rform)
+    return render_template('login_faculty.html', form = rform)
 
 
 @auth.route('/login', methods=['GET', 'POST'])

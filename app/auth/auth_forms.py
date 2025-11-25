@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, RadioField, FormField, FieldList
 from wtforms.validators import Length, DataRequired, Email, EqualTo, ValidationError
 from wtforms.widgets import ListWidget, CheckboxInput
-from wtforms_sqlalchemy.fields import QuerySelectMultipleField
+from wtforms_sqlalchemy.fields import QuerySelectMultipleField, QuerySelectField
 
 from app import db
 from app.main.models import *
@@ -60,7 +60,10 @@ class RegistrationForm(FlaskForm):
 
 
 class RegistrationFormFaculty(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    username = QuerySelectField('Username',
+                                      query_factory=lambda: db.session.scalars(sqla.select(Faculty).order_by(Faculty.username)),
+                                      get_label=lambda theFac: theFac.username)
+
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Post')
 
