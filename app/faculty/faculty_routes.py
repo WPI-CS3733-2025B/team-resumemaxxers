@@ -172,13 +172,22 @@ def create_position(faculty_id):
     cform = CreatePosition()
 
     if cform.validate_on_submit():
+        if cform.min_gpa.data:
+                try:
+                    the_gpa = float(cform.min_gpa.data)
+                    if the_gpa > 5.0:
+                        flash('GPA cannot be greater than 5.0.', 'error')
+                        return redirect(url_for('faculty.create_position'))
+                except ValueError:
+                    flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
+                    return redirect(url_for('faculty.create_position'))
         new_position = Position(
             name=cform.name.data,
             description=cform.description.data,
             start_date=datetime.strptime(str(cform.start_date.data), '%Y-%m-%d').date(),
             end_date=datetime.strptime(str(cform.end_date.data), '%Y-%m-%d').date(),
             team_size=int(cform.team_size.data),
-            min_gpa=float(cform.min_gpa.data),
+            min_gpa=the_gpa,
             ref_required=cform.ref_required.data,
             faculty_id=faculty_user.id
         )
@@ -209,12 +218,20 @@ def edit_position(position_id):
     form = EditPositionForm()
     position=Position.query.get_or_404(position_id)
     if form.validate_on_submit():
+        if form.min_gpa.data:
+                try:
+                    position.min_gpa = float(form.min_gpa.data)
+                    if position.min_gpa > 5.0:
+                        flash('GPA cannot be greater than 5.0.', 'error')
+                        return redirect(url_for('faculty.edit_position'))
+                except ValueError:
+                    flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
+                    return redirect(url_for('faculty.edit_position'))
         position.name = form.name.data
         position.description = form.description.data
         position.start_date = form.start_date.data
         position.end_date = form.end_date.data
         position.team_size = form.team_size.data
-        position.min_gpa = form.min_gpa.data
         position.ref_required = form.ref_required.data
         position.faculty = form.faculty.data
         position.majors = form.majors.data
@@ -262,7 +279,7 @@ def delete_position(position_id):
 @login_required
 def faculty_dashboard():
     if not isinstance(current_user._get_current_object(), Faculty):
-        flash("Only students can view the dashboard.")
+        flash("Only faculty can view the dashboard.")
         return redirect(url_for('faculty.faculty_index'))
 
     applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == current_user.id))
