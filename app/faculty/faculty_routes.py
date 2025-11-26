@@ -265,8 +265,8 @@ def faculty_dashboard():
         flash("Only students can view the dashboard.")
         return redirect(url_for('faculty.faculty_index'))
 
-    applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == current_user.id))
-    recommendations = db.session.scalars(sqla.select(Recommendation).join(Faculty).where(Faculty.id == current_user.id))
+    applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == current_user.id)).all()
+    recommendations = db.session.scalars(sqla.select(Recommendation).join(Faculty).where(Faculty.id == current_user.id)).all()
     
     return render_template('faculty_dashboard.html',
                            applications=applications,
