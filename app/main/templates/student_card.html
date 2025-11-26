@@ -28,6 +28,9 @@
       </div>
 
       <div class="d-flex align-items-center gap-2">
+        {% if application.position.is_full() %}
+          <span class="badge bg-danger">Position FULL</span>
+        {% endif %}
 
         {% if application.status == 'approved' %}
           <span class="badge bg-success">Approved</span>

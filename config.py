@@ -9,6 +9,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'student.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TEMPLATES_AUTO_RELOAD = True
+    SEND_FILE_MAX_AGE_DEFAULT = 0
     ROOT_PATH = basedir
     STATIC_FOLDER = os.path.join(basedir, 'app//static')
     TEMPLATE_FOLDER_MAIN = os.path.join(basedir, 'app//main//templates')

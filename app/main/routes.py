@@ -53,11 +53,16 @@ def index():
     Students = db.session.scalars(sqla.select(Student))
     Faculties = db.session.scalars(sqla.select(Faculty))
     PositionsA = db.session.scalars(Positions).all()
+    
+    # Filter out full positions for students (not for faculty)
     if current_user.is_authenticated:
         if current_user.role == 'faculty':
             return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
         elif current_user.role == 'student':
             return redirect(url_for('student.student_index', student_id=current_user.id))
+    else:
+        # For non-authenticated users, also filter out full positions
+        PositionsA = [pos for pos in PositionsA if not pos.is_full()]
     return render_template('student_index.html', title="Course List", students = Students, form = form, positions=PositionsA)
 
 @main.route('/faculty', methods=['GET'])
@@ -73,6 +78,10 @@ def faculty_index():
 @login_required
 def view_position(position_id):
     position=Position.query.get_or_404(position_id)
+    # Prevent students from viewing full positions
+    if current_user.role == 'student' and position.is_full():
+        flash('This position is full and no longer accepting applications.', 'error')
+        return redirect(url_for('student.student_index', student_id=current_user.id))
     return render_template('position_detail_page.html',position=position)
 
 
