@@ -45,6 +45,9 @@ def student_index(student_id):
             if form.grades.data:
                 try:
                     min_gpa = float(form.grades.data)
+                    if min_gpa > 5.0:
+                        flash('GPA cannot be greater than 5.0.', 'error')
+                        return redirect(url_for('student.student_index', student_id=student_id))
                     Positions = Positions.where(Position.min_gpa >= min_gpa)
                 except ValueError:
                     flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
@@ -80,12 +83,20 @@ def student_profile_view(student_id):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
+        if form.gpa.data:
+                try:
+                    current_user.gpa = float(form.gpa.data)
+                    if current_user.gpa > 5.0:
+                        flash('GPA cannot be greater than 5.0.', 'error')
+                        return redirect(url_for('student.edit_profile'))
+                except ValueError:
+                    flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
+                    return redirect(url_for('student.edit_profile'))
         current_user.username = form.username.data
         current_user.firstname = form.firstname.data
         current_user.lastname = form.lastname.data
         current_user.email = form.email.data
         current_user.majors = form.majors.data
-        current_user.gpa = form.gpa.data
         current_user.research_topics = form.research_topics.data
         current_user.languages = form.languages.data
 
