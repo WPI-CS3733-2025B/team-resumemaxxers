@@ -52,14 +52,18 @@ def register():
         send_email(rform.email.data, subject, message)
 
         for entry in rform.courses.entries:
-            db.session.add(
-                CourseEnrollment(
-                    student=student,
-                    course=entry.form.course.data,
-                    instructor=entry.form.instructor.data,
-                    grade=entry.form.grade.data
+            if entry.form.course.data and entry.form.instructor.data and entry.form.grade.data:
+                db.session.add(
+                    CourseEnrollment(
+                        student=student,
+                        course=entry.form.course.data,
+                        instructor=entry.form.instructor.data,
+                        grade=entry.form.grade.data
+                    )
                 )
-            )
+            else: 
+                flash('Please provide the course, instructor, and grade for each course entry.', 'error')
+                return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
 
         student.set_password(rform.password.data)
         db.session.add(student)
