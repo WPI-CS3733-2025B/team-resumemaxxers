@@ -14,12 +14,20 @@ import hashlib
 def register():
     rform = RegistrationForm()
     if rform.validate_on_submit():
+        try:
+            the_gpa = float(rform.gpa.data)
+            if the_gpa > 5.0:
+                flash('GPA cannot be greater than 5.0.', 'error')
+                return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
+        except ValueError:
+            flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
+            return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
         student = Student(username=rform.username.data,
                           firstname=rform.firstname.data,
                           lastname=rform.lastname.data,
                           email=rform.email.data,
                           majors=rform.majors.data,
-                          gpa=rform.gpa.data,
+                          gpa=the_gpa,
                           research_topics=rform.research_topics.data,
                           languages=rform.languages.data
                           )
