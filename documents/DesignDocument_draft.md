@@ -282,8 +282,8 @@ Include a detailed description of the routes your application will implement.
 | 2. |   'GET', 'POST'  | student(Post to create a student) | student registration page |
 | 3. |   'GET'  | /auth/session | student and faculty logout            |
 | 4. |  'GET', 'POST'  | /auth/faculty/session   | faculty login page        |
-| 5. | 'GET'  | email_varifications/<token> | faculty verifies email          |
-| 6. | 'GET'  | email_varifications | faculty verifies email          |
+| 5. | 'GET'  | email_verifications/<token> | faculty verifies email          |
+| 6. | 'GET'  | email_verifications | resending verification for faculty          |
 | 7. | 'GET'  | /auth/faculty/sso_session | faculty login with Auth0 SSO          |
 
 
@@ -305,19 +305,19 @@ Include a detailed description of the routes your application will implement.
 
 |   | Methods           | URL Path                          | Description  |
 |:--|:------------------|:----------------------------------|:-------------|
-|1. | 'GET' | faculty/<faculty_id>/profile/view | faculty view their profile |
-|2. | 'POST'  | faculty/<application_id>/view                | page for viewing application details |
-|3. | 'POST'  | faculty/<application_id>/approve                 | faculty approve students' application         |
-|4. | 'POST'  | faculty/<application_id>/reject | faculty reject students' application          |
-|5. | 'POST'  | faculty/recommendation/<recommendation_id>/approve                      | faculty-only method for accepting a student rec. request       |
-|6. | 'POST'  | faculty/recommendation/<recommendation_id>/reject                      | faculty-only method for rejecting a student rec. request       |
+|1. | 'GET' | faculty/<faculty_id>/profile | faculty view their profile |
+|2. | 'GET'  | faculty/<application_id>/applications                | page for viewing application details |
+|3. | 'POST'  | faculty/<application_id>/approval                 | faculty approve students' application         |
+|4. | 'POST'  | faculty/<application_id>/rejection | faculty reject students' application          |
+|5. | 'POST'  | faculty/recommendation/<recommendation_id>/approval                      | faculty-only method for accepting a student rec. request       |
+|6. | 'POST'  | faculty/recommendation/<recommendation_id>/rejection                      | faculty-only method for rejecting a student rec. request       |
 |7. | 'GET', 'POST' | faculty/<faculty_id>/index        | faculty view main page (their own positions) |
-| 8. | 'POST'      | /faculty/<faculty_id>/create_position              | faculty-only method for creating positions     |
-| 9. | 'GET', 'POST' | faculty/<position_id>/edit_position                | faculty-only page for editing positions        |
-| 10. | 'GET', 'POST' | faculty/<position_id>/delete_position              | faculty-only method for deleting a position    |
+| 8. | 'POST'      | /faculty/<faculty_id>/positions              | faculty-only method for creating positions     |
+| 9. | 'GET', 'POST' | faculty/positions<position_id>/settings                | faculty-only page for editing positions        |
+| 10. | 'GET', 'POST' | faculty/positions/<position_id>/positions/deletion              | faculty-only method for deleting a position    |
 |11. | 'GET', 'POST' | faculty/dashboard        | faculty view the dashboard (their applications and recommendations) |
-|12. | 'GET'   | student_list/<position_id>/view                         | page to view all the applications of a position            |
-|13. | 'GET', 'POST' | faculty/editlists                 | faculty edit the predefined lists |
+|12. | 'GET'   | faculty/positions/<position_id>/applications                         | page to view all the applications of a position            |
+|13. | 'GET', 'POST' | faculty/<faculty_id>/lists/settings                | faculty edit the predefined lists |
 | 14. | 'GET', 'POST' | faculty/recommendations           | faculty viewing reference requests from students |
 
 
@@ -345,6 +345,7 @@ Provide UI sketches or screenshots for the following pages:
  * Student applying for a position
 
 <img src ="../md-images/application_page.png"></img>
+
 
 
 
