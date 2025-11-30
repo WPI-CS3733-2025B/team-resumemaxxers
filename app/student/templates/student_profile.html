@@ -30,15 +30,34 @@
                 {% endfor %}
             </ul>
         </p>
-        <p> <b>Recommendation:</b> {{ user.recommendation }} </p>
-        <p> <b>Application:</b> {{ user.applications }} </p>
         <p> <b>Courses:</b> 
             <ul>
-                {% for course in user.get_course_names() %}
-                    <li>{{ course }}</li>
+                {% for CEnroll in user.courses %}
+                    <li>{{ CEnroll.course.name }} by {{ CEnroll.instructor.firstname }} {{ CEnroll.instructor.lastname }}, grade: {{ CEnroll.grade }}</li>
                 {% endfor %}
             </ul>
         </p>
+        <p> <b>Recommendations:</b> 
+            <ul>
+                {% for rec in user.recommendations %}
+                    <li>{{ rec.faculty.firstname }} {{ rec.faculty.lastname }} ({{ rec.status }})</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p> <b>Already approved:</b>
+            <ul>
+                {% set approved_apps = user.applications
+                    |selectattr('status', 'equalto', 'approved')
+                    |list %}
+                
+                {% if approved_apps %}
+                    <li>Yes</li>
+                {% else %}
+                    <li>No</li>
+                {% endif %}
+            </ul>
+        </p>
+        
 
     </div>
     {% if current_user.id == user.id %}
