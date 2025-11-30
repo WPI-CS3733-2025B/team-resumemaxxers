@@ -292,11 +292,11 @@ Include a detailed description of the routes your application will implement.
 |    | Methods           | URL Path   | Description               |
 |:---|:------------------|:-----------|:--------------------------|
 | 1. |  'GET', 'POST'  | /auth/student/session | student login page        |
-| 2. |   'GET', 'POST'  | student(Post to create a student) | student registration page |
+| 2. |   'GET', 'POST'  | /auth/student/registration | student registration page |
 | 3. |   'GET'  | /auth/session | student and faculty logout            |
 | 4. |  'GET', 'POST'  | /auth/faculty/session   | faculty login page        |
-| 5. | 'GET'  | email_verifications/<token> | faculty verifies email          |
-| 6. | 'GET'  | email_verifications | resending verification for faculty          |
+| 5. | 'GET'  | /auth/email_verifications/<token> | faculty verifies email          |
+| 6. | 'GET'  | /auth/new_verification | resending verification for faculty          |
 | 7. | 'GET'  | /auth/faculty/sso_session | faculty login with Auth0 SSO          |
 
 
@@ -305,14 +305,14 @@ Include a detailed description of the routes your application will implement.
 |   | Methods      | URL Path                          | Description                              |
 |:--|:-------------|:----------------------------------|:-----------------------------------------|
 |1. | 'GET'        | student/<student_id>/profile | students or faculty view student profile |
-|2. | 'GET', 'POST' | students/<student_id>/profile        | student edits their profile              |
+|2. | 'GET', 'POST' | student/<student_id>/profile        | student edits their profile              |
 |3. | 'GET', 'POST' | student/,student_id>/positions        | student view main page (positions) |
-| 4. | 'GET', 'POST' | positions/<position_id>/applications | student-only method for applying to a position |
-|5. | 'GET'        | students/<student_id>/applications | students views recommended positions |
-|6. | 'GET', 'POST' | positions/recommended        | student view the dashboard (their applications and recommendations) |
-|7. | 'POST'  | applications/<application_id>/withdrawn              | student withdraw their 'pending' applications |
-| 8. | 'GET'       | position/<position_id>                | page for viewing position info                 |
-|9. | 'POST'  | students/<student_id>/recommendations | student-only method for requesting a faculty recommendation    |
+| 4. | 'GET', 'POST' | student/positions/<position_id>/applications | student-only method for applying to a position |
+|5. | 'GET'        | students/<student_id>/applications | students views applications |
+|6. | 'GET', 'POST' | student/positions/recommended        | student view the dashboard (their applications and recommendations) |
+|7. | 'POST'  | student/applications/<application_id>/withdrawn              | student withdraw their 'pending' applications |
+| 8. | 'GET'       | student/position/<position_id>                | page for viewing position info                 |
+|9. | 'POST'  | student/<student_id>/recommendations | student-only method for requesting a faculty recommendation    |
 
 #### 2.2.2.3 \<Blueprint3> Routes main.faculty.routes -- faculty
 
@@ -358,6 +358,7 @@ Provide UI sketches or screenshots for the following pages:
  * Student applying for a position
 
 <img src ="../md-images/application_page.png"></img>
+
 
 
 
