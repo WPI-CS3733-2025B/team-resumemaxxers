@@ -56,8 +56,10 @@ def init_database(request, test_client):
 
     # Faculty
     dr_alan_turing = Faculty(username='dr_alan_turing', email='alan@turing.com', firstname='Alan', lastname='Turing')
-    bill_clinton_fac = Faculty(username='bill_clinton_fac', email='billf@clinton.com', firstname='Bill', lastname='Clinton', id=68)
+    bill_clinton_fac = Faculty(username='bill_clinton_fac', email='billf@clinton.com', firstname='Bill', lastname='Clinton', id=68, verified=True)
     donald_trump_fac = Faculty(username='Donald Trump', email='donald@trump.com', firstname='Donald', lastname='Trump')
+    unverified_faculty = Faculty(username='unverified_prof', email='unverified@prof.com', firstname='Unverified', lastname='Professor', verified=False)
+    unverified_faculty.set_password('password')
 
     donald_trump.set_password("67")
     bill_clinton_fac.set_password("68")
@@ -77,7 +79,7 @@ def init_database(request, test_client):
     course_adv_algo = Course(name='Advanced Algorithms', coursenum='CS-420')
 
     db.session.add_all([donald_trump, bill_clinton, peter_jones, barack_obama, william_shakespeare, bill_clinton2,
-                        dr_alan_turing, bill_clinton_fac, donald_trump_fac,
+                        dr_alan_turing, bill_clinton_fac, donald_trump_fac, unverified_faculty,
                         major_compsci, major_engineering, topic_ai, lang_python,
                         course_intro_cs, course_adv_algo])
     db.session.commit()
@@ -706,4 +708,27 @@ def test_delete_course_with_dependency_from_lists(request, test_client, init_dat
     with test_client.application.app_context():
         course = db.session.get(Course, course_id)
         assert course is not None
+    do_logout(test_client, path='/logout')
+
+def test_unverified_faculty_redirect(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN an unverified faculty member logs in
+    THEN check that they are redirected to the unverified page
+    """
+    # Login as unverified faculty
+    response = test_client.post('/login', data={
+        'username': 'unverified_prof',
+        'password': 'password',
+        'role': 'faculty'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Account Not Verified" in response.data
+
+    # Try to access a protected faculty route
+    response = test_client.get('/faculty/dashboard', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Account Not Verified" in response.data
+
+    # Logout
     do_logout(test_client, path='/logout')
