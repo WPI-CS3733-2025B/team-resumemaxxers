@@ -128,6 +128,8 @@ def login():
             user = db.session.scalars(query).first()
             if user and user.check_password(password):
                 login_user(user, remember=remember_me)
+                if not user.verified:
+                    return redirect(url_for('faculty.unverified'))
                 flash('The user {} has successfully logged in!'.format(user.username))
                 return redirect(url_for('faculty.faculty_index', faculty_id=user.id))
 

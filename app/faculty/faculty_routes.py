@@ -14,6 +14,20 @@ from sqlalchemy import text
 from app.main import main_blueprint as main
 from app.faculty import faculty_blueprint as faculty
 
+@faculty.before_request
+def before_request():
+    if current_user.is_authenticated and isinstance(current_user, Faculty) and not current_user.verified:
+        if request.endpoint and 'faculty.' in request.endpoint and request.endpoint not in ['faculty.unverified', 'auth.logout']:
+            return redirect(url_for('faculty.unverified'))
+
+@faculty.route('/faculty/unverified')
+@login_required
+def unverified():
+    if current_user.verified:
+        return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    return render_template('unverified.html')
+
+
 @faculty.route('/faculty/<faculty_id>/profile/view', methods=['GET'])
 @login_required
 def faculty_profile_view(faculty_id):
