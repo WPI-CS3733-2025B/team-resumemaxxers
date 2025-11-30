@@ -973,3 +973,30 @@ def test_student_registration_missing_course_data(request, test_client, init_dat
         assert db.session.query(Student).count() == initial_student_count # Student should not be added
 
     assert not mock_send_email.called # send_email should not be called # send_email should not be called
+
+
+def test_student_index_loads_all_positions_without_filters(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student visits the student index page without applying filters
+    THEN check that the page loads successfully and displays all available positions.
+    """
+    do_login(test_client, path='/login', username='donald_trump', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='donald_trump')).first()
+        assert student is not None
+
+        # Get all positions to verify against the response
+        all_positions = db.session.scalars(sqla.select(Position)).all()
+        assert len(all_positions) > 0
+
+    response = test_client.get(f'/student/{student.id}/index', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Course List' in response.data  # Check for title
+
+    # Verify that all positions are displayed
+    for position in all_positions:
+        assert position.name.encode('utf-8') in response.data
+
+    do_logout(test_client, path='/logout')
