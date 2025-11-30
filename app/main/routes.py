@@ -66,7 +66,7 @@ def index():
 def faculty_index():
     #courses = db.session.scalars(sqla.select(Course))
     FacultyList = db.session.scalars(sqla.select(Faculty))
-    Positions = db.session.scalars(sqla.select(Position))
+    Positions = db.session.scalars(sqla.select(Position).order_by(Position.id.desc()))
     return render_template('faculty_index.html', title="Course List", faculty = FacultyList, positions=Positions)
 
 @main.route('/position/<position_id>/view', methods=['GET'])
