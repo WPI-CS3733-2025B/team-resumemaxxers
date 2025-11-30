@@ -123,6 +123,20 @@ def init_database(request, test_client):
     db.drop_all()
 
 
+def test_errors(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the nonsense page is requested
+    THEN check that the response is 404
+    """
+    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/student/dashboard/fdsmofogf')
+    assert response.status_code == 404
+
+    do_logout(test_client, path='/logout')
+
+
 def test_student_dashboard_loads(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
@@ -194,6 +208,19 @@ def test_login_with_invalid_credentials_fails(request, test_client, init_databas
     """
     response = test_client.post('/login',
                                 data=dict(username='sakire', password='12345', remember_me=False),
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Sign In" in response.data
+
+
+def test_login_with_invalid_credentials_fails_2(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with wrong credentials
+    THEN check that the response is valid and login is refused
+    """
+    response = test_client.post('/login',
+                                data=dict(username='Donald Trump', password='12345', remember_me=False),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b"Sign In" in response.data

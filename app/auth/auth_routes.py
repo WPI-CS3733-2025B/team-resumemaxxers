@@ -79,7 +79,7 @@ def register():
 def login_faculty():
     form = RegistrationFormFaculty()
     if form.validate_on_submit():
-        fac_from_username = form.username.data   
+        fac_from_username = form.username.data
         fac_from_email = form.email.data         
 
         if fac_from_username is None or fac_from_email is None or fac_from_username.id != fac_from_email.id:

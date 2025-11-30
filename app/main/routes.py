@@ -39,16 +39,16 @@ def index():
     if form.validate_on_submit(): 
         if form.majors.data and len(form.majors.data) > 0:
             Positions = Positions.join(Position.majors).where(Major.id.in_(form.majors.data)).distinct()
-        if form.courses.data:
-            Positions = Positions.join(Position.courses).where(Position.id == form.courses.data)
+        if form.courses.data and len(form.courses.data) > 0:
+            Positions = Positions.join(Position.courses).where(Course.id.in_(form.courses.data)).distinct()
         if form.grades.data:
             Positions = Positions.where(Position.min_gpa >= float(form.grades.data))
         if form.course_instructors.data:
-            Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data)
-        if form.research_topics.data:
-            Positions = Positions.join(Position.research_topics).where(ResearchTopic.name == form.research_topics.data)
-        if form.languages.data:
-            Positions = Positions.join(Position.languages).where(Language.name == form.languages.data)
+            Positions = Positions.join(Position.faculty).where(Faculty.id == form.course_instructors.data).distinct()
+        if form.research_topics.data and len(form.research_topics.data) > 0:
+            Positions = Positions.join(Position.research_topics).where(ResearchTopic.name.in_(form.research_topics.data)).distinct()
+        if form.languages.data and len(form.languages.data) > 0:
+            Positions = Positions.join(Position.languages).where(Language.name.in_(form.languages.data)).distinct()
 
     Students = db.session.scalars(sqla.select(Student))
     Faculties = db.session.scalars(sqla.select(Faculty))
