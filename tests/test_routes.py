@@ -686,6 +686,27 @@ def test_add_course_to_lists(request, test_client, init_database):
         assert course.coursenum == 'NC-101'
     do_logout(test_client, path='/logout')
 
+
+def test_add_major_to_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member adds a major through the 'edit_lists' page
+    THEN check that the new major is in the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.post('/faculty/lists/settings', data={
+        'major-name': 'VC',
+        'major-submit': 'True'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Major added!' in response.data
+    with test_client.application.app_context():
+        major = db.session.scalars(sqla.select(Major).filter_by(name='VC')).first()
+        assert major is not None
+        assert major.name == 'VC'
+    do_logout(test_client, path='/logout')
+
+
 def test_delete_course_from_lists(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
@@ -708,6 +729,31 @@ def test_delete_course_from_lists(request, test_client, init_database):
     with test_client.application.app_context():
         course = db.session.get(Course, course_id)
         assert course is None
+    do_logout(test_client, path='/logout')
+
+
+def test_delete_topic_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member deletes a topic through the 'edit_lists' page
+    THEN check that the topic is removed from the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    with test_client.application.app_context():
+        new_topic = ResearchTopic(name='Deletable Topic')
+        db.session.add(new_topic)
+        db.session.commit()
+        topic_id = new_topic.name
+
+    response = test_client.post('/faculty/lists/settings', data={
+        'research_delete-research_topics': [topic_id],
+        'research_delete-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'topics deleted!' in response.data
+    with test_client.application.app_context():
+        topic = db.session.get(ResearchTopic, topic_id)
+        assert topic is None
     do_logout(test_client, path='/logout')
 
 def test_delete_course_with_dependency_from_lists(request, test_client, init_database):
