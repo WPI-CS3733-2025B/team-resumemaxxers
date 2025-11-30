@@ -304,48 +304,68 @@ def edit_lists():
 
 
     if cdform.submit.data and cdform.validate_on_submit(): 
-        for course in cdform.courses.data:
-            db.session.delete(course)
+        try:
+            for course in cdform.courses.data:
+                db.session.delete(course)
 
-        db.session.commit()
-        flash('Courses deleted!', 'success')
-        return redirect(url_for('faculty.edit_lists'))
+            db.session.commit()
+            flash('Courses deleted!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+        except sqla.exc.IntegrityError:
+            db.session.rollback()
+            flash('Cannot delete this item due to dependencies!', 'error')
+            return redirect(url_for('faculty.edit_lists'))
     else:
         for fieldName, errorMessages in cdform.errors.items():
             for err in errorMessages:
                 print(err)
 
     if rdform.submit.data and rdform.validate_on_submit(): 
-            for research in rdform.research_topics.data:
-                db.session.delete(research)
+            try:
+                for research in rdform.research_topics.data:
+                    db.session.delete(research)
 
-            db.session.commit()
-            flash('Research topics deleted!', 'success')
-            return redirect(url_for('faculty.edit_lists'))
+                db.session.commit()
+                flash('Research topics deleted!', 'success')
+                return redirect(url_for('faculty.edit_lists'))
+            except sqla.exc.IntegrityError:
+                db.session.rollback()
+                flash('Cannot delete this item due to dependencies!', 'error')
+                return redirect(url_for('faculty.edit_lists'))
     else:
         for fieldName, errorMessages in rdform.errors.items():
             for err in errorMessages:
                 print(err)
 
     if mdform.submit.data and mdform.validate_on_submit(): 
-            for major in mdform.majors.data:
-                db.session.delete(major)
+            try:
+                for major in mdform.majors.data:
+                    db.session.delete(major)
 
-            db.session.commit()
-            flash('Majors deleted!', 'success')
-            return redirect(url_for('faculty.edit_lists'))
+                db.session.commit()
+                flash('Majors deleted!', 'success')
+                return redirect(url_for('faculty.edit_lists'))
+            except sqla.exc.IntegrityError:
+                db.session.rollback()
+                flash('Cannot delete this item due to dependencies!', 'error')
+                return redirect(url_for('faculty.edit_lists'))
     else:
         for fieldName, errorMessages in mdform.errors.items():
             for err in errorMessages:
                 print(err)
 
     if ldform.submit.data and ldform.validate_on_submit(): 
-            for language in ldform.languages.data:
-                db.session.delete(language)
+            try:
+                for language in ldform.languages.data:
+                    db.session.delete(language)
 
-            db.session.commit()
-            flash('Languages deleted!', 'success')
-            return redirect(url_for('faculty.edit_lists'))
+                db.session.commit()
+                flash('Languages deleted!', 'success')
+                return redirect(url_for('faculty.edit_lists'))
+            except sqla.exc.IntegrityError:
+                db.session.rollback()
+                flash('Cannot delete this item due to dependencies!', 'error')
+                return redirect(url_for('faculty.edit_lists'))
     else:
         for fieldName, errorMessages in ldform.errors.items():
             for err in errorMessages:
