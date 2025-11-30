@@ -32,6 +32,14 @@ def register():
                           languages=rform.languages.data
                           )
 
+        for entry in rform.courses.entries:
+            if not (entry.form.course.data and entry.form.instructor.data and entry.form.grade.data):
+                flash('Please provide the course, instructor, and grade for each course entry.', 'error')
+                return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
+
+        student.set_password(rform.password.data)
+        db.session.add(student)
+
         # Email the user their verification code
         vercode_unhashed = student.email + "SALT!!!"
         subject = "Your Verification Code For Research App"
@@ -52,21 +60,15 @@ def register():
         send_email(rform.email.data, subject, message)
 
         for entry in rform.courses.entries:
-            if entry.form.course.data and entry.form.instructor.data and entry.form.grade.data:
-                db.session.add(
-                    CourseEnrollment(
-                        student=student,
-                        course=entry.form.course.data,
-                        instructor=entry.form.instructor.data,
-                        grade=entry.form.grade.data
-                    )
+            db.session.add(
+                CourseEnrollment(
+                    student=student,
+                    course=entry.form.course.data,
+                    instructor=entry.form.instructor.data,
+                    grade=entry.form.grade.data
                 )
-            else: 
-                flash('Please provide the course, instructor, and grade for each course entry.', 'error')
-                return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
+            )
 
-        student.set_password(rform.password.data)
-        db.session.add(student)
         db.session.commit()
 
         login_user(student, remember=True)

@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = 'REPLACE_LATER'
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'sqla': sqla, 'sqlo': sqlo, 'db': db, 'Major': Major, 'Interest': ResearchTopic, 'Language': Language, 'Course': Course}
+    return {'sqla': sqla, 'sqlo': sqlo, 'db': db, 'Major': Major, 'Interest': ResearchTopic, 'Language': Language, 'Course': Course, 'Faculty': Faculty, 'User': User}
 
 majors = ["Aerospace Engineering", "Biomedical Engineering", "Chemical Engineering", "Civil Engineering", "Computer Science", "Electrical & Computer Engineering", "Environmental Engineering", "Industrial Engineering", "Data Science", "Robotics Engineering", "Mechanical Engineering", "Mathematical Sciences", "Physics", "Actuarial Mathematics", "Biology & Biotechnology", "Chemistry", "Management Information Systems"]
 interests = ["Machine Learning", "High Performance Computing", "Artificial Intelligence", "Cybersecurity", "Knowledge Discovery & Data Mining", "Computer Graphics", "Human-Robot Interaction", "Biomechanics", "Sustainable Energy Systems", "Materials Science", "Bioinformatics", "Environmental Modeling", "Quantum Computing", "Game Development"]

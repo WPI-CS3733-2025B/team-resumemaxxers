@@ -1,6 +1,6 @@
 import os
 import pytest
-from flask import url_for
+from flask import url_for, get_flashed_messages
 from app import create_app, db
 from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, Course, ResearchTopic,     Language, CourseEnrollment
 from config import Config
@@ -230,7 +230,9 @@ def do_login(test_client, path, username, passwd, user_role):
                                 data=dict(username=username, password=passwd, role=user_role, remember_me=False),
                                 follow_redirects=True)
     assert response.status_code == 200
-    assert b"Logout" in response.data
+    assert b"Logout" in response.data # This implies successful login and render of page with logout link
+
+    return response # Return response if needed by caller
 
 def do_logout(test_client, path):
     response = test_client.get(path,
@@ -805,3 +807,169 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
 
     # Logout
     do_logout(test_client, path='/logout')
+
+
+from unittest.mock import patch
+
+def test_successful_student_registration(request, test_client, init_database, mocker):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a new student registers with valid data
+    THEN check that the student is added to the database and redirected to the verification page.
+    """
+    mock_send_email = mocker.patch('app.auth.auth_routes.send_email')  # Mock the send_email function
+
+    with test_client.application.app_context():
+        # Get IDs for existing majors, research topics, languages, and courses
+        major_compsci_id = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id
+        topic_ai_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_python_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+        course_intro_cs_id = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first().id
+        faculty_id = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first().id
+
+
+    registration_data = {
+        'username': 'new_student_user',
+        'firstname': 'New',
+        'lastname': 'Student',
+        'email': 'new_student@example.com',
+        'password': 'password',
+        'password2': 'password',
+        'gpa': '3.5',
+        'majors': [major_compsci_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': faculty_id,
+        'courses-0-grade': 'A',
+        'csrf_token': 'test' # Assuming WTF_CSRF_ENABLED is False for testing
+    }
+
+    response = test_client.post('/student/register', data=registration_data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Congratulations, you are now a registered user!" in response.data
+    assert b"Please check your email (and your spam folder) for a verification code." in response.data
+    assert b"Verify Your Account" in response.data # Redirects to verify page
+
+    # Check if student is added to the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='new_student_user')).first()
+        assert student is not None
+        assert student.email == 'new_student@example.com'
+        assert student.gpa == 3.5
+        assert len(student.majors) == 1
+        assert student.majors[0].name == 'Computer Science'
+        assert len(student.courses) == 1
+        assert student.courses[0].course.name == 'Intro to CS'
+
+    assert mock_send_email.called
+
+
+def test_student_registration_invalid_gpa(request, test_client, init_database, mocker):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a new student registers with invalid GPA data
+    THEN check that registration fails and appropriate flash messages are displayed.
+    """
+    do_logout(test_client, path='/logout') # Ensure no user is logged in
+    mock_send_email = mocker.patch('app.auth.auth_routes.send_email')
+
+    with test_client.application.app_context():
+        initial_student_count = db.session.query(Student).count()
+        major_compsci_id = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id
+        topic_ai_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_python_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+        course_intro_cs_id = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first().id
+        faculty_id = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first().id
+
+    # Scenario 1: GPA greater than 5.0
+    registration_data_high_gpa = {
+        'username': 'gpa_student_high',
+        'firstname': 'GPA',
+        'lastname': 'High',
+        'email': 'gpa_high@example.com',
+        'password': 'password',
+        'password2': 'password',
+        'gpa': '5.1', # Invalid GPA
+        'majors': [major_compsci_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': faculty_id,
+        'courses-0-grade': 'A',
+        'csrf_token': 'test'
+    }
+    response = test_client.post('/student/register', data=registration_data_high_gpa, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'GPA cannot be greater than 5.0.' in response.data
+    with test_client.application.app_context():
+        assert db.session.query(Student).count() == initial_student_count # Student should not be added
+
+    # Scenario 2: Non-numeric GPA
+    registration_data_non_numeric_gpa = {
+        'username': 'gpa_student_non_numeric',
+        'firstname': 'GPA',
+        'lastname': 'NonNumeric',
+        'email': 'gpa_non_numeric@example.com',
+        'password': 'password',
+        'password2': 'password',
+        'gpa': 'abc', # Invalid GPA
+        'majors': [major_compsci_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': faculty_id,
+        'courses-0-grade': 'A',
+        'csrf_token': 'test'
+    }
+    response = test_client.post('/student/register', data=registration_data_non_numeric_gpa, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Invalid input for Minimum GPA. Please enter a valid number.' in response.data
+    with test_client.application.app_context():
+        assert db.session.query(Student).count() == initial_student_count # Student should not be added
+
+    assert not mock_send_email.called
+
+
+def test_student_registration_missing_course_data(request, test_client, init_database, mocker):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a new student registers with missing course enrollment data
+    THEN check that registration fails and appropriate flash messages are displayed.
+    """
+    do_logout(test_client, path='/logout')
+    mock_send_email = mocker.patch('app.auth.auth_routes.send_email')
+
+    with test_client.application.app_context():
+        initial_student_count = db.session.query(Student).count()
+        major_compsci_id = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id
+        topic_ai_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_python_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+        course_intro_cs_id = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first().id
+        faculty_id = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first().id
+
+    # Scenario: Missing course data (e.g., instructor is None)
+    registration_data_missing_course = {
+        'username': 'course_student_missing',
+        'firstname': 'Course',
+        'lastname': 'Missing',
+        'email': 'course_missing@example.com',
+        'password': 'password',
+        'password2': 'password',
+        'gpa': '3.0',
+        'majors': [major_compsci_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': '', # Missing instructor
+        'courses-0-grade': 'A',
+        'csrf_token': 'test'
+    }
+    response = test_client.post('/student/register', data=registration_data_missing_course, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Please provide the course, instructor, and grade for each course entry.' in response.data
+    with test_client.application.app_context():
+        assert db.session.query(Student).count() == initial_student_count # Student should not be added
+
+    assert not mock_send_email.called # send_email should not be called # send_email should not be called
