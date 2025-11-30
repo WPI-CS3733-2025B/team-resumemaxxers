@@ -60,6 +60,9 @@ class RegistrationForm(FlaskForm):
 
 
 class RegistrationFormFaculty(FlaskForm):
+    email = QuerySelectField('Email', 
+                                    query_factory=lambda: db.session.scalars(sqla.select(Faculty).order_by(Faculty.username)),
+                                      get_label=lambda theFac: theFac.email)
     username = QuerySelectField('Username',
                                       query_factory=lambda: db.session.scalars(sqla.select(Faculty).order_by(Faculty.username)),
                                       get_label=lambda theFac: theFac.username)

@@ -8,7 +8,6 @@ from app.main.models import Course, Student, Position, Faculty, Application, Rec
 from app.main.models import Faculty
 from app.email import send_email
 #from app.main.forms import CourseForm, EditForm, EmptyForm
-from app.auth.auth_forms import EditProfileForm
 from flask_login import current_user, login_required
 from sqlalchemy import text
 
@@ -193,7 +192,6 @@ def create_position(faculty_id):
         )
 
 
-        # Handle many-to-many relationships
         new_position.majors = cform.majors.data
         new_position.research_topics = cform.research_topics.data
         new_position.languages = cform.languages.data
@@ -290,3 +288,174 @@ def faculty_dashboard():
                            applications=applications,
                            recommendations=recommendations,
                            title="Faculty Dashboard")
+
+@faculty.route('/faculty/lists/settings', methods=['GET', 'POST'])
+@login_required
+def edit_lists():
+    cform = AddCourseForm(prefix='course')
+    rform = AddResearchForm(prefix='research')
+    mform = AddMajorForm(prefix='major')
+    lform = AddLanguageForm(prefix='language')
+
+    cdform = DeleteCourseForm(prefix='course_delete')
+    rdform = DeleteResearchForm(prefix='research_delete')
+    mdform = DeleteMajorForm(prefix='major_delete')
+    ldform = DeleteLanguageForm(prefix='language_delete')
+
+
+    if cdform.submit.data and cdform.validate_on_submit(): 
+        for course in cdform.courses.data:
+            db.session.delete(course)
+
+        db.session.commit()
+        flash('Courses deleted!', 'success')
+        return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in cdform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if rdform.submit.data and rdform.validate_on_submit(): 
+            for research in rdform.research_topics.data:
+                db.session.delete(research)
+
+            db.session.commit()
+            flash('Research topics deleted!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in rdform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if mdform.submit.data and mdform.validate_on_submit(): 
+            for major in mdform.majors.data:
+                db.session.delete(major)
+
+            db.session.commit()
+            flash('Majors deleted!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in mdform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if ldform.submit.data and ldform.validate_on_submit(): 
+            for language in ldform.languages.data:
+                db.session.delete(language)
+
+            db.session.commit()
+            flash('Languages deleted!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in ldform.errors.items():
+            for err in errorMessages:
+                print(err)
+                
+    if cform.submit.data and cform.validate_on_submit(): 
+        if cform.name.data and cform.coursenum.data and cform.majors.data:
+            new_course = Course(
+                name = cform.name.data,
+                coursenum = cform.coursenum.data,
+
+            )
+            
+            new_course.majors = cform.majors.data
+
+            db.session.add(new_course)
+            db.session.commit()
+            flash('Course added!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+        else:
+            flash('Please complete the form', 'error')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in cform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if rform.submit.data and rform.validate_on_submit():
+        if rform.name.data:
+            name = rform.name.data.strip()
+
+            existing_topic = db.session.scalars(
+                sqla.select(ResearchTopic).where(ResearchTopic.name == name)
+            ).first()
+
+            if existing_topic:
+                flash(f'Research topic "{name}" already exists.', 'error')
+                return redirect(url_for('faculty.edit_lists'))
+            
+            new_research = ResearchTopic(
+                name = rform.name.data
+            )
+
+            db.session.add(new_research)
+            db.session.commit()
+            flash('Research Topic added!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+        else:
+            flash('Please complete the form', 'error')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in rform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if mform.submit.data and mform.validate_on_submit():
+        if mform.name.data:
+            name = mform.name.data.strip()
+
+            existing_topic = db.session.scalars(
+                sqla.select(Major).where(Major.name == name)
+            ).first()
+
+            if existing_topic:
+                flash(f'Major "{name}" already exists.', 'error')
+                return redirect(url_for('faculty.edit_lists'))
+            
+            new_major = Major(
+                name = mform.name.data
+            )
+
+            db.session.add(new_major)
+            db.session.commit()
+            flash('Major added!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+        else:
+            flash('Please complete the form', 'error')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in mform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    if lform.submit.data and lform.validate_on_submit():
+        if lform.name.data:
+            name = lform.name.data.strip()
+
+            existing_topic = db.session.scalars(
+                sqla.select(Language).where(Language.name == name)
+            ).first()
+
+            if existing_topic:
+                flash(f'Language "{name}" already exists.', 'error')
+                return redirect(url_for('faculty.edit_lists'))
+            
+            new_language = Language(
+                name = lform.name.data
+            )
+
+            db.session.add(new_language)
+            db.session.commit()
+            flash('Language added!', 'success')
+            return redirect(url_for('faculty.edit_lists'))
+        else:
+            flash('Please complete the form', 'error')
+            return redirect(url_for('faculty.edit_lists'))
+    else:
+        for fieldName, errorMessages in lform.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    return render_template('edit_lists.html', title='Edit lists', cform=cform, rform=rform,
+    mform=mform, lform=lform, cdform=cdform, rdform=rdform, mdform=mdform, ldform=ldform)

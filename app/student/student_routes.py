@@ -98,11 +98,9 @@ def edit_profile():
         current_user.research_topics = form.research_topics.data
         current_user.languages = form.languages.data
 
-        # Remove all existing records
         for enrollment in current_user.courses:
             db.session.delete(enrollment)
 
-        # Re-add all from submitted form
         for entry in form.courses.entries:
             db.session.add(
                 CourseEnrollment(

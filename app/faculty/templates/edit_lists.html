@@ -1,0 +1,71 @@
+{% extends "bootstrap_base.html" %}
+{% import 'bootstrap_wtf.html' as wtf %}
+
+{% block content %}
+    <h3> Delete course </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ cdform.hidden_tag()}}
+
+        {{wtf.form_field(cdform.courses)}}
+
+        {{wtf.form_field(cdform.submit)}}
+    </form>
+    <h3> Add course </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ cform.hidden_tag()}}
+
+        {{wtf.form_field(cform.name)}}
+        {{wtf.form_field(cform.coursenum)}}
+        {{wtf.form_field(cform.majors)}}
+
+        {{wtf.form_field(cform.submit)}}
+    </form>
+    <h3> Delete major </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ mdform.hidden_tag()}}
+
+        {{wtf.form_field(mdform.majors)}}
+
+        {{wtf.form_field(mdform.submit)}}
+    </form>
+    <h3> Add major </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ mform.hidden_tag()}}
+
+        {{wtf.form_field(mform.name)}}
+
+        {{wtf.form_field(mform.submit)}}
+    </form>
+    <h3> Delete research topic </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ rdform.hidden_tag()}}
+
+        {{wtf.form_field(rdform.research_topics)}}
+
+        {{wtf.form_field(rdform.submit)}}
+    </form>
+    <h3> Add research topic </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ rform.hidden_tag()}}
+
+        {{wtf.form_field(rform.name)}}
+
+        {{wtf.form_field(rform.submit)}}
+    </form>
+    <h3> Delete language </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ ldform.hidden_tag()}}
+
+        {{wtf.form_field(ldform.languages)}}
+
+        {{wtf.form_field(ldform.submit)}}
+    </form>
+    <h3> Add language </h3>
+    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+        {{ lform.hidden_tag()}}
+
+        {{wtf.form_field(lform.name)}}
+
+        {{wtf.form_field(lform.submit)}}
+    </form>
+{% endblock %}

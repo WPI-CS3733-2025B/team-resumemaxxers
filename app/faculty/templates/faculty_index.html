@@ -9,7 +9,10 @@
             <h1 class="mb-1">Welcome, faculty member!</h1>
         </div>
 
-        
+        <div class="align-self-end">
+            <a href="{{ url_for('faculty.edit_lists') }}" class="btn btn-primary btn-sm">Edit lists</a>
+        </div>
+
     </div>
     <div class="postlist">
     {% for position in positions %}
