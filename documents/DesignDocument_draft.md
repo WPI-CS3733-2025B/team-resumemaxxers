@@ -308,7 +308,7 @@ Include a detailed description of the routes your application will implement.
 |2. | 'GET', 'POST' | student/<student_id>/profile        | student edits their profile              |
 |3. | 'GET', 'POST' | student/,student_id>/positions        | student view main page (positions) |
 | 4. | 'GET', 'POST' | student/positions/<position_id>/applications | student-only method for applying to a position |
-|5. | 'GET'        | students/<student_id>/applications | students views applications |
+|5. | 'GET'        | student/<student_id>/applications | students views applications |
 |6. | 'GET', 'POST' | student/positions/recommended        | student view the dashboard (their applications and recommendations) |
 |7. | 'POST'  | student/applications/<application_id>/withdrawn              | student withdraw their 'pending' applications |
 | 8. | 'GET'       | student/position/<position_id>                | page for viewing position info                 |
@@ -358,6 +358,7 @@ Provide UI sketches or screenshots for the following pages:
  * Student applying for a position
 
 <img src ="../md-images/application_page.png"></img>
+
 
 
 
