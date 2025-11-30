@@ -27,13 +27,10 @@
                         {% for rec in user.recommendations %}
                             <tr>
                                 <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
-                                <td>{{ rec.student.firstname }} {{ rec.student.lastname }}</td>
+                                <td><a href="{{ url_for('student.student_profile_view', student_id=rec.student_id) }}">{{ rec.student.firstname }} {{ rec.student.lastname }}</a></td>
                                 <td>{{ rec.status }}</td>
                                 <td>
-                                    <a href="{{ url_for('student.student_profile_view', student_id=rec.student_id) }}"
-                                        class="btn btn-primary btn-sm">
-                                        View profile
-                                    </a>
+                                    
                                     
                                         {% if rec.status|lower == 'approved' %}
                                             <button class="btn btn-success" disabled>Approved</button>

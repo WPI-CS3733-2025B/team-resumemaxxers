@@ -68,5 +68,44 @@ body {
 }
 
 .btn-wide {
-    min-width: 100px;
+    min-width: 120px;
+    font-size: 1.02rem;
+    padding: 0.45rem 1.1rem;
+}
+
+.navbar .nav-link {
+    display: inline-flex;
+    align-items: center;
+
+    height: auto;
+
+    border-radius: 0.25rem;
+    color: #fff;
+    text-decoration: none;
+    background-color: transparent;
+    border: 1px solid rgba(255,255,255,0.0);
+    font-size: 0.95rem;
+}
+
+.navbar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.navbar .nav-link.active {
+  background-color: #ffffff;
+  color: #040562;
+}
+
+.navbar .navbar-brand {
+    color: #fff;
+    font-size: 0.98rem;
+    line-height: 1.1;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+
+.navbar .navbar-brand:hover,
+.navbar .navbar-brand:focus {
+    color: #fff;
 }
