@@ -3,14 +3,14 @@
 
 {% block content %}
 
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+    <div class="d-flex flex-wrap justify-content-start align-items-end mb-3">
 
         <div class="me-3">
             <h1 class="mb-1">Welcome, faculty member!</h1>
         </div>
 
-        <div class="align-self-end">
-            <a href="{{ url_for('faculty.edit_lists') }}" class="btn btn-primary btn-sm">Edit lists</a>
+        <div class="align-self-end ms-3">
+            <a href="{{ url_for('faculty.edit_lists') }}" class="btn btn-primary btn-lg btn-wide">Edit lists</a>
         </div>
 
     </div>

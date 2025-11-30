@@ -79,7 +79,7 @@ def register():
 def login_faculty():
     form = RegistrationFormFaculty()
     if form.validate_on_submit():
-        fac_from_username = form.username.data   
+        fac_from_username = form.username.data
         fac_from_email = form.email.data         
 
         if fac_from_username is None or fac_from_email is None or fac_from_username.id != fac_from_email.id:
@@ -128,6 +128,8 @@ def login():
             user = db.session.scalars(query).first()
             if user and user.check_password(password):
                 login_user(user, remember=remember_me)
+                if not user.verified:
+                    return redirect(url_for('faculty.unverified'))
                 flash('The user {} has successfully logged in!'.format(user.username))
                 return redirect(url_for('faculty.faculty_index', faculty_id=user.id))
 

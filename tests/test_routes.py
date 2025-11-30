@@ -56,8 +56,10 @@ def init_database(request, test_client):
 
     # Faculty
     dr_alan_turing = Faculty(username='dr_alan_turing', email='alan@turing.com', firstname='Alan', lastname='Turing')
-    bill_clinton_fac = Faculty(username='bill_clinton_fac', email='billf@clinton.com', firstname='Bill', lastname='Clinton', id=68)
+    bill_clinton_fac = Faculty(username='bill_clinton_fac', email='billf@clinton.com', firstname='Bill', lastname='Clinton', id=68, verified=True)
     donald_trump_fac = Faculty(username='Donald Trump', email='donald@trump.com', firstname='Donald', lastname='Trump')
+    unverified_faculty = Faculty(username='unverified_prof', email='unverified@prof.com', firstname='Unverified', lastname='Professor', verified=False)
+    unverified_faculty.set_password('password')
 
     donald_trump.set_password("67")
     bill_clinton_fac.set_password("68")
@@ -77,7 +79,7 @@ def init_database(request, test_client):
     course_adv_algo = Course(name='Advanced Algorithms', coursenum='CS-420')
 
     db.session.add_all([donald_trump, bill_clinton, peter_jones, barack_obama, william_shakespeare, bill_clinton2,
-                        dr_alan_turing, bill_clinton_fac, donald_trump_fac,
+                        dr_alan_turing, bill_clinton_fac, donald_trump_fac, unverified_faculty,
                         major_compsci, major_engineering, topic_ai, lang_python,
                         course_intro_cs, course_adv_algo])
     db.session.commit()
@@ -121,13 +123,27 @@ def init_database(request, test_client):
     db.drop_all()
 
 
+def test_errors(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the nonsense page is requested
+    THEN check that the response is 404
+    """
+    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/student/dashboard/fdsmofogf')
+    assert response.status_code == 404
+
+    do_logout(test_client, path='/logout')
+
+
 def test_student_dashboard_loads(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
     WHEN the '/student/dashboard' page is requested (GET)
     THEN check that the response is valid
     """
-    do_login(test_client, path='/login', username='jane_doe', passwd='testing', user_role="student")
+    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
 
     response = test_client.get('/student/dashboard')
     assert response.status_code == 200
@@ -141,8 +157,8 @@ def test_student_dashboard_loads(request, test_client, init_database):
 
     # Check for recommendation details
     assert b"Research Assistant" in response.data
-    assert b"Grace" in response.data
-    assert b"Hopper" in response.data
+    assert b"Bill" in response.data
+    assert b"Clinton" in response.data
     assert b"Approved" in response.data
 
     do_logout(test_client, path='/logout')
@@ -192,6 +208,19 @@ def test_login_with_invalid_credentials_fails(request, test_client, init_databas
     """
     response = test_client.post('/login',
                                 data=dict(username='sakire', password='12345', remember_me=False),
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Sign In" in response.data
+
+
+def test_login_with_invalid_credentials_fails_2(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with wrong credentials
+    THEN check that the response is valid and login is refused
+    """
+    response = test_client.post('/login',
+                                data=dict(username='Donald Trump', password='12345', remember_me=False),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b"Sign In" in response.data
@@ -620,4 +649,159 @@ def test_index_filter_by_major(request, test_client, init_database):
     response = test_client.post('/', data={'majors': [major_id], 'csrf_token': 'test'}, follow_redirects=True)
     assert response.status_code == 200
     
+    do_logout(test_client, path='/logout')
+
+def test_edit_lists_page_loads(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/faculty/lists/settings' page is requested (GET) by a faculty member
+    THEN check that the response is valid
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/lists/settings')
+    assert response.status_code == 200
+    assert b"Edit lists" in response.data
+    do_logout(test_client, path='/logout')
+
+def test_add_course_to_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member adds a course through the 'edit_lists' page
+    THEN check that the new course is in the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    with test_client.application.app_context():
+        major_id = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id
+    response = test_client.post('/faculty/lists/settings', data={
+        'course-name': 'New Course',
+        'course-coursenum': 'NC-101',
+        'course-majors': [major_id],
+        'course-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Course added!' in response.data
+    with test_client.application.app_context():
+        course = db.session.scalars(sqla.select(Course).filter_by(name='New Course')).first()
+        assert course is not None
+        assert course.coursenum == 'NC-101'
+    do_logout(test_client, path='/logout')
+
+
+def test_add_major_to_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member adds a major through the 'edit_lists' page
+    THEN check that the new major is in the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.post('/faculty/lists/settings', data={
+        'major-name': 'VC',
+        'major-submit': 'True'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Major added!' in response.data
+    with test_client.application.app_context():
+        major = db.session.scalars(sqla.select(Major).filter_by(name='VC')).first()
+        assert major is not None
+        assert major.name == 'VC'
+    do_logout(test_client, path='/logout')
+
+
+def test_delete_course_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member deletes a course through the 'edit_lists' page
+    THEN check that the course is removed from the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    with test_client.application.app_context():
+        new_course = Course(name='Deletable Course', coursenum='DEL-101')
+        db.session.add(new_course)
+        db.session.commit()
+        course_id = new_course.id
+
+    response = test_client.post('/faculty/lists/settings', data={
+        'course_delete-courses': [course_id],
+        'course_delete-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Courses deleted!' in response.data
+    with test_client.application.app_context():
+        course = db.session.get(Course, course_id)
+        assert course is None
+    do_logout(test_client, path='/logout')
+
+
+def test_delete_topic_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member deletes a topic through the 'edit_lists' page
+    THEN check that the topic is removed from the database
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    with test_client.application.app_context():
+        new_topic = ResearchTopic(name='Deletable Topic')
+        db.session.add(new_topic)
+        db.session.commit()
+        topic_id = new_topic.name
+
+    response = test_client.post('/faculty/lists/settings', data={
+        'research_delete-research_topics': [topic_id],
+        'research_delete-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'topics deleted!' in response.data
+    with test_client.application.app_context():
+        topic = db.session.get(ResearchTopic, topic_id)
+        assert topic is None
+    do_logout(test_client, path='/logout')
+
+def test_delete_course_with_dependency_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member tries to delete a course with a dependency
+    THEN check that the deletion fails and a flash message is shown
+    """
+    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    with test_client.application.app_context():
+        course = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first()
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        enrollment = CourseEnrollment(student_id=student.id, course_id=course.id, instructor_id=68, grade=4)
+        db.session.add(enrollment)
+        db.session.commit()
+        course_id = course.id
+    
+    response = test_client.post('/faculty/lists/settings', data={
+        'course_delete-courses': [course_id],
+        'course_delete-submit': True
+    }, follow_redirects=True)
+    
+    assert response.status_code == 200
+    assert b'Cannot delete this item due to dependencies!' in response.data
+    with test_client.application.app_context():
+        course = db.session.get(Course, course_id)
+        assert course is not None
+    do_logout(test_client, path='/logout')
+
+def test_unverified_faculty_redirect(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN an unverified faculty member logs in
+    THEN check that they are redirected to the unverified page
+    """
+    # Login as unverified faculty
+    response = test_client.post('/login', data={
+        'username': 'unverified_prof',
+        'password': 'password',
+        'role': 'faculty'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Account Not Verified" in response.data
+
+    # Try to access a protected faculty route
+    response = test_client.get('/faculty/dashboard', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Account Not Verified" in response.data
+
+    # Logout
     do_logout(test_client, path='/logout')
