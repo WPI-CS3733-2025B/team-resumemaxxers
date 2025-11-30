@@ -374,6 +374,22 @@ def test_edit_student_profile(request, test_client, init_database):
     assert response.status_code == 200
     assert b"3.4" in response.data
 
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': 5.4,
+        'majors': compsci_major_id,
+        'csrf_token': 'test'
+    }
+
+    # POST the new data
+    response = test_client.post('/student/edit_profile', data=edit_profile_data, follow_redirects=True)
+
+    response = test_client.get('/student/100/profile/view')
+
+    # Assert the response after redirect
+    assert response.status_code == 200
+    assert b"3.4" in response.data
+
 def test_student_cannot_apply_twice(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
