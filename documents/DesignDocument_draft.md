@@ -49,13 +49,14 @@ Class Tables
 
 ### Class Tables
 
-*   **Student**: Represents a student user in the system. It stores their profile information, including GPA, and links to their applications, majors, research interests, courses, and applications.
+*   **Student**: Represents a student user in the system. It stores their profile information, including GPA, and links to their applications, majors, research interests, and courses.
     ```sql
     CREATE TABLE student (
         id INTEGER NOT NULL,
         username VARCHAR(64) NOT NULL,
         firstname VARCHAR(64) NOT NULL,
         lastname VARCHAR(64) NOT NULL,
+        verified BOOLEAN,   
         email VARCHAR(120) NOT NULL,
         password_hash VARCHAR(256),
         gpa FLOAT,
@@ -72,6 +73,7 @@ Class Tables
         username VARCHAR(64) NOT NULL,
         firstname VARCHAR(64) NOT NULL,
         lastname VARCHAR(64) NOT NULL,
+        verified BOOLEAN,   
         email VARCHAR(120) NOT NULL,
         password_hash VARCHAR(256),
         PRIMARY KEY (id),
@@ -128,7 +130,6 @@ Class Tables
         id INTEGER NOT NULL,
         name VARCHAR(100) NOT NULL,
         coursenum VARCHAR(10) NOT NULL,
-        major_id INTEGER NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY(major_id) REFERENCES major (id)
     );
@@ -140,6 +141,7 @@ Class Tables
         id INTEGER NOT NULL,
         student_id INTEGER NOT NULL,
         faculty_id INTEGER NOT NULL,
+        application_id INTEGER NOT NULL,
         status VARCHAR(64) NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY(student_id) REFERENCES student (id),
@@ -249,9 +251,20 @@ Class Tables
         student_id INTEGER NOT NULL,
         course_id INTEGER NOT NULL,
         grade VARCHAR(2),
+        instructor_id INTEGER,        
         PRIMARY KEY (id),
         FOREIGN KEY(student_id) REFERENCES student (id),
         FOREIGN KEY(course_id) REFERENCES course (id)
+    );
+    ```
+*   **course_majors**: Links courses to the majors that they are associated with.
+    ```sql
+    CREATE TABLE course_majors (
+        course_id INTEGER NOT NULL,
+        major_id INTEGER NOT NULL,
+        PRIMARY KEY (course_id, major_id),
+        FOREIGN KEY(course_id) REFERENCES course (id),
+        FOREIGN KEY(major_id) REFERENCES major (id)
     );
     ```
     
@@ -345,6 +358,7 @@ Provide UI sketches or screenshots for the following pages:
  * Student applying for a position
 
 <img src ="../md-images/application_page.png"></img>
+
 
 
 
