@@ -73,6 +73,10 @@ def faculty_index():
 @login_required
 def view_position(position_id):
     position=Position.query.get_or_404(position_id)
+    # Prevent students from viewing full positions
+    if current_user.role == 'student' and position.is_full():
+        flash('This position is full and no longer accepting applications.', 'error')
+        return redirect(url_for('student.student_index', student_id=current_user.id))
     return render_template('position_detail_page.html',position=position)
 
 

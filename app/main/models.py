@@ -283,6 +283,14 @@ class Position(db.Model):
 
     def get_majors(self):
         return [major.name for major in self.majors]
+    
+    def get_approved_count(self):
+        """Returns the count of approved applications for this position"""
+        return sum(1 for app in self.applications if app.status == 'approved')
+    
+    def is_full(self):
+        """Returns True if the position has reached its team_size capacity"""
+        return self.get_approved_count() >= self.team_size
 
 
 class Major(db.Model):

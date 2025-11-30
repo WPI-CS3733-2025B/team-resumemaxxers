@@ -1,7 +1,16 @@
 <div class="card text-center w-100">
   <div class="card-body">
-    <h5 class="card-title"> {{ position.name }} </h5>
-    <p class="card-text">Team size: {{ position.team_size }} </p>
+    <h5 class="card-title"> 
+      {{ position.name }}
+      {% if current_user.role == 'faculty' and position.is_full() %}
+        <span class="badge bg-danger ms-2">FULL</span>
+      {% endif %}
+    </h5>
+    <p class="card-text">Team size: {{ position.team_size }}
+      {% if current_user.role == 'faculty' %}
+        ({{ position.get_approved_count() }} approved)
+      {% endif %}
+    </p>
     <p class="card-text">Minimum GPA: {{ position.min_gpa }} </p>
     <p class="card-text">Date: {{ position.start_date.date() }} to {{ position.end_date.date() }} </p>
     <a href="{{ url_for('main.view_position', position_id=position.id) }}" class="btn btn-primary">View Details</a>

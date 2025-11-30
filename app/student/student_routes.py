@@ -62,6 +62,8 @@ def student_index(student_id):
 
         Students = db.session.scalars(sqla.select(Student))
         PositionsA = db.session.scalars(Positions).all()
+        # Filter out full positions for students
+        PositionsA = [pos for pos in PositionsA if not pos.is_full()]
         return render_template('student_index.html', title="Course List", students=Students, form=form,
                                positions=PositionsA)
 
@@ -144,6 +146,11 @@ def edit_profile():
 def apply_position(position_id):
 
     position=Position.query.get_or_404(position_id)
+
+    # Check if position is full
+    if position.is_full():
+        flash('This position is full and no longer accepting applications.', 'error')
+        return redirect(url_for('main.view_position', position_id=position.id))
 
     existing_application = Application.query.filter_by(student_id=current_user.id, position_id=position.id).first()
     if existing_application:
@@ -231,6 +238,10 @@ def recommended():
         
         positions = current_user.recommended_positions()
         print(f"\nDEBUG: Found {len(positions)} recommended positions for student {current_user.username}")
+        
+        # Filter out full positions
+        positions = [pos for pos in positions if not pos.is_full()]
+        print(f"DEBUG: {len(positions)} positions available after filtering full positions")
         
         flash(f"Found {len(positions)} recommended positions out of {len(all_positions)} total positions.", "info")
     except Exception as e:
