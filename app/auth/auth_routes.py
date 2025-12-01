@@ -76,11 +76,7 @@ def register():
 
 
 @auth.route('/auth/faculty/session', methods = ['GET', 'POST'])
-<<<<<<< HEAD
 def login_faculty():
-=======
-def faculty_session():
->>>>>>> iteration2-11/30-Jim
     form = RegistrationFormFaculty()
     if form.validate_on_submit():
         fac_from_username = form.username.data

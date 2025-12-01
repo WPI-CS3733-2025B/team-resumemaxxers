@@ -224,11 +224,7 @@ def create_position(faculty_id):
     return render_template('create_position.html', title='Create Position', form=cform, user=faculty_user)
 
 
-<<<<<<< HEAD
 @faculty.route('/faculty/<position_id>/settings', methods=['GET', 'POST'])
-=======
-@faculty.route('/faculty/positions/<position_id>/settings', methods=['GET', 'POST'])
->>>>>>> iteration2-11/30-Jim
 @login_required
 def edit_position(position_id):
     form = EditPositionForm()
@@ -274,11 +270,7 @@ def edit_position(position_id):
     return render_template('edit_position.html', title='Edit Position', form=form, position=position)
 
 
-<<<<<<< HEAD
 @faculty.route('/faculty/<position_id>/deletion', methods=['GET', 'POST'])
-=======
-@faculty.route('/faculty/positions/<position_id>/deletion', methods=['GET', 'POST'])
->>>>>>> iteration2-11/30-Jim
 @login_required
 def delete_position(position_id):
     position = Position.query.get_or_404(position_id)
