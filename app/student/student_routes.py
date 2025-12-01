@@ -255,7 +255,7 @@ def recommended():
                            positions=positions,
                            title="Recommended Positions")
 
-@student.route('/student/positions/recommended', methods=['GET'])
+@student.route('/student/dashboard', methods=['GET'])
 @login_required
 def student_dashboard():
     if not isinstance(current_user._get_current_object(), Student):
