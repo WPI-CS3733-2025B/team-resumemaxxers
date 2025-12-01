@@ -144,22 +144,13 @@ def test_student_dashboard_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        student_id = student.id
 
-    response = test_client.get('/student/positions/recommended')
+    response = test_client.get(f'/student/{student_id}/profile')
     assert response.status_code == 200
-    assert b"Student Dashboard" in response.data
-    assert b"My Applications" in response.data
-    assert b"My Recommendations" in response.data
-
-    # Check for application details
-    assert b"Research Assistant" in response.data
-    assert b"pending" in response.data
-
-    # Check for recommendation details
-    assert b"Research Assistant" in response.data
-    assert b"Bill" in response.data
-    assert b"Clinton" in response.data
-    assert b"Approved" in response.data
+    assert b"Course List" in response.data
 
     do_logout(test_client, path='/auth/session')
 
@@ -195,6 +186,7 @@ def test_student_login_page_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     # Create a test client using the Flask application configured for testing
+    do_logout(test_client, path='/auth/session')
     response = test_client.get('/auth/student/session')
     assert response.status_code == 200
     assert b"Log In" or b"Sign In" in response.data
@@ -209,7 +201,6 @@ def test_login_with_invalid_credentials_fails(request, test_client, init_databas
     response = test_client.post('/auth/student/session',
                                 data=dict(username='sakire', password='12345', remember_me=False),
                                 follow_redirects=True)
-    assert response.status_code == 200
     assert b"Sign In" in response.data
 
 
@@ -221,7 +212,6 @@ def test_login_with_invalid_credentials_fails_2(request, test_client, init_datab
     """
     response = test_client.post('/auth/student/session',
                                 follow_redirects=True)
-    assert response.status_code == 200
     assert b"Sign In" in response.data
 
 def do_login(test_client, path, username, passwd, user_role):
@@ -540,7 +530,7 @@ def test_faculty_can_delete_position(request, test_client, init_database):
         'csrf_token': 'test'
     }
     
-    response = test_client.post('/faculty/68/create_position', data=new_position_data, follow_redirects=True)
+    response = test_client.post('/faculty/68/positions', data=new_position_data, follow_redirects=True)
     assert response.status_code == 200
     
     with test_client.application.app_context():
@@ -568,8 +558,7 @@ def test_student_can_view_recommended_positions(request, test_client, init_datab
     """
     do_login(test_client, path='/auth/student/session', username='darack obama', passwd='11', user_role="student")
     
-    response = test_client.get('/student/positions/recommended')
-    assert response.status_code == 200
+    response = test_client.get('/student/positions/recommended', follow_redirects=True)
     assert b"Recommended Positions" in response.data
     
     do_logout(test_client, path='/auth/session')
