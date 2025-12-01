@@ -38,7 +38,7 @@ def faculty_profile_view(faculty_id):
 
     return render_template('faculty_profile.html', title=f"{faculty_user.firstname}'s Profile", user=faculty_user)
 
-@faculty.route('/faculty/<application_id>/view', methods=['GET'])
+@faculty.route('/faculty/<application_id>/applications', methods=['GET'])
 @login_required
 def view_application(application_id):
     application = db.session.get(Application, application_id)
@@ -224,7 +224,7 @@ def create_position(faculty_id):
     return render_template('create_position.html', title='Create Position', form=cform, user=faculty_user)
 
 
-@faculty.route('/faculty/<position_id>/edit_position', methods=['GET', 'POST'])
+@faculty.route('/faculty/positions/<position_id>/settings', methods=['GET', 'POST'])
 @login_required
 def edit_position(position_id):
     form = EditPositionForm()
@@ -235,10 +235,10 @@ def edit_position(position_id):
                     position.min_gpa = float(form.min_gpa.data)
                     if position.min_gpa > 5.0:
                         flash('GPA cannot be greater than 5.0.', 'error')
-                        return redirect(url_for('faculty.edit_position'))
+                        return redirect(url_for('faculty.edit_position', position_id=position.id))
                 except ValueError:
                     flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
-                    return redirect(url_for('faculty.edit_position'))
+                    return redirect(url_for('faculty.edit_position', position_id=position.id))
         position.name = form.name.data
         position.description = form.description.data
         position.start_date = form.start_date.data
@@ -270,7 +270,7 @@ def edit_position(position_id):
     return render_template('edit_position.html', title='Edit Position', form=form, position=position)
 
 
-@faculty.route('/faculty/<position_id>/delete_position', methods=['GET', 'POST'])
+@faculty.route('/faculty/positions/<position_id>/deletion', methods=['GET', 'POST'])
 @login_required
 def delete_position(position_id):
     position = Position.query.get_or_404(position_id)
