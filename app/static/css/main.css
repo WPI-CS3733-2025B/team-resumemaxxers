@@ -143,8 +143,8 @@ body {
 
 .btn-pending {
     background-color: #CAF0F8;
-    border-color: #CAF0F8;
-    color: white;
+    border-color: #0099CC;
+    color: #333;
     font-weight: 500;
 }
 
