@@ -397,7 +397,7 @@ def test_faculty_can_view_applications(request, test_client, init_database):
         application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
         assert application is not None
     
-    response = test_client.get(f'/faculty/{application.id}/view')
+    response = test_client.get(f'/faculty/{application.id}/applications')
     assert response.status_code == 200
     assert b"It is simple." in response.data  # Jane's application statement
     
@@ -466,7 +466,11 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         pos_id = position.id
     
     # GET the edit page
+<<<<<<< HEAD
     response = test_client.get(f'/faculty/{pos_id}/settings')
+=======
+    response = test_client.get(f'/faculty/positions/{pos_id}/settings')
+>>>>>>> iteration2-11/30-Jim
     assert response.status_code == 200
     assert b"Edit Position" in response.data
     
@@ -491,7 +495,11 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         'csrf_token': 'test'
     }
     
+<<<<<<< HEAD
     response = test_client.post(f'/faculty/{pos_id}/settings', data=edit_data, follow_redirects=True)
+=======
+    response = test_client.post(f'/faculty/positions/{pos_id}/settings', data=edit_data, follow_redirects=True)
+>>>>>>> iteration2-11/30-Jim
     assert response.status_code == 200
     
     with test_client.application.app_context():
@@ -539,7 +547,11 @@ def test_faculty_can_delete_position(request, test_client, init_database):
         pos_id = temp_pos.id
     
     # Delete the position
+<<<<<<< HEAD
     response = test_client.get(f'/faculty/{pos_id}/deletion', follow_redirects=True)
+=======
+    response = test_client.get(f'/faculty/positions/{pos_id}/deletion', follow_redirects=True)
+>>>>>>> iteration2-11/30-Jim
     assert response.status_code == 200
     assert b"Position deleted successfully" in response.data
     
@@ -612,7 +624,11 @@ def test_unauthorized_user_cannot_edit_others_position(request, test_client, ini
         assert other_position is not None
         pos_id = other_position.id
     
+<<<<<<< HEAD
     response = test_client.get(f'/faculty/{pos_id}/settings', follow_redirects=True)
+=======
+    response = test_client.get(f'/faculty/positions/{pos_id}/settings', follow_redirects=True)
+>>>>>>> iteration2-11/30-Jim
     # Respost is eith er 403 or error message
     assert response.status_code in [200, 403]
     

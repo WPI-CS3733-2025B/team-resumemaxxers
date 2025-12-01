@@ -68,8 +68,6 @@ body {
 }
 
 .btn-wide {
-    min-width: 120px;
-    font-size: 1.02rem;
     padding: 0.45rem 1.1rem;
 }
 
@@ -87,10 +85,6 @@ body {
     font-size: 0.95rem;
 }
 
-.navbar .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
 
 .navbar .nav-link.active {
   background-color: #ffffff;
@@ -98,14 +92,76 @@ body {
 }
 
 .navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    height: auto;
+    border-radius: 0.25rem;
     color: #fff;
-    font-size: 0.98rem;
-    line-height: 1.1;
-    padding-top: 0.1rem;
-    padding-bottom: 0.1rem;
+    text-decoration: none;
+    background-color: transparent;
+    border: 1px solid rgba(255,255,255,0.0);
+    font-size: 0.95rem;
 }
 
-.navbar .navbar-brand:hover,
-.navbar .navbar-brand:focus {
-    color: #fff;
+
+.navbar .navbar-brand.active {
+  background-color: #ffffff;
+  color: #040562;
+}
+
+.navbar .nav-link:hover,
+.navbar .navbar-brand:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.btn-add {
+    background-color: #0099CC;
+    border-color: #0099CC;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-add:hover {
+    background-color: #007da8;
+    border-color: #007da8;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #F9C846;
+    border-color: #F9C846;
+    color: #333;
+    font-weight: 500;
+}
+
+.btn-delete:hover {
+    background-color: #e0b23f;
+    border-color: #e0b23f;
+    color: #222;
+}
+
+.btn-pending {
+    background-color: #CAF0F8;
+    border-color: #0099CC;
+    color: #333;
+    font-weight: 500;
+}
+
+.badge-approved {
+    background-color: #0099CC;
+    color: white;
+    font-weight: 500;
+}
+
+.badge-rejected {
+    background-color: #F9C846;
+    color: #333;
+    font-weight: 500;
+}
+
+.badge-pending {
+    background-color: #CAF0F8;
+    color: white;
+    font-weight: 500;
 }

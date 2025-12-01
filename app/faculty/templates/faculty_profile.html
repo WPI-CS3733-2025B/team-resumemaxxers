@@ -33,14 +33,14 @@
                                     
                                     
                                         {% if rec.status|lower == 'approved' %}
-                                            <button class="btn btn-success" disabled>Approved</button>
-                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                            <button class="btn btn-add" disabled>Approved</button>
+                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-delete">Reject</a>
                                             {% elif rec.status|lower == 'rejected' %}
-                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
-                                            <button class="btn btn-danger" disabled>Rejected</button>
+                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-add">Approve</a>
+                                            <button class="btn btn-delete" disabled>Rejected</button>
                                             {% else %}
-                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-success">Approve</a>
-                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-danger">Reject</a>
+                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-add">Approve</a>
+                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-delete">Reject</a>
                                         {% endif %}
                                 </td>
                             </tr>

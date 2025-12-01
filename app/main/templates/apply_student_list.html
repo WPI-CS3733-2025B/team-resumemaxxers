@@ -9,7 +9,7 @@
             <h3 class="mb-0">
                 Application List for Position: {{ position.name }}
                 {% if position.is_full() %}
-                    <span class="badge bg-danger ms-2">FULL</span>
+                    <span class="badge badge-rejected ms-2">FULL</span>
                 {% endif %}
             </h3>
             <span class="text-muted">
