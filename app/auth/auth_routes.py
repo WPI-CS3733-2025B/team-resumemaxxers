@@ -10,7 +10,7 @@ from app.email import send_email
 import hashlib
 
 
-@auth.route('/student/register', methods=['GET', 'POST'])
+@auth.route('/auth/student/register', methods=['GET', 'POST'])
 def register():
     rform = RegistrationForm()
     if rform.validate_on_submit():
@@ -75,7 +75,7 @@ def register():
     return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
 
 
-@auth.route('/faculty/login', methods = ['GET', 'POST'])
+@auth.route('/auth/faculty/session', methods = ['GET', 'POST'])
 def login_faculty():
     form = RegistrationFormFaculty()
     if form.validate_on_submit():
@@ -98,7 +98,7 @@ def login_faculty():
 
     return render_template('login_faculty.html', form=form)
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/auth/student/session', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         if current_user.role == "student":
@@ -138,7 +138,7 @@ def login():
     return render_template('login.html', form=lform)
 
 
-@auth.route('/resend_verification', methods=['GET', 'POST'])
+@auth.route('/auth/new_verification', methods=['GET', 'POST'])
 @login_required
 def resend_verification():
     # Email the user their verification code
@@ -164,7 +164,7 @@ def resend_verification():
         'Please check your email (and your spam folder) for a verification code.')
     return redirect(url_for('auth.verify'))
 
-@auth.route('/verify', methods=['GET', 'POST'])
+@auth.route('/auth/email_verifications/', methods=['GET', 'POST'])
 @login_required
 def verify():
     form = VerificationForm()
@@ -182,7 +182,7 @@ def verify():
     return render_template('verify.html', form=form)
 
 
-@auth.route('/logout', methods=['GET'])
+@auth.route('/auth/session', methods=['GET'])
 @login_required
 def logout():
     logout_user()
