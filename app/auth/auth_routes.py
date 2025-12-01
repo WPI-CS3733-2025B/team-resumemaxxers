@@ -75,8 +75,8 @@ def register():
     return render_template('register.html', form=rform, Course=Course, Faculty=Faculty)
 
 
-@auth.route('/faculty/login', methods = ['GET', 'POST'])
-def login_faculty():
+@auth.route('/auth/faculty/session', methods = ['GET', 'POST'])
+def faculty_session():
     form = RegistrationFormFaculty()
     if form.validate_on_submit():
         fac_from_username = form.username.data
@@ -84,13 +84,13 @@ def login_faculty():
 
         if fac_from_username is None or fac_from_email is None or fac_from_username.id != fac_from_email.id:
             flash('Selected username and email do not match.', 'error')
-            return redirect(url_for('auth.login_faculty'))
+            return redirect(url_for('auth.faculty_session'))
 
         fac = fac_from_username  
 
         if not fac.check_password(form.password.data):
             flash('Invalid password.', 'error')
-            return redirect(url_for('auth.login_faculty'))
+            return redirect(url_for('auth.faculty_session'))
 
         login_user(fac, remember=True)
         flash(f'The user {fac.username} has successfully logged in!')

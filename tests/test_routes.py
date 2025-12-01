@@ -183,7 +183,7 @@ def test_faculty_login_page_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     # Create a test client using the Flask application configured for testing
-    response = test_client.get('/faculty/login')
+    response = test_client.get('/auth/faculty/session')
     assert response.status_code == 200
     assert b"Log In" or b"Sign In" in response.data
 
@@ -409,7 +409,7 @@ def test_faculty_can_view_applications(request, test_client, init_database):
         application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
         assert application is not None
     
-    response = test_client.get(f'/faculty/{application.id}/view')
+    response = test_client.get(f'/faculty/{application.id}/applications')
     assert response.status_code == 200
     assert b"It is simple." in response.data  # Jane's application statement
     
@@ -478,7 +478,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         pos_id = position.id
     
     # GET the edit page
-    response = test_client.get(f'/faculty/{pos_id}/edit_position')
+    response = test_client.get(f'/faculty/positions/{pos_id}/settings')
     assert response.status_code == 200
     assert b"Edit Position" in response.data
     
@@ -503,7 +503,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         'csrf_token': 'test'
     }
     
-    response = test_client.post(f'/faculty/{pos_id}/edit_position', data=edit_data, follow_redirects=True)
+    response = test_client.post(f'/faculty/positions/{pos_id}/settings', data=edit_data, follow_redirects=True)
     assert response.status_code == 200
     
     with test_client.application.app_context():
@@ -551,7 +551,7 @@ def test_faculty_can_delete_position(request, test_client, init_database):
         pos_id = temp_pos.id
     
     # Delete the position
-    response = test_client.get(f'/faculty/{pos_id}/delete_position', follow_redirects=True)
+    response = test_client.get(f'/faculty/positions/{pos_id}/deletion', follow_redirects=True)
     assert response.status_code == 200
     assert b"Position deleted successfully" in response.data
     
@@ -625,7 +625,7 @@ def test_unauthorized_user_cannot_edit_others_position(request, test_client, ini
         assert other_position is not None
         pos_id = other_position.id
     
-    response = test_client.get(f'/faculty/{pos_id}/edit_position', follow_redirects=True)
+    response = test_client.get(f'/faculty/positions/{pos_id}/settings', follow_redirects=True)
     # Respost is eith er 403 or error message
     assert response.status_code in [200, 403]
     

@@ -5,7 +5,7 @@
 {% block content %}
 <h1> Activate account </h1>
 
-<form action = "{{url_for('auth.login_faculty')}}" method = "POST">
+<form action = "{{url_for('auth.faculty_session')}}" method = "POST">
     {{ form.hidden_tag()}}
     {{wtf.form_field(form.email)}}
     {{wtf.form_field(form.username)}}
