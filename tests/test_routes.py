@@ -129,12 +129,12 @@ def test_errors(request, test_client, init_database):
     WHEN the nonsense page is requested
     THEN check that the response is 404
     """
-    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
 
     response = test_client.get('/student/dashboard/fdsmofogf')
     assert response.status_code == 404
 
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_student_dashboard_loads(request, test_client, init_database):
@@ -143,9 +143,9 @@ def test_student_dashboard_loads(request, test_client, init_database):
     WHEN the '/student/dashboard' page is requested (GET)
     THEN check that the response is valid
     """
-    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
 
-    response = test_client.get('/student/dashboard')
+    response = test_client.get('/student/positions/recommended')
     assert response.status_code == 200
     assert b"Student Dashboard" in response.data
     assert b"My Applications" in response.data
@@ -161,7 +161,7 @@ def test_student_dashboard_loads(request, test_client, init_database):
     assert b"Clinton" in response.data
     assert b"Approved" in response.data
 
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_student_registration_page_loads(request, test_client, init_database):
@@ -171,7 +171,7 @@ def test_student_registration_page_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     # Create a test client using the Flask application configured for testing
-    response = test_client.get('/student/register')
+    response = test_client.get('/auth/student/register')
     assert response.status_code == 200
     assert b"Register" in response.data
 
@@ -183,7 +183,7 @@ def test_faculty_login_page_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     # Create a test client using the Flask application configured for testing
-    response = test_client.get('/faculty/login')
+    response = test_client.get('/auth/faculty/session')
     assert response.status_code == 200
     assert b"Log In" or b"Sign In" in response.data
 
@@ -195,7 +195,7 @@ def test_student_login_page_loads(request, test_client, init_database):
     THEN check that the response is valid
     """
     # Create a test client using the Flask application configured for testing
-    response = test_client.get('/login')
+    response = test_client.get('/auth/student/session')
     assert response.status_code == 200
     assert b"Log In" or b"Sign In" in response.data
 
@@ -206,7 +206,7 @@ def test_login_with_invalid_credentials_fails(request, test_client, init_databas
     WHEN the '/login' form is submitted (POST) with wrong credentials
     THEN check that the response is valid and login is refused
     """
-    response = test_client.post('/login',
+    response = test_client.post('/auth/student/session',
                                 data=dict(username='sakire', password='12345', remember_me=False),
                                 follow_redirects=True)
     assert response.status_code == 200
@@ -219,8 +219,7 @@ def test_login_with_invalid_credentials_fails_2(request, test_client, init_datab
     WHEN the '/login' form is submitted (POST) with wrong credentials
     THEN check that the response is valid and login is refused
     """
-    response = test_client.post('/login',
-                                data=dict(username='Donald Trump', password='12345', remember_me=False),
+    response = test_client.post('/auth/student/session',
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b"Sign In" in response.data
@@ -245,9 +244,9 @@ def test_student_login_and_logout_succeeds(request, test_client, init_database):
     WHEN the '/login' form is submitted (POST) with correct credentials
     THEN check that the response is valid and login is succesfull
     """
-    do_login(test_client, path='/login', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
 
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_create_position(request, test_client, init_database):
@@ -257,10 +256,10 @@ def test_faculty_can_create_position(request, test_client, init_database):
     AND '/faculty/<faculty_id>/create_position' is submitted correctly
     THEN check that the position is created
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
-    response = test_client.get('/faculty/1/create_position')  # not functional, should be 302
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/1/positions')  # not functional, should be 302
     assert response.status_code == 302
-    response = test_client.get('/faculty/68/create_position')
+    response = test_client.get('/faculty/68/positions')
     assert response.status_code == 200
     assert b"Create New Position" in response.data
 
@@ -287,8 +286,7 @@ def test_faculty_can_create_position(request, test_client, init_database):
         # CSRF token often required for POST forms, use a dummy for testing if WTF_CSRF_ENABLED is False
     }
 
-    # POST request to submit the form
-    response = test_client.post('/faculty/68/create_position', data=new_position_data, follow_redirects=True)
+    response = test_client.post('/faculty/68/positions', data=new_position_data, follow_redirects=True)
 
     assert response.status_code == 200
     assert b"Hog Rider" in response.data  # check for the new position name on the redirected page (e.g., faculty dashboard)
@@ -306,7 +304,7 @@ def test_faculty_can_create_position(request, test_client, init_database):
         assert created_position.start_date is not None
         assert created_position.end_date is not None
 
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_student_can_view_own_profile(request, test_client, init_database):
@@ -315,13 +313,13 @@ def test_student_can_view_own_profile(request, test_client, init_database):
     WHEN a logged-in student visits their profile page
     THEN check that their information is displayed correctly
     """
-    do_login(test_client, path='/login', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
     response = test_client.get('/student/100/profile/view')
     assert response.status_code == 200
     assert b"donald_trump" in response.data
     assert b"dt@trump.com" in response.data
     assert b"2.2" in response.data  # Initial GPA
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_view_faculty_profile(request, test_client, init_database):
@@ -330,11 +328,11 @@ def test_view_faculty_profile(request, test_client, init_database):
     WHEN a logged-in student visits a faculty profile page
     THEN check that their information is displayed correctly
     """
-    do_login(test_client, path='/login', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
     response = test_client.get('/faculty/68/profile/view')
     assert response.status_code == 200
     assert b"bill_clinton_fac" in response.data
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_edit_student_profile(request, test_client, init_database):
@@ -343,10 +341,10 @@ def test_edit_student_profile(request, test_client, init_database):
     WHEN a logged-in student submits the edit profile form
     THEN check that their information is updated in the database
     """
-    do_login(test_client, path='/login', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
 
     # GET the edit page first
-    response = test_client.get('/student/edit_profile')
+    response = test_client.get('/student/profile/edit')
     assert response.status_code == 200
     assert b"Edit Profile" in response.data
 
@@ -364,7 +362,7 @@ def test_edit_student_profile(request, test_client, init_database):
     }
 
     # POST the new data
-    response = test_client.post('/student/edit_profile', data=edit_profile_data, follow_redirects=True)
+    response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
 
     response = test_client.get('/student/100/profile/view')
 
@@ -378,23 +376,23 @@ def test_student_cannot_apply_twice(request, test_client, init_database):
     WHEN a student tries to apply for the same position twice
     THEN the second application should be rejected
     """
-    do_login(test_client, path='/login', username='BiLl Clinton', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
 
     with test_client.application.app_context():
         position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
         assert position is not None
 
     # First application
-    response = test_client.post(f'/position/{position.id}/apply', data={'statement': 'Test application'}, follow_redirects=True)
+    response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Test application'}, follow_redirects=True)
     assert response.status_code == 200
     assert b"Application submitted successfully!" in response.data
 
     # Second application
-    response = test_client.post(f'/position/{position.id}/apply', data={'statement': 'Another test application'}, follow_redirects=True)
+    response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Another test application'}, follow_redirects=True)
     assert response.status_code == 200
     assert b"You have already applied for this position." in response.data
 
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_view_applications(request, test_client, init_database):
@@ -403,7 +401,7 @@ def test_faculty_can_view_applications(request, test_client, init_database):
     WHEN a faculty member views an application
     THEN check that application details are displayed
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     
     with test_client.application.app_context():
         application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
@@ -413,7 +411,7 @@ def test_faculty_can_view_applications(request, test_client, init_database):
     assert response.status_code == 200
     assert b"It is simple." in response.data  # Jane's application statement
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_approve_application(request, test_client, init_database):
@@ -422,14 +420,14 @@ def test_faculty_can_approve_application(request, test_client, init_database):
     WHEN a faculty member approves the application
     THEN check that the status changes to approved
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     
     with test_client.application.app_context():
         application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
         assert application is not None
         app_id = application.id
 
-    response = test_client.get(f'/faculty/{app_id}/approve', follow_redirects=True)
+    response = test_client.get(f'/faculty/{app_id}/approval', follow_redirects=True)
     assert response.status_code == 200
     assert b"Student approved" in response.data
     
@@ -437,7 +435,7 @@ def test_faculty_can_approve_application(request, test_client, init_database):
         updated_app = db.session.get(Application, app_id)
         assert updated_app.status == "approved"
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_reject_application(request, test_client, init_database):
@@ -446,14 +444,14 @@ def test_faculty_can_reject_application(request, test_client, init_database):
     WHEN a faculty member rejects the application
     THEN check that the status changes to rejected
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     
     with test_client.application.app_context():
         application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
         assert application is not None
         app_id = application.id
     
-    response = test_client.get(f'/faculty/{app_id}/reject', follow_redirects=True)
+    response = test_client.get(f'/faculty/{app_id}/rejection', follow_redirects=True)
     assert response.status_code == 200
     assert b"Student rejected" in response.data
     
@@ -461,7 +459,7 @@ def test_faculty_can_reject_application(request, test_client, init_database):
         updated_app = db.session.get(Application, app_id)
         assert updated_app.status == "rejected"
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_edit_position(request, test_client, init_database):
@@ -470,7 +468,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
     WHEN a faculty member edits the position
     THEN check that the changes are saved
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
 
     with test_client.application.app_context():
         position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
@@ -478,7 +476,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         pos_id = position.id
     
     # GET the edit page
-    response = test_client.get(f'/faculty/{pos_id}/edit_position')
+    response = test_client.get(f'/faculty/{pos_id}/settings')
     assert response.status_code == 200
     assert b"Edit Position" in response.data
     
@@ -503,7 +501,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         'csrf_token': 'test'
     }
     
-    response = test_client.post(f'/faculty/{pos_id}/edit_position', data=edit_data, follow_redirects=True)
+    response = test_client.post(f'/faculty/{pos_id}/settings', data=edit_data, follow_redirects=True)
     assert response.status_code == 200
     
     with test_client.application.app_context():
@@ -512,7 +510,7 @@ def test_faculty_can_edit_position(request, test_client, init_database):
         assert updated_pos.description == 'The Mega Knight is a Legendary card that is unlocked from the Electro Valley (Arena 11). It spawns an area-damage, ground-targeting, melee, ground troop with very high hitpoints and high damage.'
         assert updated_pos.team_size == 7
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_can_delete_position(request, test_client, init_database):
@@ -521,7 +519,7 @@ def test_faculty_can_delete_position(request, test_client, init_database):
     WHEN a faculty member deletes the position
     THEN check that the position is removed from the database
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     
     # Get database IDs for multi-select fields
     with test_client.application.app_context():
@@ -551,7 +549,7 @@ def test_faculty_can_delete_position(request, test_client, init_database):
         pos_id = temp_pos.id
     
     # Delete the position
-    response = test_client.get(f'/faculty/{pos_id}/delete_position', follow_redirects=True)
+    response = test_client.get(f'/faculty/{pos_id}/deletion', follow_redirects=True)
     assert response.status_code == 200
     assert b"Position deleted successfully" in response.data
     
@@ -559,7 +557,7 @@ def test_faculty_can_delete_position(request, test_client, init_database):
         deleted_pos = db.session.scalars(sqla.select(Position).filter_by(name='Ram Rider')).first()
         assert deleted_pos is None
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_student_can_view_recommended_positions(request, test_client, init_database):
@@ -568,13 +566,13 @@ def test_student_can_view_recommended_positions(request, test_client, init_datab
     WHEN a student views recommended positions
     THEN check that relevant positions are displayed
     """
-    do_login(test_client, path='/login', username='darack obama', passwd='11', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='darack obama', passwd='11', user_role="student")
     
-    response = test_client.get('/recommended')
+    response = test_client.get('/student/positions/recommended')
     assert response.status_code == 200
     assert b"Recommended Positions" in response.data
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_view_position_details(request, test_client, init_database):
@@ -583,7 +581,7 @@ def test_view_position_details(request, test_client, init_database):
     WHEN a user views position details
     THEN check that full position information is displayed
     """
-    do_login(test_client, path='/login', username='william shakespeare', passwd='11', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='william shakespeare', passwd='11', user_role="student")
     
     with test_client.application.app_context():
         position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
@@ -594,7 +592,7 @@ def test_view_position_details(request, test_client, init_database):
     assert response.status_code == 200
     assert b"Research Assistant" in response.data
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_faculty_dashboard_shows_positions_and_applications(request, test_client, init_database):
@@ -603,13 +601,13 @@ def test_faculty_dashboard_shows_positions_and_applications(request, test_client
     WHEN a faculty member views their dashboard
     THEN check that their positions and applications are displayed
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     
     response = test_client.get('/faculty/68/index')
     assert response.status_code == 200
     assert b"Research Assistant" in response.data
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_unauthorized_user_cannot_edit_others_position(request, test_client, init_database):
@@ -618,18 +616,18 @@ def test_unauthorized_user_cannot_edit_others_position(request, test_client, ini
     WHEN a faculty tries to edit another faculty's position
     THEN check that access is denied
     """
-    do_login(test_client, path='/login', username='dr_alan_turing', passwd='11', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='dr_alan_turing', passwd='11', user_role="faculty")
     
     with test_client.application.app_context():
         other_position = db.session.scalars(sqla.select(Position).filter_by(name='Teaching Assistant')).first()
         assert other_position is not None
         pos_id = other_position.id
     
-    response = test_client.get(f'/faculty/{pos_id}/edit_position', follow_redirects=True)
+    response = test_client.get(f'/faculty/{pos_id}/settings', follow_redirects=True)
     # Respost is eith er 403 or error message
     assert response.status_code in [200, 403]
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_index_filter_by_major(request, test_client, init_database):
@@ -638,7 +636,7 @@ def test_index_filter_by_major(request, test_client, init_database):
     WHEN a user filters positions by major
     THEN check that only matching positions are displayed
     """
-    do_login(test_client, path='/login', username='BILL CLINTON', passwd='11', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='BILL CLINTON', passwd='11', user_role="student")
     
     with test_client.application.app_context():
         compsci_major = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first()
@@ -649,7 +647,7 @@ def test_index_filter_by_major(request, test_client, init_database):
     response = test_client.post('/', data={'majors': [major_id], 'csrf_token': 'test'}, follow_redirects=True)
     assert response.status_code == 200
     
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 def test_edit_lists_page_loads(request, test_client, init_database):
     """
@@ -657,11 +655,11 @@ def test_edit_lists_page_loads(request, test_client, init_database):
     WHEN the '/faculty/lists/settings' page is requested (GET) by a faculty member
     THEN check that the response is valid
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     response = test_client.get('/faculty/lists/settings')
     assert response.status_code == 200
     assert b"Edit lists" in response.data
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 def test_add_course_to_lists(request, test_client, init_database):
     """
@@ -669,7 +667,7 @@ def test_add_course_to_lists(request, test_client, init_database):
     WHEN a faculty member adds a course through the 'edit_lists' page
     THEN check that the new course is in the database
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     with test_client.application.app_context():
         major_id = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id
     response = test_client.post('/faculty/lists/settings', data={
@@ -684,7 +682,7 @@ def test_add_course_to_lists(request, test_client, init_database):
         course = db.session.scalars(sqla.select(Course).filter_by(name='New Course')).first()
         assert course is not None
         assert course.coursenum == 'NC-101'
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_add_major_to_lists(request, test_client, init_database):
@@ -693,7 +691,7 @@ def test_add_major_to_lists(request, test_client, init_database):
     WHEN a faculty member adds a major through the 'edit_lists' page
     THEN check that the new major is in the database
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     response = test_client.post('/faculty/lists/settings', data={
         'major-name': 'VC',
         'major-submit': 'True'
@@ -704,7 +702,7 @@ def test_add_major_to_lists(request, test_client, init_database):
         major = db.session.scalars(sqla.select(Major).filter_by(name='VC')).first()
         assert major is not None
         assert major.name == 'VC'
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_delete_course_from_lists(request, test_client, init_database):
@@ -713,7 +711,7 @@ def test_delete_course_from_lists(request, test_client, init_database):
     WHEN a faculty member deletes a course through the 'edit_lists' page
     THEN check that the course is removed from the database
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     with test_client.application.app_context():
         new_course = Course(name='Deletable Course', coursenum='DEL-101')
         db.session.add(new_course)
@@ -729,7 +727,7 @@ def test_delete_course_from_lists(request, test_client, init_database):
     with test_client.application.app_context():
         course = db.session.get(Course, course_id)
         assert course is None
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 
 def test_delete_topic_from_lists(request, test_client, init_database):
@@ -738,7 +736,7 @@ def test_delete_topic_from_lists(request, test_client, init_database):
     WHEN a faculty member deletes a topic through the 'edit_lists' page
     THEN check that the topic is removed from the database
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     with test_client.application.app_context():
         new_topic = ResearchTopic(name='Deletable Topic')
         db.session.add(new_topic)
@@ -754,7 +752,7 @@ def test_delete_topic_from_lists(request, test_client, init_database):
     with test_client.application.app_context():
         topic = db.session.get(ResearchTopic, topic_id)
         assert topic is None
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 def test_delete_course_with_dependency_from_lists(request, test_client, init_database):
     """
@@ -762,7 +760,7 @@ def test_delete_course_with_dependency_from_lists(request, test_client, init_dat
     WHEN a faculty member tries to delete a course with a dependency
     THEN check that the deletion fails and a flash message is shown
     """
-    do_login(test_client, path='/login', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     with test_client.application.app_context():
         course = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first()
         student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
@@ -781,7 +779,7 @@ def test_delete_course_with_dependency_from_lists(request, test_client, init_dat
     with test_client.application.app_context():
         course = db.session.get(Course, course_id)
         assert course is not None
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')
 
 def test_unverified_faculty_redirect(request, test_client, init_database):
     """
@@ -790,7 +788,7 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
     THEN check that they are redirected to the unverified page
     """
     # Login as unverified faculty
-    response = test_client.post('/login', data={
+    response = test_client.post('/auth/student/session', data={
         'username': 'unverified_prof',
         'password': 'password',
         'role': 'faculty'
@@ -804,4 +802,4 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
     assert b"Account Not Verified" in response.data
 
     # Logout
-    do_logout(test_client, path='/logout')
+    do_logout(test_client, path='/auth/session')

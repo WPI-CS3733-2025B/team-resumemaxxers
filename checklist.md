@@ -36,8 +36,8 @@
 
 |   | Methods | URL Path                            | Description                                   |
 |:--|:--------|:------------------------------------|:----------------------------------------------|
-|1. | 'POST'  | application/<application_id>/reject | faculty reject students' application          |
-|2. | 'POST'  | application/<application_id>/approve                 | faculty approve students' application         |
+|1. | 'POST'  | application/<application_id>/rejection | faculty reject students' application          |
+|2. | 'POST'  | application/<application_id>/approval                 | faculty approve students' application         |
 |3. | 'POST'  | application/<application_id>/withdraw                | student withdraw their 'pending' applications |
 |3. | 'POST'  | application/<application_id>                | page for viewing application details |
 |4. | 'GET'   | application                         | page to view all the applications             |
@@ -59,6 +59,6 @@
 |   | Methods | URL Path                                   | Description                                                    |
 |:--|:--------|:-------------------------------------------|:---------------------------------------------------------------|
 |1. | 'POST'  | recommendation/request | student-only method for requesting a faculty recommendation    |
-|2. | 'POST'  | recommendation/<recommendation_id>/reject                      | faculty-only method for rejecting a student rec. request       |
+|2. | 'POST'  | recommendation/<recommendation_id>/rejection                      | faculty-only method for rejecting a student rec. request       |
 |3. | 'POST'  | recommendation/<recommendation_id>/accept                      | faculty-only method for accepting a student rec. request       |
 |4. | 'GET'   | recommendation                             | view incoming (faculty) or sent (student) rec. requests (page) |

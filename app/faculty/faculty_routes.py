@@ -49,7 +49,7 @@ def view_application(application_id):
     return render_template('application_detail_page.html', application=application)
 
 
-@faculty.route('/faculty/<application_id>/approve', methods=['GET'])
+@faculty.route('/faculty/<application_id>/approval', methods=['GET'])
 @login_required
 def student_approve(application_id):
     application = db.session.get(Application, application_id)
@@ -76,7 +76,7 @@ def student_approve(application_id):
     flash("Student approved :)")
     return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
 
-@faculty.route('/faculty/<application_id>/reject', methods=['GET'])
+@faculty.route('/faculty/<application_id>/rejection', methods=['GET'])
 @login_required
 def student_reject(application_id):
     application = db.session.get(Application, application_id)
@@ -103,7 +103,7 @@ def student_reject(application_id):
     flash("Student rejected :(")
     return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
                
-@faculty.route('/faculty/recommendation/<recommendation_id>/approve', methods=['GET'])
+@faculty.route('/faculty/recommendation/<recommendation_id>/approval', methods=['GET'])
 @login_required
 def recommendation_approve(recommendation_id):
     recommendation = db.session.get(Recommendation, recommendation_id)
@@ -131,7 +131,7 @@ def recommendation_approve(recommendation_id):
     return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
 
 
-@faculty.route('/faculty/recommendation/<recommendation_id>/reject', methods=['GET'])
+@faculty.route('/faculty/recommendation/<recommendation_id>/rejection', methods=['GET'])
 @login_required
 def recommendation_reject(recommendation_id):
     recommendation = db.session.get(Recommendation, recommendation_id)
@@ -170,7 +170,7 @@ def faculty_index(faculty_id):
     Applications = db.session.scalars(sqla.select(Application).join(Position).where(Position.faculty_id == faculty_id)).all()
     return render_template('faculty_index.html', title=f"{faculty_user.firstname}'s Dashboard", user=faculty_user, positions=Positions, applications=Applications )
 
-@faculty.route('/faculty/<faculty_id>/create_position', methods=['GET', 'POST'])
+@faculty.route('/faculty/<faculty_id>/positions', methods=['GET', 'POST'])
 @login_required
 def create_position(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
@@ -224,7 +224,7 @@ def create_position(faculty_id):
     return render_template('create_position.html', title='Create Position', form=cform, user=faculty_user)
 
 
-@faculty.route('/faculty/<position_id>/edit_position', methods=['GET', 'POST'])
+@faculty.route('/faculty/<position_id>/settings', methods=['GET', 'POST'])
 @login_required
 def edit_position(position_id):
     form = EditPositionForm()
@@ -270,7 +270,7 @@ def edit_position(position_id):
     return render_template('edit_position.html', title='Edit Position', form=form, position=position)
 
 
-@faculty.route('/faculty/<position_id>/delete_position', methods=['GET', 'POST'])
+@faculty.route('/faculty/<position_id>/deletion', methods=['GET', 'POST'])
 @login_required
 def delete_position(position_id):
     position = Position.query.get_or_404(position_id)
