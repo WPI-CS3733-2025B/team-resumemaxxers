@@ -78,7 +78,7 @@ def student_profile_view(student_id):
     return render_template('student_profile.html', title=f"{student.firstname}'s Profile", user=student)
 
 
-@student.route('student/<student_id>/profile', methods=['GET', 'POST'])
+@student.route('/student/profile/edit', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm()
@@ -141,7 +141,7 @@ def edit_profile():
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form, Course=Course, Faculty=Faculty)
 
-@student.route('student/positions/<position_id>/applications', methods=['GET', 'POST'])
+@student.route('/student/positions/<position_id>/applications', methods=['GET', 'POST'])
 @login_required
 def apply_position(position_id):
 
@@ -215,7 +215,7 @@ def apply_position(position_id):
 
     return render_template('apply_position.html', position=position, form=form)
 
-@main.route('student/positions/recommended')
+@main.route('/student/positions/recommended')
 @login_required
 def recommended():
     if not isinstance(current_user._get_current_object(), Student):
@@ -255,7 +255,7 @@ def recommended():
                            positions=positions,
                            title="Recommended Positions")
 
-@student.route('student/positions/recommended', methods=['GET'])
+@student.route('/student/positions/recommended', methods=['GET'])
 @login_required
 def student_dashboard():
     if not isinstance(current_user._get_current_object(), Student):
