@@ -2,70 +2,194 @@
 {% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
-    <h3> Delete course </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ cdform.hidden_tag()}}
 
-        {{wtf.form_field(cdform.courses)}}
+<h2 class="mb-4">Edit Lists</h2>
 
-        {{wtf.form_field(cdform.submit)}}
-    </form>
-    <h3> Add course </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ cform.hidden_tag()}}
+<div class="card mb-3">
+  <div class="card-body">
 
-        {{wtf.form_field(cform.name)}}
-        {{wtf.form_field(cform.coursenum)}}
-        {{wtf.form_field(cform.majors)}}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Courses</h5>
 
-        {{wtf.form_field(cform.submit)}}
-    </form>
-    <h3> Delete major </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ mdform.hidden_tag()}}
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-sm btn-add"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseAdd">
+          Add
+        </button>
 
-        {{wtf.form_field(mdform.majors)}}
+        <button class="btn btn-sm btn-delete"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseDelete">
+          Delete
+        </button>
+      </div>
+    </div>
 
-        {{wtf.form_field(mdform.submit)}}
-    </form>
-    <h3> Add major </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ mform.hidden_tag()}}
+    <p class="text-muted small mb-0">Add or delete available courses.</p>
 
-        {{wtf.form_field(mform.name)}}
+    <!-- forms -->
+    <div class="mt-3">
+      <div class="collapse mb-3" id="courseAdd">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ cform.hidden_tag() }}
+          {{ wtf.form_field(cform.name) }}
+          {{ wtf.form_field(cform.coursenum) }}
+          {{ wtf.form_field(cform.majors) }}
+          {{ wtf.form_field(cform.submit) }}
+        </form>
+      </div>
 
-        {{wtf.form_field(mform.submit)}}
-    </form>
-    <h3> Delete research topic </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ rdform.hidden_tag()}}
+      <div class="collapse" id="courseDelete">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ cdform.hidden_tag() }}
+          {{ wtf.form_field(cdform.courses) }}
+          {{ wtf.form_field(cdform.submit) }}
+        </form>
+      </div>
+    </div>
 
-        {{wtf.form_field(rdform.research_topics)}}
+  </div>
+</div>
 
-        {{wtf.form_field(rdform.submit)}}
-    </form>
-    <h3> Add research topic </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ rform.hidden_tag()}}
+<div class="card mb-3">
+  <div class="card-body">
 
-        {{wtf.form_field(rform.name)}}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Majors</h5>
 
-        {{wtf.form_field(rform.submit)}}
-    </form>
-    <h3> Delete language </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ ldform.hidden_tag()}}
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-sm btn-add"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseAdd">
+          Add
+        </button>
 
-        {{wtf.form_field(ldform.languages)}}
+        <button class="btn btn-sm btn-delete"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseDelete">
+          Delete
+        </button>
+      </div>
+    </div>
 
-        {{wtf.form_field(ldform.submit)}}
-    </form>
-    <h3> Add language </h3>
-    <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
-        {{ lform.hidden_tag()}}
+    <p class="text-muted small mb-0">Add or delete majors.</p>
 
-        {{wtf.form_field(lform.name)}}
+    <div class="mt-3">
+      <div class="collapse mb-3" id="majorAdd">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ mform.hidden_tag() }}
+          {{ wtf.form_field(mform.name) }}
+          {{ wtf.form_field(mform.submit) }}
+        </form>
+      </div>
 
-        {{wtf.form_field(lform.submit)}}
-    </form>
+      <div class="collapse" id="majorDelete">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ mdform.hidden_tag() }}
+          {{ wtf.form_field(mdform.majors) }}
+          {{ wtf.form_field(mdform.submit) }}
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Research Topics</h5>
+
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-sm btn-add"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseAdd">
+          Add
+        </button>
+
+        <button class="btn btn-sm btn-delete"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseDelete">
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <p class="text-muted small mb-0">Add or delete research topics.</p>
+
+    <div class="mt-3">
+      <div class="collapse mb-3" id="topicAdd">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ rform.hidden_tag() }}
+          {{ wtf.form_field(rform.name) }}
+          {{ wtf.form_field(rform.submit) }}
+        </form>
+      </div>
+
+      <div class="collapse" id="topicDelete">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ rdform.hidden_tag() }}
+          {{ wtf.form_field(rdform.research_topics) }}
+          {{ wtf.form_field(rdform.submit) }}
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Languages</h5>
+
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-sm btn-add"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseAdd">
+          Add
+        </button>
+
+        <button class="btn btn-sm btn-delete"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#courseDelete">
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <p class="text-muted small mb-0">Add or delete languages.</p>
+
+    <div class="mt-3">
+      <div class="collapse mb-3" id="languageAdd">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ lform.hidden_tag() }}
+          {{ wtf.form_field(lform.name) }}
+          {{ wtf.form_field(lform.submit) }}
+        </form>
+      </div>
+
+      <div class="collapse" id="languageDelete">
+        <form action="{{ url_for('faculty.edit_lists') }}" method="POST">
+          {{ ldform.hidden_tag() }}
+          {{ wtf.form_field(ldform.languages) }}
+          {{ wtf.form_field(ldform.submit) }}
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 {% endblock %}

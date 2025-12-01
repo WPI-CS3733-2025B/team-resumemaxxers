@@ -3,7 +3,7 @@
     <h5 class="card-title"> 
       {{ position.name }}
       {% if current_user.role == 'faculty' and position.is_full() %}
-        <span class="badge bg-danger ms-2">FULL</span>
+        <span class="badge bg-rejected ms-2">FULL</span>
       {% endif %}
     </h5>
     <p class="card-text">Team size: {{ position.team_size }}

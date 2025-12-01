@@ -37,11 +37,11 @@
 
                         <td>
                             {% if app.status == 'approved' %}
-                                <span class="badge bg-success">Approved</span>
+                                <span class="badge bg-approved">Approved</span>
                             {% elif app.status == 'rejected' %}
-                                <span class="badge bg-danger">Rejected</span>
+                                <span class="badge bg-rejected">Rejected</span>
                             {% else %}
-                                <span class="badge bg-secondary">Pending</span>
+                                <span class="badge bg-pending">Pending</span>
                             {% endif %}
                         </td>
                         <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
@@ -86,22 +86,22 @@
                                 {% endif %}
 
                                 {% if app.status|lower == 'approved' %}
-                                    <button class="btn btn-success" disabled>Approved</button>
+                                    <button class="btn btn-add" disabled>Approved</button>
                                     <a href="{{ url_for('faculty.student_reject',
                                                         application_id=app.id) }}"
-                                       class="btn btn-danger">Reject</a>
+                                       class="btn btn-delete">Reject</a>
                                 {% elif app.status|lower == 'rejected' %}
                                     <a href="{{ url_for('faculty.student_approve',
                                                         application_id=app.id) }}"
-                                       class="btn btn-success">Approve</a>
-                                    <button class="btn btn-danger" disabled>Rejected</button>
+                                       class="btn btn-add">Approve</a>
+                                    <button class="btn btn-delete" disabled>Rejected</button>
                                 {% else %}
                                     <a href="{{ url_for('faculty.student_approve',
                                                         application_id=app.id) }}"
-                                       class="btn btn-success">Approve</a>
+                                       class="btn btn-add">Approve</a>
                                     <a href="{{ url_for('faculty.student_reject',
                                                         application_id=app.id) }}"
-                                       class="btn btn-danger">Reject</a>
+                                       class="btn btn-delete">Reject</a>
                                 {% endif %}
                             </div>
                         </td>
@@ -145,11 +145,11 @@
 
                         <td>
                             {% if rec.status == 'approved' %}
-                                <span class="badge bg-success">Approved</span>
+                                <span class="badge bg-approved">Approved</span>
                             {% elif rec.status == 'rejected' %}
-                                <span class="badge bg-danger">Rejected</span>
+                                <span class="badge bg-rejected">Rejected</span>
                             {% else %}
-                                <span class="badge bg-secondary">Pending</span>
+                                <span class="badge bg-pending">Pending</span>
                             {% endif %}
                         </td>
 
@@ -157,24 +157,24 @@
 
                         <td>
                             {% if rec.status|lower == 'approved' %}
-                                <button class="btn btn-success btn-sm" disabled>Approved</button>
+                                <button class="btn btn-add btn-sm" disabled>Approved</button>
                                 <a href="{{ url_for('faculty.recommendation_reject',
                                                     recommendation_id=rec.id) }}"
-                                class="btn btn-danger btn-sm">Reject</a>
+                                class="btn btn-delete btn-sm">Reject</a>
 
                             {% elif rec.status|lower == 'rejected' %}
                                 <a href="{{ url_for('faculty.recommendation_approve',
                                                     recommendation_id=rec.id) }}"
-                                class="btn btn-success btn-sm">Approve</a>
-                                <button class="btn btn-danger btn-sm" disabled>Rejected</button>
+                                class="btn btn-add btn-sm">Approve</a>
+                                <button class="btn btn-delete btn-sm" disabled>Rejected</button>
 
                             {% else %}
                                 <a href="{{ url_for('faculty.recommendation_approve',
                                                     recommendation_id=rec.id) }}"
-                                class="btn btn-success btn-sm">Approve</a>
+                                class="btn btn-add btn-sm">Approve</a>
                                 <a href="{{ url_for('faculty.recommendation_reject',
                                                     recommendation_id=rec.id) }}"
-                                class="btn btn-danger btn-sm">Reject</a>
+                                class="btn btn-delete btn-sm">Reject</a>
                             {% endif %}
                         </td>
                     </tr>

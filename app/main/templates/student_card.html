@@ -29,15 +29,15 @@
 
       <div class="d-flex align-items-center gap-2">
         {% if application.position.is_full() %}
-          <span class="badge bg-danger">Position FULL</span>
+          <span class="badge bg-rejected">Position FULL</span>
         {% endif %}
 
         {% if application.status == 'approved' %}
-          <span class="badge bg-success">Approved</span>
+          <span class="badge bg-approved">Approved</span>
         {% elif application.status == 'rejected' %}
-          <span class="badge bg-danger">Rejected</span>
+          <span class="badge bg-rejected">Rejected</span>
         {% else %}
-          <span class="badge bg-secondary">Pending</span>
+          <span class="badge bg-pending">Pending</span>
         {% endif %}
 
 
@@ -75,14 +75,14 @@
       {% endif %}
 
       {% if application.status|lower == 'approved' %}
-          <button class="btn btn-success" disabled>Approved</button>
-          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-danger">Reject</a>
+          <button class="btn btn-add" disabled>Approved</button>
+          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-delete">Reject</a>
         {% elif application.status|lower == 'rejected' %}
-          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-success">Approve</a>
-          <button class="btn btn-danger" disabled>Rejected</button>
+          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-add">Approve</a>
+          <button class="btn btn-delete" disabled>Rejected</button>
         {% else %}
-          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-success">Approve</a>
-          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-danger">Reject</a>
+          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-add">Approve</a>
+          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-delete">Reject</a>
         {% endif %}
     </div>
 

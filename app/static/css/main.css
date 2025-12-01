@@ -148,20 +148,20 @@ body {
     font-weight: 500;
 }
 
-.badge-approved {
+.bg-approved {
     background-color: #0099CC;
     color: white;
     font-weight: 500;
 }
 
-.badge-rejected {
+.bg-rejected {
     background-color: #F9C846;
     color: #333;
     font-weight: 500;
 }
 
-.badge-pending {
+.bg-pending {
     background-color: #CAF0F8;
-    color: white;
+    color: #003049; /* dark blue/black */
     font-weight: 500;
 }
