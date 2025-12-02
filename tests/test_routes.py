@@ -318,7 +318,7 @@ def test_view_faculty_profile(request, test_client, init_database):
     WHEN a logged-in student visits a faculty profile page
     THEN check that their information is displayed correctly
     """
-    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     response = test_client.get('/faculty/68/profile/view')
     assert response.status_code == 200
     assert b"bill_clinton_fac" in response.data
@@ -599,6 +599,24 @@ def test_faculty_dashboard_shows_positions_and_applications(request, test_client
     do_logout(test_client, path='/auth/session')
 
 
+def test_student_cannot_access_faculty_dashboard(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a student user tries to access the faculty dashboard
+    THEN check that they are redirected away from the faculty dashboard
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/faculty/68/index', follow_redirects=True)
+    
+    # Assert that the response is not the faculty dashboard
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+    
+    do_logout(test_client, path='/auth/session')
+
+
 def test_unauthorized_user_cannot_edit_others_position(request, test_client, init_database):
     """
     GIVEN a Flask application with positions
@@ -613,7 +631,7 @@ def test_unauthorized_user_cannot_edit_others_position(request, test_client, ini
         pos_id = other_position.id
     
     response = test_client.get(f'/faculty/{pos_id}/settings', follow_redirects=True)
-    # Respost is eith er 403 or error message
+    # Respost is either 403 or error message
     assert response.status_code in [200, 403]
     
     do_logout(test_client, path='/auth/session')
