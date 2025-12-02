@@ -13,6 +13,7 @@ from datetime import datetime
 
 
 from app.main import main_blueprint as main
+from app.auth.role_required import role_required
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST'])
@@ -63,6 +64,7 @@ def index():
 @main.route('/faculty', methods=['GET'])
 @main.route('/faculty_index', methods=['GET'])
 @login_required
+@role_required("faculty")
 def faculty_index():
     #courses = db.session.scalars(sqla.select(Course))
     FacultyList = db.session.scalars(sqla.select(Faculty))
@@ -82,6 +84,7 @@ def view_position(position_id):
 
 @main.route('/student_list/<position_id>/view', methods=['GET'])
 @login_required
+@role_required("faculty")
 def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES I GUESS...
     if isinstance(current_user, Faculty):  # if current user is faculty
         position=Position.query.get_or_404(position_id)

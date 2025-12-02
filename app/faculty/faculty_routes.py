@@ -13,6 +13,7 @@ from sqlalchemy import text
 
 from app.main import main_blueprint as main
 from app.faculty import faculty_blueprint as faculty
+from app.auth.role_required import role_required
 
 @faculty.before_request
 def before_request():
@@ -22,6 +23,7 @@ def before_request():
 
 @faculty.route('/faculty/unverified')
 @login_required
+@role_required("faculty")
 def unverified():
     if current_user.verified:
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
@@ -30,6 +32,7 @@ def unverified():
 
 @faculty.route('/faculty/<faculty_id>/profile/view', methods=['GET'])
 @login_required
+@role_required("faculty")
 def faculty_profile_view(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
@@ -40,6 +43,7 @@ def faculty_profile_view(faculty_id):
 
 @faculty.route('/faculty/<application_id>/view', methods=['GET'])
 @login_required
+@role_required("faculty")
 def view_application(application_id):
     application = db.session.get(Application, application_id)
     if application is None:
@@ -51,6 +55,7 @@ def view_application(application_id):
 
 @faculty.route('/faculty/<application_id>/approval', methods=['GET'])
 @login_required
+@role_required("faculty")
 def student_approve(application_id):
     application = db.session.get(Application, application_id)
     if application is None:
@@ -78,6 +83,7 @@ def student_approve(application_id):
 
 @faculty.route('/faculty/<application_id>/rejection', methods=['GET'])
 @login_required
+@role_required("faculty")
 def student_reject(application_id):
     application = db.session.get(Application, application_id)
     if application is None:
@@ -105,6 +111,7 @@ def student_reject(application_id):
                
 @faculty.route('/faculty/recommendation/<recommendation_id>/approval', methods=['GET'])
 @login_required
+@role_required("faculty")
 def recommendation_approve(recommendation_id):
     recommendation = db.session.get(Recommendation, recommendation_id)
     if recommendation is None:
@@ -133,6 +140,7 @@ def recommendation_approve(recommendation_id):
 
 @faculty.route('/faculty/recommendation/<recommendation_id>/rejection', methods=['GET'])
 @login_required
+@role_required("faculty")
 def recommendation_reject(recommendation_id):
     recommendation = db.session.get(Recommendation, recommendation_id)
     if recommendation is None:
@@ -160,6 +168,7 @@ def recommendation_reject(recommendation_id):
 
 @faculty.route('/faculty/<faculty_id>/index', methods=['GET'])
 @login_required
+@role_required("faculty")
 def faculty_index(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
@@ -172,6 +181,7 @@ def faculty_index(faculty_id):
 
 @faculty.route('/faculty/<faculty_id>/positions', methods=['GET', 'POST'])
 @login_required
+@role_required("faculty")
 def create_position(faculty_id):
     faculty_user = db.session.get(Faculty, faculty_id)
     if faculty_user is None:
@@ -229,6 +239,7 @@ def create_position(faculty_id):
 
 @faculty.route('/faculty/<position_id>/settings', methods=['GET', 'POST'])
 @login_required
+@role_required("faculty")
 def edit_position(position_id):
     form = EditPositionForm()
     position=Position.query.get_or_404(position_id)
@@ -278,15 +289,14 @@ def edit_position(position_id):
 
 @faculty.route('/faculty/<position_id>/deletion', methods=['GET', 'POST'])
 @login_required
+@role_required("faculty")
 def delete_position(position_id):
     position = Position.query.get_or_404(position_id)
     
-    # Check authorization - only the faculty who created it can delete
     if current_user.role != 'faculty' or position.faculty_id != current_user.id:
         flash('You are not authorized to delete this position.', 'error')
         return redirect(url_for('faculty.faculty_index'))
     
-    # Delete related applications first to maintain referential integrity
     Application.query.filter_by(position_id=position.id).delete()
     
     db.session.delete(position)
@@ -296,6 +306,7 @@ def delete_position(position_id):
 
 @faculty.route('/faculty/dashboard', methods=['GET'])
 @login_required
+@role_required("faculty")
 def faculty_dashboard():
     if not isinstance(current_user._get_current_object(), Faculty):
         flash("Only faculty can view the dashboard.")
@@ -311,6 +322,7 @@ def faculty_dashboard():
 
 @faculty.route('/faculty/lists/settings', methods=['GET', 'POST'])
 @login_required
+@role_required("faculty")
 def edit_lists():
     cform = AddCourseForm(prefix='course')
     rform = AddResearchForm(prefix='research')

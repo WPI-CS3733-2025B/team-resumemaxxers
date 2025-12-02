@@ -13,10 +13,12 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 
 from app.main import main_blueprint as main
 from app.student import student_blueprint as student
+from app.auth.role_required import role_required
 
 
 @student.route('/student/<student_id>/profile', methods=['GET', 'POST'])
 @login_required
+@role_required("student")
 def student_index(student_id):
         form = SortForm()
 
@@ -80,6 +82,7 @@ def student_profile_view(student_id):
 
 @student.route('/student/profile/edit', methods=['GET', 'POST'])
 @login_required
+@role_required("student")
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
@@ -143,6 +146,7 @@ def edit_profile():
 
 @student.route('/student/positions/<position_id>/applications', methods=['GET', 'POST'])
 @login_required
+@role_required("student")
 def apply_position(position_id):
 
     position=Position.query.get_or_404(position_id)
@@ -221,6 +225,7 @@ def apply_position(position_id):
 
 @main.route('/student/positions/recommended')
 @login_required
+@role_required("student")
 def recommended():
     if not isinstance(current_user._get_current_object(), Student):
         flash("Only students can view recommended positions.")
@@ -261,6 +266,7 @@ def recommended():
 
 @student.route('/student/dashboard', methods=['GET'])
 @login_required
+@role_required("student")
 def student_dashboard():
     if not isinstance(current_user._get_current_object(), Student):
         flash("Only students can view the dashboard.")
@@ -276,6 +282,7 @@ def student_dashboard():
 
 @student.route('/application/<application_id>/withdraw', methods=['GET'])
 @login_required
+@role_required("student")
 def withdraw_application(application_id): 
     application=Application.query.get_or_404(application_id)
 
