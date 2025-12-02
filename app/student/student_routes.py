@@ -176,6 +176,10 @@ def apply_position(position_id):
                 flash("No faculty with this email found.")
                 return render_template('apply_position.html', position=position, form=form)
             
+            if faculty_ref.id == position.faculty_id:
+                flash("You cannot request a recommendation from the position's faculty member.")
+                return render_template('apply_position.html', position=position, form=form)
+            
             # Send a notification email to the faculty member
             subject = f"{current_user.firstname} {current_user.lastname} is requesting your recommendation!"
             message = f"""
