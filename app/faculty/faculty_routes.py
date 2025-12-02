@@ -190,10 +190,13 @@ def create_position(faculty_id):
                     the_gpa = float(cform.min_gpa.data)
                     if the_gpa > 5.0:
                         flash('GPA cannot be greater than 5.0.', 'error')
-                        return redirect(url_for('faculty.create_position'))
+                        return redirect(url_for('faculty.create_position', faculty_id=faculty_user.id))
                 except ValueError:
                     flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
-                    return redirect(url_for('faculty.create_position'))
+                    return redirect(url_for('faculty.create_position', faculty_id=faculty_user.id))
+                if cform.start_date.data > cform.end_date.data:
+                    flash('Start date cannot be after end date.', 'error')
+                    return redirect(url_for('faculty.create_position', faculty_id=faculty_user.id))
         new_position = Position(
             name=cform.name.data,
             description=cform.description.data,
@@ -239,6 +242,9 @@ def edit_position(position_id):
                 except ValueError:
                     flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
                     return redirect(url_for('faculty.edit_position'))
+        if form.start_date.data > form.end_date.data:
+            flash('Start date cannot be after end date.', 'error')
+            return redirect(url_for('faculty.edit_position', position_id=position.id))
         position.name = form.name.data
         position.description = form.description.data
         position.start_date = form.start_date.data
