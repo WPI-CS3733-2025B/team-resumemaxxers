@@ -5,11 +5,16 @@ from flask_migrate import Migrate
 from flask_login import LoginManager    
 from config import Config
 from flask_moment import Moment
+from dotenv import find_dotenv, load_dotenv
+from os import environ as env                     # Access environment variables
+from authlib.integrations.flask_client import OAuth
 
 import sqlalchemy as sqla
 import sqlalchemy.orm as sqlo
 
 db = SQLAlchemy()
+
+oauth = OAuth()
 
 migrate = Migrate()
 login = LoginManager()
@@ -23,10 +28,25 @@ def create_app(config_class = Config):
     app.template_folder = config_class.TEMPLATE_FOLDER_MAIN
 
     db.init_app(app)
+    oauth.init_app(app)
     migrate.init_app(app,db)
     login.init_app(app)
     moment.init_app(app)
     # register blueprints
+
+    ENV_FILE = find_dotenv()
+    if ENV_FILE:
+        load_dotenv(ENV_FILE)
+
+    oauth.register(
+        "auth0",
+        client_id=env.get("AUTH0_CLIENT_ID"),
+        client_secret=env.get("AUTH0_CLIENT_SECRET"),
+        client_kwargs={
+            "scope": "openid profile email",
+        },
+        server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+    )
 
     from app.main import main_blueprint as main
     main.template_folder = Config.TEMPLATE_FOLDER_MAIN
