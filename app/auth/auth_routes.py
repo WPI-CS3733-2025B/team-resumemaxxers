@@ -1,5 +1,5 @@
 from app import db, oauth
-from flask import render_template, flash, redirect, url_for, session
+from flask import render_template, flash, redirect, url_for, session, request
 import sqlalchemy as sqla
 
 from app.main.models import Student, CourseEnrollment, Faculty, Course, User
@@ -24,6 +24,10 @@ def sso_login():
 
 @auth.route("/auth/callback", methods=["GET", "POST"])
 def callback():
+    if request.args.get("error") == "access_denied":
+        flash("User declined the authorization request.")
+        return redirect(url_for('main.index'))
+
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
     user_info = session.get("user")["userinfo"]
