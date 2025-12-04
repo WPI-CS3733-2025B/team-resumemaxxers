@@ -1,10 +1,11 @@
 import os
 import pytest
-from flask import url_for
+from flask import url_for, get_flashed_messages
 from app import create_app, db
 from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, Course, ResearchTopic,     Language, CourseEnrollment
 from config import Config
 import sqlalchemy as sqla
+import hashlib
 
 
 class TestConfig(Config):
@@ -809,4 +810,127 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
     assert b"Account Not Verified" in response.data
 
     # Logout
+    do_logout(test_client, path='/auth/session')
+
+def test_faculty_can_approve_recommendation(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a pending recommendation
+    WHEN a faculty member approves the recommendation
+    THEN check that the status changes to approved
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=student.id)).first()
+        recommendation = Recommendation(student_id=student.id, faculty_id=faculty.id, application_id=application.id,
+                                      status='pending')
+        db.session.add(recommendation)
+        db.session.commit()
+        rec_id = recommendation.id
+
+    response = test_client.get(f'/faculty/recommendation/{rec_id}/approval', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Student approved :)" in response.data
+
+    with test_client.application.app_context():
+        updated_rec = db.session.get(Recommendation, rec_id)
+        assert updated_rec.status == "approved"
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_reject_recommendation(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a pending recommendation
+    WHEN a faculty member rejects the recommendation
+    THEN check that the status changes to rejected
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=student.id)).first()
+        recommendation = Recommendation(student_id=student.id, faculty_id=faculty.id, application_id=application.id,
+                                      status='pending')
+        db.session.add(recommendation)
+        db.session.commit()
+        rec_id = recommendation.id
+
+    response = test_client.get(f'/faculty/recommendation/{rec_id}/rejection', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Student rejected :(" in response.data
+
+    with test_client.application.app_context():
+        updated_rec = db.session.get(Recommendation, rec_id)
+        assert updated_rec.status == "rejected"
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_index_loads(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a faculty member views their index page
+    THEN check that the page loads correctly
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        faculty_id = faculty.id
+
+    response = test_client.get(f'/faculty/{faculty_id}/index')
+    assert response.status_code == 200
+    assert b"Welcome, faculty member!" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_view_student_list_for_position(request, test_client, init_database):
+    """
+    GIVEN a Flask application with positions and applications
+    WHEN a faculty views the list of applicants for a position
+    THEN check that the applicants are displayed
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
+        pos_id = position.id
+
+    response = test_client.get(f'/student_list/{pos_id}/view')
+    assert response.status_code == 200
+    assert b"Bill Clinton" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+from flask import url_for, get_flashed_messages
+
+def test_student_can_withdraw_application(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a student application
+    WHEN the student withdraws the application
+    THEN check that the application is deleted
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
+        assert application is not None
+        app_id = application.id
+
+    with test_client:
+        response = test_client.get(f'/application/{app_id}/withdraw', follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('success', 'Application withdrawn successfully!') in flashed_messages
+
+    with test_client.application.app_context():
+        withdrawn_app = db.session.get(Application, app_id)
+        assert withdrawn_app is None
+
     do_logout(test_client, path='/auth/session')
