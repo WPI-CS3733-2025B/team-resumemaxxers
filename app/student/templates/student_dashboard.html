@@ -18,7 +18,15 @@
                 {% for app in applications %}
                     <tr>
                         <td><a href="{{ url_for('main.view_position', position_id=app.position.id) }}">{{ app.position.name }}</a></td>
-                        <td>{{ app.status }}</td>
+                        <td>
+                            {% if app.status == 'approved' %}
+                                <span class="badge bg-approved">Approved</span>
+                            {% elif app.status == 'rejected' %}
+                                <span class="badge bg-rejected">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-pending">Pending</span>
+                            {% endif %}
+                        </td>
                         <td>{{ app.created_at.strftime('%Y-%m-%d') }}</td>
                 
                         <td>
@@ -58,7 +66,15 @@
                     <tr>
                         <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
                         <td>{{ rec.faculty.firstname }} {{ rec.faculty.lastname }}</td>
-                        <td>{{ rec.status }}</td>
+                        <td><td>
+                            {% if rec.status == 'approved' %}
+                                <span class="badge bg-approved">Approved</span>
+                            {% elif rec.status == 'rejected' %}
+                                <span class="badge bg-rejected">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-pending">Pending</span>
+                            {% endif %}
+                        </td></td>
                     </tr>
                 {% endfor %}
             </tbody>

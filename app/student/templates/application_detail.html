@@ -17,7 +17,7 @@
                         {% elif application.status|lower == 'rejected' %}
                             <span class="badge bg-rejected">{{ application.status }}</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ application.status }}</span>
+                            <span class="badge bg-pending">{{ application.status }}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                                         {% elif rec.status|lower == 'rejected' %}
                                             <span class="badge bg-rejected">{{ rec.status }}</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">{{ rec.status }}</span>
+                                            <span class="badge bg-pending">{{ rec.status }}</span>
                                         {% endif %}
                                     </td>
                                 </tr>
