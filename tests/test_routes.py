@@ -902,6 +902,7 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
         'password': 'password',
         'role': 'faculty'
     }, follow_redirects=True)
+
     assert response.status_code == 200
     assert b"Account Not Verified" in response.data
 
