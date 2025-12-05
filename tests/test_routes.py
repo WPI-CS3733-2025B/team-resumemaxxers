@@ -1008,3 +1008,27 @@ def test_faculty_can_view_student_list_for_position(request, test_client, init_d
 
 
 
+def test_student_can_withdraw_application(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a student application
+    WHEN the student withdraws the application
+    THEN check that the application is deleted
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
+        assert application is not None
+        app_id = application.id
+
+    with test_client:
+        response = test_client.get(f'/application/{app_id}/withdraw', follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('success', 'Application withdrawn successfully!') in flashed_messages
+
+    with test_client.application.app_context():
+        withdrawn_app = db.session.get(Application, app_id)
+        assert withdrawn_app is None
+
+    do_logout(test_client, path='/auth/session')
