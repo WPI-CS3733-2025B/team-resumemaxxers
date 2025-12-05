@@ -618,6 +618,41 @@ def test_student_cannot_access_faculty_dashboard(request, test_client, init_data
     do_logout(test_client, path='/auth/session')
 
 
+def test_student_cannot_access_faculty_pages(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a student user tries to access the faculty pages
+    THEN check that they are redirected away from the faculty pages
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/faculty/68/index', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/68/profile/view', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/68/positions', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/lists/settings', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
 def test_unauthorized_user_cannot_edit_others_position(request, test_client, init_database):
     """
     GIVEN a Flask application with positions
