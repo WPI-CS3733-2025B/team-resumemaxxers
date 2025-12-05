@@ -783,6 +783,7 @@ def test_add_course_to_lists(request, test_client, init_database):
         'course-majors': [major_id],
         'course-submit': True
     }, follow_redirects=True)
+
     assert response.status_code == 200
     assert b'Course added!' in response.data
     with test_client.application.app_context():
