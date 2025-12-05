@@ -2,8 +2,6 @@
 {% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
-    <!DOCTYPE html>
-    <html lang="en">
     <head>
         <meta charset="utf-8">
         <title>{{ application.position.name }} – Research Position</title>
@@ -115,10 +113,10 @@
         </div>
           <section class="position-actions text-center">
               {% if current_user.is_authenticated and current_user.role == 'faculty' %}
-                  <a class="btn btn-primary" href="{{ url_for('faculty.student_approve', application_id=application.id) }}">
+                  <a class="btn btn-add" href="{{ url_for('faculty.student_approve', application_id=application.id) }}">
                       Approve
                   </a>
-                  <a class="btn btn-primary" href="{{ url_for('faculty.student_reject', application_id=application.id) }}">
+                  <a class="btn btn-add" href="{{ url_for('faculty.student_reject', application_id=application.id) }}">
                       Reject
                   </a>
               {% endif %}

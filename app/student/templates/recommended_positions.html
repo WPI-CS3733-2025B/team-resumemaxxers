@@ -13,7 +13,7 @@
           {% if p.research_topics %}<p><strong>Research Topics:</strong> {% for t in p.research_topics %}{{ t.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
           <p>{{ p.description }}</p>
 
-          <a class="btn btn-sm btn-primary"
+          <a class="btn btn-sm btn-add"
              href="{{ url_for('student.apply_position', position_id=p.id) }}">
             Apply
           </a>

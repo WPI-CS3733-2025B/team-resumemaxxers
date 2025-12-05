@@ -148,6 +148,11 @@ body {
     font-weight: 500;
 }
 
+.btn-pending:hover {
+    background-color: #a5c6cc;
+    color: #000;
+}
+
 .bg-approved {
     background-color: #0099CC;
     color: white;
@@ -160,8 +165,15 @@ body {
     font-weight: 500;
 }
 
-.bg-pending {
-    background-color: #CAF0F8;
-    color: #003049; /* dark blue/black */
-    font-weight: 500;
+.navbar .brand-link {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.navbar .brand-link.active {
+    background: #ffffff;
+    color: #040562;
+    border-radius: 8px;
+    padding: 6px 12px;
 }
