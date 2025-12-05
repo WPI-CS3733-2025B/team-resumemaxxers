@@ -150,5 +150,85 @@ class TestModels(unittest.TestCase):
         self.assertIn(rec, f_recommender.recommendations)
 
 
+    def test_recommendation_flow(self):
+        # Create entities
+        s = Student(username='rec_student', email='rec@s.com', firstname='Rec', lastname='Student')
+        f_poser = Faculty(username='rec_faculty_poser', email='rec_poser@f.com', firstname='Poser', lastname='Faculty')
+        f_recommender = Faculty(username='rec_faculty_rec', email='rec_rec@f.com', firstname='Recommender',
+                                lastname='Faculty')
+        db.session.add_all([s, f_poser, f_recommender])
+        db.session.commit()
+
+        p = Position(name='Position Requiring Refs', faculty_id=f_poser.id, ref_required=True)
+        db.session.add(p)
+        db.session.commit()
+
+        # Student applies
+        s.apply(p)
+        self.assertEqual(len(s.applications), 1)
+        application = s.applications[0]
+
+        # Create and link a recommendation
+        rec = Recommendation(
+            student_id=s.id,
+            faculty_id=f_recommender.id,
+            application_id=application.id,
+            status='Submitted'
+        )
+        db.session.add(rec)
+        db.session.commit()
+
+        # Check relationships
+        self.assertEqual(len(application.recommendations), 1)
+        self.assertEqual(application.recommendations[0].status, 'Submitted')
+        self.assertIn(rec, s.recommendations)
+        self.assertIn(rec, f_recommender.recommendations)
+    
+    def test_repr_methods(self):
+        # Create test data
+        s = Student(username='test_student', email='ts@example.com', firstname='Test', lastname='Student', gpa=3.0)
+        f = Faculty(username='test_faculty', email='tf@example.com', firstname='Test', lastname='Faculty')
+        db.session.add_all([s, f])
+        db.session.commit()
+
+        p = Position(name='Test Position', faculty_id=f.id)
+        db.session.add(p)
+        db.session.commit()
+
+        app = Application(student=s, position=p)
+        db.session.add(app)
+        db.session.commit()
+
+        rec = Recommendation(student=s, faculty=f, application=app)
+        db.session.add(rec)
+        db.session.commit()
+
+        c = Course(name='Test Course', coursenum='TC101')
+        db.session.add(c)
+        db.session.commit()
+
+        ce = CourseEnrollment(student=s, course=c, instructor=f, grade='A')
+        db.session.add(ce)
+        db.session.commit()
+
+        major = Major(name='Computer Science')
+        research_topic = ResearchTopic(name='AI')
+        language = Language(name='Python')
+        db.session.add_all([major, research_topic, language])
+        db.session.commit()
+
+        # Test __repr__ for each model
+        self.assertEqual(str(s), f'<Student Test Student (test_student, id={s.id})>')
+        self.assertEqual(str(f), f'<Faculty Test Faculty (test_faculty, id={f.id})>')
+        self.assertEqual(str(p), f'<Position Test Position (id={p.id}, Faculty=test_faculty)>')
+        self.assertEqual(str(app), f'<Application {app.id}: Student=test_student, Position=Test Position>')
+        self.assertEqual(str(rec), f'<Recommendation {rec.id}: Student=test_student, Faculty=test_faculty, Application={app.id}>')
+        self.assertEqual(str(c), f'<Course TC101: Test Course>')
+        self.assertEqual(str(ce), f'<CourseEnrollment {ce.id}: Student=test_student, Course=Test Course>')
+        self.assertEqual(str(major), '<Major Computer Science>')
+        self.assertEqual(str(research_topic), '<ResearchTopic AI>')
+        self.assertEqual(str(language), '<Language Python>')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

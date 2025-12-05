@@ -117,7 +117,7 @@ class Student(User):
     courses: sqlo.Mapped[List['CourseEnrollment']] = sqlo.relationship(back_populates='student')
 
     def __repr__(self):
-        return f'<Student {self.username}>'
+        return f'<Student {self.firstname} {self.lastname} ({self.username}, id={self.id})>'
     
     @property
     def role(self):
@@ -226,7 +226,7 @@ class Faculty(User):
     recommendations: sqlo.Mapped[List['Recommendation']] = sqlo.relationship(back_populates='faculty')
 
     def __repr__(self):
-        return f'<Faculty {self.username}>'
+        return f'<Faculty {self.firstname} {self.lastname} ({self.username}, id={self.id})>'
 
     @property
     def role(self):
@@ -252,7 +252,7 @@ class Application(db.Model):
     recommendations: sqlo.Mapped[list['Recommendation']] = sqlo.relationship(back_populates='application')
 
     def __repr__(self):
-        return f'<Application {self.id}>'
+        return f'<Application {self.id}: Student={self.student.username}, Position={self.position.name}>'
 
 
 class Position(db.Model):
@@ -276,7 +276,7 @@ class Position(db.Model):
     courses: sqlo.Mapped[List['Course']] = sqlo.relationship(secondary=positions_courses, back_populates='positions')
 
     def __repr__(self):
-        return f'<Position {self.name}>'
+        return f'<Position {self.name} (id={self.id}, Faculty={self.faculty.username})>'
     
     def get_research_topics(self):
         return [topic.name for topic in self.research_topics]
@@ -317,7 +317,7 @@ class Course(db.Model):
     positions: sqlo.Mapped[List['Position']] = sqlo.relationship(secondary=positions_courses, back_populates='courses')
 
     def __repr__(self):
-        return f'<Course {self.name}>'
+        return f'<Course {self.coursenum}: {self.name}>'
 
 
 class Recommendation(db.Model):
@@ -333,7 +333,7 @@ class Recommendation(db.Model):
     application: sqlo.Mapped['Application'] = sqlo.relationship(back_populates='recommendations')
 
     def __repr__(self):
-        return f'<Recommendation {self.id}>'
+        return f'<Recommendation {self.id}: Student={self.student.username}, Faculty={self.faculty.username}, Application={self.application.id}>'
 
 
 class CourseEnrollment(db.Model):
@@ -350,7 +350,7 @@ class CourseEnrollment(db.Model):
 
 
     def __repr__(self):
-        return f'<CourseEnrollment {self.id}>'
+        return f'<CourseEnrollment {self.id}: Student={self.student.username}, Course={self.course.name}>'
 
 
 class ResearchTopic(db.Model):

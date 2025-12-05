@@ -411,9 +411,9 @@ def test_edit_student_profile(request, test_client, init_database):
 
     # Prepare form data for editing the profile
     edit_profile_data = {
+        'username': 'chu',
         'gpa': 3.4,
-        'majors': compsci_major_id,
-        'csrf_token': 'test'
+        'majors': compsci_major_id
     }
 
     # POST the new data
