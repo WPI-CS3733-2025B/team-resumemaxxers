@@ -1,14 +1,88 @@
-from app import db
-from flask import render_template, flash, redirect, url_for
+from app import db, oauth
+from flask import render_template, flash, redirect, url_for, session, request
 import sqlalchemy as sqla
 
-from app.main.models import Student, CourseEnrollment, Faculty, Course
+from app.main.models import Student, CourseEnrollment, Faculty, Course, User
 from app.auth.auth_forms import RegistrationForm, LoginForm, RegistrationFormFaculty, VerificationForm
 from flask_login import login_user, current_user, logout_user, login_required
 from app.auth import auth_blueprint as auth
 from app.email import send_email
+from authlib.integrations.flask_client import OAuth
+from os import environ as env
+from urllib.parse import quote_plus, urlencode
+
 import hashlib
 
+
+@auth.route('/auth/sso', methods=['GET', 'POST'])
+def sso_login():
+    redirect_uri = url_for("auth.callback", _external=True)
+    print(f"Generated redirect_uri: {redirect_uri}")
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=redirect_uri
+    )
+
+@auth.route("/auth/callback", methods=["GET", "POST"])
+def callback():
+    if request.args.get("error") == "access_denied":
+        flash("User declined the authorization request.")
+        return redirect(url_for('main.index'))
+
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    user_info = session.get("user")["userinfo"]
+    user_query = sqla.select(Student).where(Student.email==user_info["email"])
+    user = db.session.scalars(user_query).first()
+
+    if user is None:
+        # Create a new user
+        user = Student(
+            email=user_info["email"],
+            username=''.join(c if c != "@" and c != "." else "" for c in user_info["email"]),  # no @ or . in username
+            firstname=user_info.get("given_name", ""),
+            lastname=user_info.get("family_name", ""),
+            gpa=0.0  # Set a default GPA
+        )
+        pw_unhashed = "SALTY!!!" + user.username + "SALTY!!!"
+        pw = hashlib.sha256(pw_unhashed.encode('utf-8')).hexdigest()
+        user.set_password(pw)
+        db.session.add(user)
+        db.session.commit()
+        subject = "Your Account for Research Finder"
+        message = f"""
+                Greetings, {user.username}!
+
+                Please find your temporary password below:
+
+                {pw}
+
+                May your research be epic.
+
+                Best wishes,
+                Matvei "G-Chist" Shestopalov
+                Head of Vibe Coding | Research App Development Team
+                """
+
+        send_email(user.email, subject, message)
+        flash("Welcome! Your account has been created. Make sure to edit it to include all info before you proceed!")
+
+    login_user(user)
+    return redirect(url_for('main.index'))
+
+@auth.route("/auth/sso_logout")
+def sso_logout():
+    session.clear()
+    return redirect(
+        "https://" + env.get("AUTH0_DOMAIN")
+        + "/v2/logout?"
+        + urlencode(
+            {
+                "returnTo": url_for("home", _external=True),
+                "client_id": env.get("AUTH0_CLIENT_ID"),
+            },
+            quote_via=quote_plus,
+        )
+    )
 
 @auth.route('/auth/student/register', methods=['GET', 'POST'])
 def register():

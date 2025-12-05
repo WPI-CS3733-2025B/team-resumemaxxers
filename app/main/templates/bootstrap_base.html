@@ -113,6 +113,7 @@
                     Logout
                   </a>
                 </li>
+<<<<<<< HEAD
               
               {% elif current_user.role == 'student' %}
                 <li class="nav-item ms-2">
@@ -122,6 +123,16 @@
                   </a>
                 </li>
                 
+=======
+                {% else %}
+                <li class="nav-item ms-2">
+                  <a class="nav-link {% if request.endpoint == 'student.student_profile_view' %}active{% endif %}"
+                    href="{{ url_for('student.student_profile_view', student_id=current_user.id) }}">
+                    Current user: {{ current_user.firstname or '' }} {{ current_user.lastname or '' }}
+                  </a>
+                </li>
+
+>>>>>>> iteration3-matvei
                 <li class="nav-item ms-2">
                   <a class="nav-link" href="{{ url_for('auth.logout') }}">
                     Logout

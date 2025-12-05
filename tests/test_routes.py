@@ -1,10 +1,11 @@
 import os
 import pytest
-from flask import url_for
+from flask import url_for, get_flashed_messages
 from app import create_app, db
 from app.main.models import Student, Faculty, Position, Application, Recommendation, Major, Course, ResearchTopic,     Language, CourseEnrollment
 from config import Config
 import sqlalchemy as sqla
+import hashlib
 
 
 class TestConfig(Config):
@@ -151,6 +152,63 @@ def test_student_dashboard_loads(request, test_client, init_database):
     response = test_client.get(f'/student/{student_id}/profile')
     assert response.status_code == 200
     assert b"Course List" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_student_dashboard_sorting(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the student dashboard page is filtered by major and GPA
+    THEN check that the response contains only the correctly filtered positions
+    """
+    # Log in as a student
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        student_id = student.id
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        major_cs = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first()
+        major_eng = db.session.scalars(sqla.select(Major).filter_by(name='Engineering')).first()
+
+        # Create new positions for testing filters
+        pos_cs_only = Position(name='CS Only Position', faculty_id=faculty.id)
+        pos_cs_only.majors.append(major_cs)
+        db.session.add(pos_cs_only)
+
+        pos_eng_high_gpa = Position(name='Eng High GPA Position', faculty_id=faculty.id, min_gpa=3.8)
+        pos_eng_high_gpa.majors.append(major_eng)
+        db.session.add(pos_eng_high_gpa)
+
+        pos_eng_low_gpa = Position(name='Eng Low GPA Position', faculty_id=faculty.id, min_gpa=3.0)
+        pos_eng_low_gpa.majors.append(major_eng)
+        db.session.add(pos_eng_low_gpa)
+
+        db.session.commit()
+        major_cs_id = major_cs.id
+        major_eng_id = major_eng.id
+
+    # Filter by Computer Science major
+    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_cs_id]})
+    assert response.status_code == 200
+    assert b'CS Only Position' in response.data
+    assert b'Eng High GPA Position' not in response.data
+    assert b'Research Assistant' not in response.data  # This one requires Engineering
+
+    # Filter by minimum GPA of 3.5
+    response = test_client.post(f'/student/{student_id}/profile', data={'grades': '3.5'})
+    assert response.status_code == 200
+    assert b'Eng High GPA Position' in response.data  # min_gpa is 3.8
+    assert b'Eng Low GPA Position' not in response.data # min_gpa is 3.0
+    assert b'CS Only Position' not in response.data # min_gpa is None
+
+    # Test filtering by both major and GPA
+    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_eng_id], 'grades': '3.5'})
+    assert response.status_code == 200
+    assert b'Eng High GPA Position' in response.data
+    assert b'Eng Low GPA Position' not in response.data
+    assert b'CS Only Position' not in response.data
 
     do_logout(test_client, path='/auth/session')
 
@@ -318,7 +376,7 @@ def test_view_faculty_profile(request, test_client, init_database):
     WHEN a logged-in student visits a faculty profile page
     THEN check that their information is displayed correctly
     """
-    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
     response = test_client.get('/faculty/68/profile/view')
     assert response.status_code == 200
     assert b"bill_clinton_fac" in response.data
@@ -599,6 +657,59 @@ def test_faculty_dashboard_shows_positions_and_applications(request, test_client
     do_logout(test_client, path='/auth/session')
 
 
+def test_student_cannot_access_faculty_dashboard(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a student user tries to access the faculty dashboard
+    THEN check that they are redirected away from the faculty dashboard
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/faculty/68/index', follow_redirects=True)
+    
+    # Assert that the response is not the faculty dashboard
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+    
+    do_logout(test_client, path='/auth/session')
+
+
+def test_student_cannot_access_faculty_pages(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a student user tries to access the faculty pages
+    THEN check that they are redirected away from the faculty pages
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    response = test_client.get('/faculty/68/index', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/68/profile/view', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/68/positions', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    response = test_client.get('/faculty/lists/settings', follow_redirects=True)
+
+    # Expect a redirect to a student-appropriate page, like student dashboard or main index
+    assert response.status_code == 200
+    assert b"ou do not have permission" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
 def test_unauthorized_user_cannot_edit_others_position(request, test_client, init_database):
     """
     GIVEN a Flask application with positions
@@ -613,7 +724,7 @@ def test_unauthorized_user_cannot_edit_others_position(request, test_client, ini
         pos_id = other_position.id
     
     response = test_client.get(f'/faculty/{pos_id}/settings', follow_redirects=True)
-    # Respost is eith er 403 or error message
+    # Respost is either 403 or error message
     assert response.status_code in [200, 403]
     
     do_logout(test_client, path='/auth/session')
@@ -791,4 +902,127 @@ def test_unverified_faculty_redirect(request, test_client, init_database):
     assert b"Account Not Verified" in response.data
 
     # Logout
+    do_logout(test_client, path='/auth/session')
+
+def test_faculty_can_approve_recommendation(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a pending recommendation
+    WHEN a faculty member approves the recommendation
+    THEN check that the status changes to approved
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=student.id)).first()
+        recommendation = Recommendation(student_id=student.id, faculty_id=faculty.id, application_id=application.id,
+                                      status='pending')
+        db.session.add(recommendation)
+        db.session.commit()
+        rec_id = recommendation.id
+
+    response = test_client.get(f'/faculty/recommendation/{rec_id}/approval', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Student approved :)" in response.data
+
+    with test_client.application.app_context():
+        updated_rec = db.session.get(Recommendation, rec_id)
+        assert updated_rec.status == "approved"
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_reject_recommendation(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a pending recommendation
+    WHEN a faculty member rejects the recommendation
+    THEN check that the status changes to rejected
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=student.id)).first()
+        recommendation = Recommendation(student_id=student.id, faculty_id=faculty.id, application_id=application.id,
+                                      status='pending')
+        db.session.add(recommendation)
+        db.session.commit()
+        rec_id = recommendation.id
+
+    response = test_client.get(f'/faculty/recommendation/{rec_id}/rejection', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Student rejected :(" in response.data
+
+    with test_client.application.app_context():
+        updated_rec = db.session.get(Recommendation, rec_id)
+        assert updated_rec.status == "rejected"
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_index_loads(request, test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN a faculty member views their index page
+    THEN check that the page loads correctly
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        faculty_id = faculty.id
+
+    response = test_client.get(f'/faculty/{faculty_id}/index')
+    assert response.status_code == 200
+    assert b"Welcome, faculty member!" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_view_student_list_for_position(request, test_client, init_database):
+    """
+    GIVEN a Flask application with positions and applications
+    WHEN a faculty views the list of applicants for a position
+    THEN check that the applicants are displayed
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
+        pos_id = position.id
+
+    response = test_client.get(f'/student_list/{pos_id}/view')
+    assert response.status_code == 200
+    assert b"Bill Clinton" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+from flask import url_for, get_flashed_messages
+
+def test_student_can_withdraw_application(request, test_client, init_database):
+    """
+    GIVEN a Flask application with a student application
+    WHEN the student withdraws the application
+    THEN check that the application is deleted
+    """
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        application = db.session.scalars(sqla.select(Application).filter_by(student_id=2)).first()
+        assert application is not None
+        app_id = application.id
+
+    with test_client:
+        response = test_client.get(f'/application/{app_id}/withdraw', follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('success', 'Application withdrawn successfully!') in flashed_messages
+
+    with test_client.application.app_context():
+        withdrawn_app = db.session.get(Application, app_id)
+        assert withdrawn_app is None
+
     do_logout(test_client, path='/auth/session')
