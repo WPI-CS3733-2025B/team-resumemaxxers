@@ -203,6 +203,13 @@ def test_student_dashboard_sorting(request, test_client, init_database):
     assert b'Eng Low GPA Position' not in response.data # min_gpa is 3.0
     assert b'CS Only Position' not in response.data # min_gpa is None
 
+    # Invalid GPA test
+    response = test_client.post(f'/student/{student_id}/profile', data={'grades': '5.5'})
+    with test_client.session_transaction() as sess:
+        flashed_messages = sess['_flashes']
+    assert b'Eng High GPA Position' not in response.data  # min_gpa is 3.8
+    assert ('error', 'GPA cannot be greater than 5.0.') in flashed_messages
+
     # Test filtering by both major and GPA
     response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_eng_id], 'grades': '3.5'})
     assert response.status_code == 200
@@ -1000,7 +1007,6 @@ def test_faculty_can_view_student_list_for_position(request, test_client, init_d
     do_logout(test_client, path='/auth/session')
 
 
-from flask import url_for, get_flashed_messages
 
 def test_student_can_withdraw_application(request, test_client, init_database):
     """
