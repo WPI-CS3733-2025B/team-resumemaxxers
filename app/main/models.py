@@ -172,13 +172,15 @@ class Student(User):
     
     def recommended_positions(self):
         """
-        Return positions that match the student's profile.
+        Return positions that match the student's profile and application keywords.
         A position is recommended if the student meets ALL of these:
         1. Meets the GPA requirement (or position has no GPA requirement)
         2. Has at least one matching major (or position has no major requirement)
         3. Has at least one matching research topic (or position has no topic requirement)
+        4. Keywords from application statements match position descriptions/topics
         """
         from sqlalchemy import and_, or_
+        import re
         
         filters = []
 
@@ -217,8 +219,44 @@ class Student(User):
             # If student has no topics, only show positions with no topic requirements
             filters.append(~Position.research_topics.any())
 
-        # Apply all filters
-        return Position.query.filter(and_(*filters)).all()
+        # Get base recommended positions
+        base_positions = Position.query.filter(and_(*filters)).all()
+        
+        # Extract keywords from student's application statements
+        keywords = set()
+        for app in self.applications:
+            if app.statement:
+                # Extract words (3+ chars) from statements, lowercase
+                words = re.findall(r'\b[a-zA-Z]{3,}\b', app.statement.lower())
+                keywords.update(words)
+        
+        # Score and filter positions based on keyword matches
+        if keywords:
+            scored_positions = []
+            for pos in base_positions:
+                score = 0
+                # Check position name
+                if pos.name:
+                    name_words = set(re.findall(r'\b[a-zA-Z]{3,}\b', pos.name.lower()))
+                    score += len(keywords.intersection(name_words)) * 3
+                
+                # Check position description
+                if pos.description:
+                    desc_words = set(re.findall(r'\b[a-zA-Z]{3,}\b', pos.description.lower()))
+                    score += len(keywords.intersection(desc_words)) * 2
+                
+                # Check research topics
+                for topic in pos.research_topics:
+                    topic_words = set(re.findall(r'\b[a-zA-Z]{3,}\b', topic.name.lower()))
+                    score += len(keywords.intersection(topic_words)) * 2
+                
+                scored_positions.append((pos, score))
+            
+            # Sort by score descending, return positions with score > 0 first, then others
+            scored_positions.sort(key=lambda x: x[1], reverse=True)
+            return [pos for pos, score in scored_positions]
+        
+        return base_positions
 
 class Faculty(User):
     __tablename__ = 'faculty'

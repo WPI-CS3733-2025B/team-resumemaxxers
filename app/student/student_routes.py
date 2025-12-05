@@ -296,3 +296,15 @@ def withdraw_application(application_id):
     db.session.commit()
     flash('Application withdrawn successfully!', 'success')
     return redirect(url_for('student.student_dashboard'))
+
+@student.route('/application/<application_id>/detail', methods=['GET'])
+@login_required
+@role_required("student")
+def view_application_detail(application_id):
+    application = Application.query.get_or_404(application_id)
+    
+    if current_user.role != 'student' or application.student_id != current_user.id:
+        flash('You are not authorized to view this application.', 'error')
+        return redirect(url_for('student.student_dashboard'))
+    
+    return render_template('application_detail.html', application=application)
