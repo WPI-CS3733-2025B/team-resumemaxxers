@@ -61,6 +61,19 @@ def student_approve(application_id):
     if application is None:
         flash('Application not found.', 'error')
         return redirect(url_for('faculty.faculty_index', faculty_id=current_user.id))
+    
+    # Check if position is full before approving
+    if application.position.is_full():
+        flash('Cannot approve: This position is full. Please reject an approved student first.', 'error')
+        return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
+    
+    # Check if position requires recommendation and if it's approved
+    if application.position.ref_required:
+        has_approved_recommendation = any(rec.status == 'approved' for rec in application.recommendations)
+        if not has_approved_recommendation:
+            flash('Cannot approve: This position requires an approved recommendation first.', 'error')
+            return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
+    
     application.status = "approved"
     db.session.commit()
     # Send a notification email to the student

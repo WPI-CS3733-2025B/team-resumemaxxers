@@ -13,11 +13,11 @@
                 {% endif %}
             </h3>
             <span class="text-muted">
-                {{ position.applications|length }} application{{ '' if position.applications|length == 1 else 's' }}
+                {{ filtered_applications|length }} visible application{{ '' if filtered_applications|length == 1 else 's' }}
                 ({{ position.get_approved_count() }} approved / {{ position.team_size }} needed)
             </span>
         </div>
-        {% for application in position.applications %}
+        {% for application in filtered_applications %}
             <div class="mb-3">
                 {% include 'student_card.html' %}
             </div>
