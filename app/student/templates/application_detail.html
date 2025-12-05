@@ -1,0 +1,97 @@
+{% extends "bootstrap_base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Application Details</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>{{ application.position.name }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Status:</strong></div>
+                    <div class="col-md-9">
+                        {% if application.status|lower == 'approved' %}
+                            <span class="badge bg-approved">{{ application.status }}</span>
+                        {% elif application.status|lower == 'rejected' %}
+                            <span class="badge bg-rejected">{{ application.status }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ application.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Applied On:</strong></div>
+                    <div class="col-md-9">{{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Faculty:</strong></div>
+                    <div class="col-md-9">{{ application.position.faculty.firstname }} {{ application.position.faculty.lastname }}</div>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-4">
+                    <h5>Application Statement</h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            {% if application.statement %}
+                                <p>{{ application.statement }}</p>
+                            {% else %}
+                                <p class="text-muted">No statement provided.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>References</h5>
+                    {% if application.recommendations %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Faculty Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rec in application.recommendations %}
+                                <tr>
+                                    <td>{{ rec.faculty.firstname }} {{ rec.faculty.lastname }}</td>
+                                    <td>{{ rec.faculty.email }}</td>
+                                    <td>
+                                        {% if rec.status|lower == 'approved' %}
+                                            <span class="badge bg-approved">{{ rec.status }}</span>
+                                        {% elif rec.status|lower == 'rejected' %}
+                                            <span class="badge bg-rejected">{{ rec.status }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ rec.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">No references submitted.</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('student.student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    {% if application.status|lower == 'pending' %}
+                        <a href="{{ url_for('student.withdraw_application', application_id=application.id) }}" 
+                           class="btn btn-delete"
+                           onclick="return confirm('Are you sure you want to withdraw this application?');">
+                            Withdraw Application
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

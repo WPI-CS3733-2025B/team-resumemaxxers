@@ -88,6 +88,18 @@ def view_position(position_id):
 def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES I GUESS...
     if isinstance(current_user, Faculty):  # if current user is faculty
         position=Position.query.get_or_404(position_id)
-        return render_template('apply_student_list.html',position=position)
+        
+        # Filter applications based on recommendation requirements
+        if position.ref_required:
+            # Only show applications where recommendation is approved
+            filtered_applications = [
+                app for app in position.applications
+                if any(rec.status == 'approved' for rec in app.recommendations)
+            ]
+        else:
+            # Show all applications if no reference required
+            filtered_applications = position.applications
+        
+        return render_template('apply_student_list.html', position=position, filtered_applications=filtered_applications)
     else:
         return "Permission denied: you are not a faculty member"
