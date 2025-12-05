@@ -156,6 +156,63 @@ def test_student_dashboard_loads(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_student_dashboard_sorting(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the student dashboard page is filtered by major and GPA
+    THEN check that the response contains only the correctly filtered positions
+    """
+    # Log in as a student
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
+        student_id = student.id
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        major_cs = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first()
+        major_eng = db.session.scalars(sqla.select(Major).filter_by(name='Engineering')).first()
+
+        # Create new positions for testing filters
+        pos_cs_only = Position(name='CS Only Position', faculty_id=faculty.id)
+        pos_cs_only.majors.append(major_cs)
+        db.session.add(pos_cs_only)
+
+        pos_eng_high_gpa = Position(name='Eng High GPA Position', faculty_id=faculty.id, min_gpa=3.8)
+        pos_eng_high_gpa.majors.append(major_eng)
+        db.session.add(pos_eng_high_gpa)
+
+        pos_eng_low_gpa = Position(name='Eng Low GPA Position', faculty_id=faculty.id, min_gpa=3.0)
+        pos_eng_low_gpa.majors.append(major_eng)
+        db.session.add(pos_eng_low_gpa)
+
+        db.session.commit()
+        major_cs_id = major_cs.id
+        major_eng_id = major_eng.id
+
+    # Filter by Computer Science major
+    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_cs_id]})
+    assert response.status_code == 200
+    assert b'CS Only Position' in response.data
+    assert b'Eng High GPA Position' not in response.data
+    assert b'Research Assistant' not in response.data  # This one requires Engineering
+
+    # Filter by minimum GPA of 3.5
+    response = test_client.post(f'/student/{student_id}/profile', data={'grades': '3.5'})
+    assert response.status_code == 200
+    assert b'Eng High GPA Position' in response.data  # min_gpa is 3.8
+    assert b'Eng Low GPA Position' not in response.data # min_gpa is 3.0
+    assert b'CS Only Position' not in response.data # min_gpa is None
+
+    # Test filtering by both major and GPA
+    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_eng_id], 'grades': '3.5'})
+    assert response.status_code == 200
+    assert b'Eng High GPA Position' in response.data
+    assert b'Eng Low GPA Position' not in response.data
+    assert b'CS Only Position' not in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
 def test_student_registration_page_loads(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
