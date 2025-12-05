@@ -786,6 +786,7 @@ def test_add_course_to_lists(request, test_client, init_database):
 
     assert response.status_code == 200
     assert b'Course added!' in response.data
+
     with test_client.application.app_context():
         course = db.session.scalars(sqla.select(Course).filter_by(name='New Course')).first()
         assert course is not None
