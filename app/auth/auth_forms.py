@@ -142,6 +142,7 @@ class EditProfileForm(FlaskForm):
 
                                          option_widget=CheckboxInput())
 
-
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Password', validators=[DataRequired(), EqualTo('password')])
 
     submit = SubmitField('Submit')

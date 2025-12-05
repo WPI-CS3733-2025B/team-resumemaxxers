@@ -102,6 +102,7 @@ def edit_profile():
         current_user.majors = form.majors.data
         current_user.research_topics = form.research_topics.data
         current_user.languages = form.languages.data
+        current_user.set_password(form.password.data)
 
         for enrollment in current_user.courses:
             db.session.delete(enrollment)
