@@ -4,7 +4,7 @@
     #Set the home variable 
     ENV HOME=/app
     #This replaces the database url in your .env file with the production database URL. The .env file is docker ignored (similar to a gitignore) so, it won't be available in production 
-    ENV SQLALCHEMY_DATABASE_URI='REPLACE WITH YOUR PROD DATABASE URL' 
+    ENV SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://postgres:postgres@softeng-prod-new.c5q6iu48yarj.us-east-2.rds.amazonaws.com/postgres' 
     #Set the current dirctory to app 
     WORKDIR /app
     #move the requirements.txt text file into the container 
