@@ -805,6 +805,34 @@ def test_add_major_to_lists(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_remove_major_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member deletes a major through the 'edit_lists' page
+    THEN check that the major is removed from the database
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    print(db.session.scalars(sqla.select(Major)).all())
+    with test_client.application.app_context():
+        new_major = Major(name='Deletable Major')
+        db.session.add(new_major)
+        db.session.commit()
+        major_id = new_major.id
+
+    print(db.session.scalars(sqla.select(Major)).all())
+    response = test_client.post('/faculty/lists/settings', data={
+        'major_delete-majors': [major_id],
+        'major_delete-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Majors deleted!' in response.data
+    print(db.session.scalars(sqla.select(Major)).all())
+    with test_client.application.app_context():
+        major = db.session.get(Major, major_id)
+        assert major is None
+    do_logout(test_client, path='/auth/session')
+
+
 def test_delete_course_from_lists(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
@@ -1026,3 +1054,84 @@ def test_student_can_withdraw_application(request, test_client, init_database):
         assert withdrawn_app is None
 
     do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_success(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with valid data
+    THEN check that their information is updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        compsci_major = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first()
+        assert compsci_major is not None
+        compsci_major_id = compsci_major.id
+
+        topic_ai = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first()
+        assert topic_ai is not None
+        topic_ai_name = topic_ai.name
+
+        lang_python = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first()
+        assert lang_python is not None
+        lang_python_name = lang_python.name
+
+        course_intro_cs = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first()
+        assert course_intro_cs is not None
+        course_intro_cs_id = course_intro_cs.id
+        
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        assert faculty is not None
+        faculty_id = faculty.id
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': '3.9',
+        'username': 'the_real_donald',
+        'firstname': 'Donald',
+        'lastname': 'Drumpf',
+        'email': 'donald@new.com',
+        'password': 'new_password',
+        'password2': 'new_password',
+        'majors': [compsci_major_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': faculty_id,
+        'courses-0-grade': 'A',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('message', 'Your changes have been saved.') in flashed_messages
+
+    # Check if the data was updated in the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='the_real_donald')).first()
+        assert student is not None
+        assert student.gpa == 3.9
+        assert student.firstname == 'Donald'
+        assert student.lastname == 'Drumpf'
+        assert student.email == 'donald@new.com'
+        assert student.check_password('new_password')
+        assert 'Computer Science' in [m.name for m in student.majors]
+        assert 'Artificial Intelligence' in [t.name for t in student.research_topics]
+        assert 'Python' in [l.name for l in student.languages]
+        
+        enrollment = db.session.scalars(sqla.select(CourseEnrollment).filter_by(student_id=student.id)).first()
+        assert enrollment is not None
+        assert enrollment.course_id == course_intro_cs_id
+        assert enrollment.instructor_id == faculty_id
+        assert enrollment.grade == 'A'
+
+        do_logout(test_client, path='/auth/session')
