@@ -252,6 +252,13 @@ def recommended():
         # Filter out full positions
         positions = [pos for pos in positions if not pos.is_full()]
         print(f"DEBUG: {len(positions)} positions available after filtering full positions")
+
+        filtered = []
+        for pos in positions:
+            applied = any(app.student_id == current_user.id for app in pos.applications)
+            if not applied:
+                filtered.append(pos)
+        positions = filtered
         
         flash(f"Found {len(positions)} recommended positions out of {len(all_positions)} total positions.", "info")
     except Exception as e:

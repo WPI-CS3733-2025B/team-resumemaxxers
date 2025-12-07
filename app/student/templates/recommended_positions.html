@@ -1,25 +1,17 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 
 {% block content %}
   <h2>Recommended Positions</h2>
 
   {% if positions %}
-    <ul class="list-group">
+    <div class="postlist">
       {% for p in positions %}
-        <li class="list-group-item">
-          <h4>{{ p.name }}</h4>
-          {% if p.majors %}<p><strong>Preferred majors:</strong> {% for m in p.majors %}{{ m.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-          {% if p.min_gpa %}<p><strong>Minimum GPA:</strong> {{ p.min_gpa }}</p>{% endif %}
-          {% if p.research_topics %}<p><strong>Research Topics:</strong> {% for t in p.research_topics %}{{ t.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-          <p>{{ p.description }}</p>
-
-          <a class="btn btn-sm btn-add"
-             href="{{ url_for('student.apply_position', position_id=p.id) }}">
-            Apply
-          </a>
-        </li>
+        <div class="post-box">
+          {% set position = p %}
+          {% include 'position_detail.html' %}
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
     <p>No positions match your profile yet. Try updating your profile or check back later.</p>
   {% endif %}
