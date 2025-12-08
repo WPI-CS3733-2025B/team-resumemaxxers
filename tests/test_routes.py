@@ -651,6 +651,54 @@ def test_faculty_can_edit_position(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_faculty_can_edit_position_validation(request, test_client, init_database):
+    """
+    GIVEN a Flask application with an existing position
+    WHEN a faculty member edits the position
+    THEN check that the changes are validated
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
+        assert position is not None
+        pos_id = position.id
+    
+    # GET the edit page
+    response = test_client.get(f'/faculty/{pos_id}/settings')
+    assert response.status_code == 200
+    assert b"Edit Position" in response.data
+    
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        major_id = str(db.session.scalars(sqla.select(Major).filter_by(name='Engineering')).first().id)
+        topic_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+    
+    # POST updated data
+    edit_data = {
+        'name': 'Mega Knight',
+        'description': 'The Mega Knight is a Legendary card that is unlocked from the Electro Valley (Arena 11). It spawns an area-damage, ground-targeting, melee, ground troop with very high hitpoints and high damage.',
+        'team_size': '7',
+        'min_gpa': '5.5',
+        'start_date': '2025-01-01',
+        'end_date': '2025-12-31',
+        'faculty': '68',
+        'majors': major_id,
+        'research_topics': topic_name,
+        'languages': lang_name,
+        'csrf_token': 'test'
+    }
+    
+    response = test_client.post(f'/faculty/{pos_id}/settings', data=edit_data, follow_redirects=True)
+    assert response.status_code == 200
+    
+    with test_client.application.app_context():
+        updated_pos = db.session.get(Position, pos_id)
+        assert updated_pos.min_gpa != '5.5'
+    
+    do_logout(test_client, path='/auth/session')
+
 def test_faculty_can_delete_position(request, test_client, init_database):
     """
     GIVEN a Flask application with an existing position

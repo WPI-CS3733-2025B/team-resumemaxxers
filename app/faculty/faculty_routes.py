@@ -266,10 +266,10 @@ def edit_position(position_id):
                     position.min_gpa = float(form.min_gpa.data)
                     if position.min_gpa > 5.0:
                         flash('GPA cannot be greater than 5.0.', 'error')
-                        return redirect(url_for('faculty.edit_position'))
+                        return redirect(url_for('faculty.edit_position', position_id=position_id))
                 except ValueError:
                     flash('Invalid input for Minimum GPA. Please enter a valid number.', 'error')
-                    return redirect(url_for('faculty.edit_position'))
+                    return redirect(url_for('faculty.edit_position', position_id=position_id))
         if form.start_date.data > form.end_date.data:
             flash('Start date cannot be after end date.', 'error')
             return redirect(url_for('faculty.edit_position', position_id=position.id))
