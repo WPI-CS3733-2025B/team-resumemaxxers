@@ -63,6 +63,7 @@ def init_database(request, test_client):
     unverified_faculty.set_password('password')
 
     donald_trump.set_password("67")
+    peter_jones.set_password("67")
     bill_clinton_fac.set_password("68")
     bill_clinton.set_password("67")
     barack_obama.set_password("11")
@@ -1133,5 +1134,89 @@ def test_edit_student_profile_success(request, test_client, init_database):
         assert enrollment.course_id == course_intro_cs_id
         assert enrollment.instructor_id == faculty_id
         assert enrollment.grade == 'A'
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_failure(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with invalid data
+    THEN check that their information is not updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='peter_jones', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': '5.9',  # will cause error
+        'username': 'peter_jones',
+        'firstname': 'Peter',
+        'email': 'peter@jones2.com',  # should not go through
+        'lastname': 'Jones',
+        'password': 'new_password',
+        'password2': 'new_password',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('error', 'GPA cannot be greater than 5.0.') in flashed_messages
+
+    # Check if the data was updated in the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='peter_jones')).first()
+        assert student is not None
+        assert student.firstname == 'Peter'
+        assert student.lastname == 'Jones'
+        assert student.email == 'peter@jones.com'
+        assert student.check_password('67')
+
+        do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_failure_2(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with invalid data
+    THEN check that their information is not updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='peter_jones', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': '3.9',
+        'username': 'peter_jones',
+        'firstname': 'Peter',
+        'lastname': 'Jones',
+        'email': 'alan@turing.com',  # should cause error, this email is taken
+        'password': 'new_password',
+        'password2': 'new_password',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+
+    # Check if the data was updated in the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='peter_jones')).first()
+        assert student is not None
+        assert student.firstname == 'Peter'
+        assert student.lastname == 'Jones'
+        assert student.email == 'peter@jones.com'  # changes don't go through
+        assert not student.check_password('new_password')  # changes don't go through
 
         do_logout(test_client, path='/auth/session')
