@@ -445,6 +445,51 @@ def test_faculty_can_create_position_gpa_error_2(request, test_client, init_data
 
     do_logout(test_client, path='/auth/session')
 
+
+def test_faculty_can_create_position_date_error(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with correct credentials
+    AND '/faculty/<faculty_id>/create_position' is submitted with a start date after the end date
+    THEN check that the position is not created
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/68/positions')
+    assert response.status_code == 200
+    assert b"Create New Position" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        major_id = str(db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id)
+        topic_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+
+    # Prepare form data for a new position with invalid dates
+    new_position_data = {
+        'name': 'Time Traveler Position',
+        'description': 'A position that starts in the future and ends in the past.',
+        'team_size': '1',
+        'min_gpa': '3.0',
+        'ref_required': 'y',
+        'start_date': '2024-01-01',
+        'end_date': '2023-12-31',  # End date is before start date
+        'faculty': '68',
+        'majors': major_id,
+        'research_topics': topic_name,
+        'languages': lang_name,
+        'csrf_token': 'test'
+    }
+
+    response = test_client.post('/faculty/68/positions', data=new_position_data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Position created successfully" not in response.data  # Check for success flash message
+
+    # Optional: Check for a specific error message if your application provides one
+    # assert b"Start date cannot be after end date" in response.data
+
+    do_logout(test_client, path='/auth/session')
+
 def test_student_can_view_own_profile(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
@@ -697,6 +742,55 @@ def test_faculty_can_edit_position_validation(request, test_client, init_databas
         updated_pos = db.session.get(Position, pos_id)
         assert updated_pos.min_gpa != '5.5'
     
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_edit_position_date_error(request, test_client, init_database):
+    """
+    GIVEN a Flask application with an existing position
+    WHEN a faculty member edits the position with a start date after the end date
+    THEN check that the changes are not saved
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='Research Assistant')).first()
+        assert position is not None
+        pos_id = position.id
+
+    # GET the edit page
+    response = test_client.get(f'/faculty/{pos_id}/settings')
+    assert response.status_code == 200
+    assert b"Edit Position" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        major_id = str(db.session.scalars(sqla.select(Major).filter_by(name='Engineering')).first().id)
+        topic_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+
+    # POST updated data with invalid dates
+    edit_data = {
+        'name': 'Invalid Date Position',
+        'description': 'This position has an invalid date range.',
+        'team_size': '1',
+        'min_gpa': '3.0',
+        'start_date': '2025-12-31',
+        'end_date': '2025-01-01',  # End date is before start date
+        'faculty': '68',
+        'majors': major_id,
+        'research_topics': topic_name,
+        'languages': lang_name,
+        'csrf_token': 'test'
+    }
+
+    response = test_client.post(f'/faculty/{pos_id}/settings', data=edit_data, follow_redirects=True)
+    assert response.status_code == 200
+
+    with test_client.application.app_context():
+        updated_pos = db.session.get(Position, pos_id)
+        assert updated_pos.name != 'Invalid Date Position'  # Check that the name was not updated
+
     do_logout(test_client, path='/auth/session')
 
 def test_faculty_can_delete_position(request, test_client, init_database):
@@ -1480,3 +1574,43 @@ def test_edit_student_profile_failure_3(request, test_client, init_database):
         assert not student.check_password('new_password')  # changes don't go through
 
         do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_gpa_letter_error(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with a letter for GPA
+    THEN check that their information is not updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='peter_jones', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Prepare form data for editing the profile with a letter GPA
+    edit_profile_data = {
+        'gpa': 'A',  # Invalid GPA
+        'username': 'peter_jones',
+        'firstname': 'Peter',
+        'lastname': 'Jones',
+        'email': 'peter_jones@example.com',
+        'password': 'new_password',
+        'password2': 'new_password',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+        # Check for a specific error message if available
+        # assert b"Invalid GPA format" in response.data
+
+    # Check that the GPA was not updated in the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='peter_jones')).first()
+        assert student is not None
+        assert student.gpa == 3.1  # The original GPA
+
+    do_logout(test_client, path='/auth/session')
