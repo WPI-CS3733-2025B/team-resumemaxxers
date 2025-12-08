@@ -86,6 +86,25 @@ def student_profile_view(student_id):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
+
+        if form.email.data != current_user.email:
+            existing_student = Student.query.filter(
+                Student.email == form.email.data,
+                Student.id != current_user.id
+            ).first()
+
+            existing_faculty = Faculty.query.filter_by(email=form.email.data).first()
+
+            if existing_student or existing_faculty:
+                form.email.errors.append("This email is already in use. Please choose another one.")
+                return render_template(
+                    'edit_profile.html',
+                    title='Edit Profile',
+                    form=form,
+                    Course=Course,
+                    Faculty=Faculty
+                )
+
         if form.gpa.data:
                 try:
                     current_user.gpa = float(form.gpa.data)
