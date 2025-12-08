@@ -886,6 +886,34 @@ def test_remove_major_from_lists(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_remove_language_from_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member deletes a language through the 'edit_lists' page
+    THEN check that the language is removed from the database
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    print(db.session.scalars(sqla.select(Language)).all())
+    with test_client.application.app_context():
+        new_language = Language(name='Deletable Language')
+        db.session.add(new_language)
+        db.session.commit()
+        language_id = new_language.name
+
+    print(db.session.scalars(sqla.select(Language)).all())
+    response = test_client.post('/faculty/lists/settings', data={
+        'language_delete-languages': [language_id],
+        'language_delete-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Languages deleted!' in response.data
+    print(db.session.scalars(sqla.select(Language)).all())
+    with test_client.application.app_context():
+        lang = db.session.get(Language, language_id)
+        assert lang is None
+    do_logout(test_client, path='/auth/session')
+
+
 def test_delete_course_from_lists(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
