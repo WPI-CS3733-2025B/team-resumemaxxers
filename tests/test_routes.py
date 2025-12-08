@@ -812,6 +812,32 @@ def test_add_topic_to_lists(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_add_language_to_lists(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a faculty member adds a language through the 'edit_lists' page
+    THEN check that the new language is in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.post('/faculty/lists/settings', data={
+        'language-name': 'New Language',
+        'language-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Language added!' in response.data
+    with test_client.application.app_context():
+        language = db.session.scalars(sqla.select(Language).filter_by(name='New Language')).first()
+        assert language is not None
+
+    response = test_client.post('/faculty/lists/settings', data={
+        'language-name': 'New Language',
+        'language-submit': True
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'already exists' in response.data
+    do_logout(test_client, path='/auth/session')
+
+
 def test_add_major_to_lists(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
