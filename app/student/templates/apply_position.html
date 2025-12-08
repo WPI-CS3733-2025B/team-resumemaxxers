@@ -15,15 +15,16 @@
         {% endfor %}
     </div>
 
-    <div class="mb-3">
-        {{ form.reference_email.label(class="form-label") }}
-        {{ form.reference_email(class="form-control") }}
+    <div class="d-flex flex-column">
+        <label class="mb-1 me-2" for="{{ form.reference_email.id }}">Reference Email (if required)</label>
+        {{ form.reference_email(class_="form-select form-select-sm compact-multi") }}
+    
         {% for error in form.reference_email.errors %}
             <div class="text-danger">{{ error }}</div>
         {% endfor %}
     </div>
 
-    <div class="d-grid">
+    <div class="d-grid mt-3">
         {{ form.submit(class="btn btn-add btn-lg") }}
     </div>
 </form>

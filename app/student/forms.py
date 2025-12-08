@@ -42,6 +42,5 @@ class ApplyPositionForm(FlaskForm):
         ]
     )
 
-    reference_email = StringField("Reference Email (if required)", validators=[Optional(), Email(message="Invalid email format.")])
-
+    reference_email = SelectField('Reference Email (if required)', validators=[Optional()], choices=[], coerce=str)
     submit = SubmitField("Apply")

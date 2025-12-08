@@ -164,14 +164,17 @@ def apply_position(position_id):
 
     form = ApplyPositionForm()
 
+    instructors = db.session.scalars(sqla.select(Faculty)).all()
+    form.reference_email.choices = [("", "-- Select a reference --")] + [
+    (i.email, i.email) for i in instructors]
+
     if position.ref_required:
-        form.reference_email.validators = [DataRequired(message="Reference email is required."),
-                                           Email(message="Invalid email address.")]
+        form.reference_email.validators = [DataRequired(message="Reference email is required.")]
 
     if form.validate_on_submit():
 
         statement = form.statement.data
-        reference_email = form.reference_email.data.strip() if form.reference_email.data else None
+        reference_email = form.reference_email.data or None
 
         faculty_ref = None
         if reference_email:
