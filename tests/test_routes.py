@@ -356,6 +356,95 @@ def test_faculty_can_create_position(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
+def test_faculty_can_create_position_gpa_error(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with correct credentials
+    AND '/faculty/<faculty_id>/create_position' is submitted correctly
+    THEN check that the position is created
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/1/positions')  # not functional, should be 302
+    assert response.status_code == 302
+    response = test_client.get('/faculty/68/positions')
+    assert response.status_code == 200
+    assert b"Create New Position" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        major_id = str(db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id)
+        topic_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+
+    # Prepare form data for a new position
+    new_position_data = {
+        'name': 'Hog Rider',
+        'description': 'The Hog Rider is a Rare card that is unlocked from the Spell Valley (Arena 5). He is a very fast building-targeting, melee troop with moderately high hitpoints and damage.',
+        'team_size': '2',
+        'min_gpa': '6.0',  # should cause error
+        'ref_required': 'y',  # 'y' for 'True' in some WTForms BooleanField handling
+        'start_date': '2023-01-01',
+        'end_date': '2023-12-31',
+        'faculty': '68',
+        'majors': major_id,
+        'research_topics': topic_name,
+        'languages': lang_name,
+        'csrf_token': 'test'
+        # CSRF token often required for POST forms, use a dummy for testing if WTF_CSRF_ENABLED is False
+    }
+
+    response = test_client.post('/faculty/68/positions', data=new_position_data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Position created successfully" not in response.data  # check for a success flash message
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_faculty_can_create_position_gpa_error_2(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/login' form is submitted (POST) with correct credentials
+    AND '/faculty/<faculty_id>/create_position' is submitted correctly
+    THEN check that the position is created
+    """
+    do_login(test_client, path='/auth/student/session', username='bill_clinton_fac', passwd='68', user_role="faculty")
+    response = test_client.get('/faculty/1/positions')  # not functional, should be 302
+    assert response.status_code == 302
+    response = test_client.get('/faculty/68/positions')
+    assert response.status_code == 200
+    assert b"Create New Position" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        major_id = str(db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first().id)
+        topic_name = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first().name
+        lang_name = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first().name
+
+    # Prepare form data for a new position
+    new_position_data = {
+        'name': 'Hog Rider',
+        'description': 'The Hog Rider is a Rare card that is unlocked from the Spell Valley (Arena 5). He is a very fast building-targeting, melee troop with moderately high hitpoints and damage.',
+        'team_size': '2',
+        'min_gpa': 'A',  # should cause error
+        'ref_required': 'y',  # 'y' for 'True' in some WTForms BooleanField handling
+        'start_date': '2023-01-01',
+        'end_date': '2023-12-31',
+        'faculty': '68',
+        'majors': major_id,
+        'research_topics': topic_name,
+        'languages': lang_name,
+        'csrf_token': 'test'
+        # CSRF token often required for POST forms, use a dummy for testing if WTF_CSRF_ENABLED is False
+    }
+
+    response = test_client.post('/faculty/68/positions', data=new_position_data, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"Position created successfully" not in response.data  # check for a success flash message
+
+    do_logout(test_client, path='/auth/session')
+
 def test_student_can_view_own_profile(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
