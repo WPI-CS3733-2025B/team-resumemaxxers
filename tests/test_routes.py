@@ -1209,6 +1209,7 @@ def test_edit_student_profile_failure_2(request, test_client, init_database):
     with test_client:
         response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
         assert response.status_code == 200
+        assert b"email is already in use" in response.data
 
     # Check if the data was updated in the database
     with test_client.application.app_context():
@@ -1217,6 +1218,48 @@ def test_edit_student_profile_failure_2(request, test_client, init_database):
         assert student.firstname == 'Peter'
         assert student.lastname == 'Jones'
         assert student.email == 'peter@jones.com'  # changes don't go through
+        assert not student.check_password('new_password')  # changes don't go through
+
+        do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_failure_3(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with invalid data
+    THEN check that their information is not updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='peter_jones', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': 'kdsfidsfijsf',  # should cause error
+        'username': 'peter_jones',
+        'firstname': 'Peter',
+        'lastname': 'Jones',
+        'email': 'peter@jones.com',
+        'password': 'new_password',
+        'password2': 'new_password',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('error', 'Invalid input for Minimum GPA. Please enter a valid number.') in flashed_messages
+
+    # Check if the data was updated in the database
+    with test_client.application.app_context():
+        student = db.session.scalars(sqla.select(Student).filter_by(username='peter_jones')).first()
+        assert student is not None
+        assert student.firstname == 'Peter'
+        assert student.lastname == 'Jones'
         assert not student.check_password('new_password')  # changes don't go through
 
         do_logout(test_client, path='/auth/session')
