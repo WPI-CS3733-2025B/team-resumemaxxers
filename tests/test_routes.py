@@ -251,6 +251,9 @@ def test_student_registration(request, test_client, init_database):
     assert get_flashed_messages() == []
     assert b"Invalid email" not in response.data
     assert b"Log out" in response.data or b"Logout" in response.data
+    response = test_client.post('/auth/new_verification', follow_redirects=True)
+    assert b"Verify Your Account" in response.data
+    assert get_flashed_messages() is not []  # should have gotten a notification
 
 """
 def test_faculty_login_page_loads(request, test_client, init_database):
