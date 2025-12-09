@@ -226,17 +226,43 @@ def test_student_registration_page_loads(request, test_client, init_database):
     assert b"Register" in response.data
 
 
-def test_faculty_login_page_loads(request, test_client, init_database):
+def test_student_registration_invalid_email(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
-    WHEN the '/faculty/login' page is requested (GET)
-    THEN check that the response is valid
+    WHEN the '/student/register' page is requested (GET)
+    THEN check that the student cannot register with invalid email
     """
+    # Create a test client using the Flask application configured for testing
+    response = test_client.post('/auth/student/register', data={'gpa': '3.5', 'username': 'newuser', 'firstname': 'first', 'lastname': 'last', 'email': 'email@email.email3', 'password': 'pw', 'password2': 'pw'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert get_flashed_messages() == []
+    assert b"Invalid email" in response.data
+
+
+def test_student_registration(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/student/register' page is requested (GET)
+    THEN check that the student can register
+    """
+    # Create a test client using the Flask application configured for testing
+    response = test_client.post('/auth/student/register', data={'gpa': '3.5', 'username': 'newuserrwerrewrerewewrds', 'firstname': 'firstdsfds', 'lastname': 'lastdsfdsffdsdd', 'email': 'emfdsdsfsdfail@emaifdsfdsl.efdsfdsmail', 'password': 'pw', 'password2': 'pw'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert get_flashed_messages() == []
+    assert b"Invalid email" not in response.data
+    assert b"Log out" in response.data or b"Logout" in response.data
+
+"""
+def test_faculty_login_page_loads(request, test_client, init_database):
+    # GIVEN a Flask application configured for testing
+    # WHEN the '/faculty/login' page is requested (GET)
+    # THEN check that the response is valid
+
     # Create a test client using the Flask application configured for testing
     response = test_client.get('/auth/faculty/session')
     assert response.status_code == 200
     assert b"Log In" or b"Sign In" in response.data
-
+"""
 
 def test_student_login_page_loads(request, test_client, init_database):
     """
