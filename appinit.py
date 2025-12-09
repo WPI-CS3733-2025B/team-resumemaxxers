@@ -12,10 +12,133 @@ app.config['SECRET_KEY'] = 'REPLACE_LATER'
 def make_shell_context():
     return {'sqla': sqla, 'sqlo': sqlo, 'db': db, 'Major': Major, 'Interest': ResearchTopic, 'Language': Language, 'Course': Course}
 
-majors = ["Aerospace Engineering", "Biomedical Engineering", "Chemical Engineering", "Civil Engineering", "Computer Science", "Electrical & Computer Engineering", "Environmental Engineering", "Industrial Engineering", "Data Science", "Robotics Engineering", "Mechanical Engineering", "Mathematical Sciences", "Physics", "Actuarial Mathematics", "Biology & Biotechnology", "Chemistry", "Management Information Systems"]
-interests = ["Machine Learning", "High Performance Computing", "Artificial Intelligence", "Cybersecurity", "Knowledge Discovery & Data Mining", "Computer Graphics", "Human-Robot Interaction", "Biomechanics", "Sustainable Energy Systems", "Materials Science", "Bioinformatics", "Environmental Modeling", "Quantum Computing", "Game Development"]
-languages = ["C", "C++", "Python", "Haskell", "Java", "JavaScript", "Lisp", "Rust"]
-courses = ["CS1101", "CS1102", "CS2011", "CS220X", "CS2301", "CS3013", "CS3041", "CS3431", "CS3516", "CS3733", "CS4233", "CS4341", "CS4401", "CS4514", "CS4518", "CS4731", "CS4732"]
+# WPI undergraduate majors
+majors = [
+    "Actuarial Mathematics",
+    "Aerospace Engineering",
+    "Architectural Engineering",
+    "Biochemistry",
+    "Biology and Biotechnology",
+    "Biomedical Engineering",
+    "Chemical Engineering",
+    "Chemistry",
+    "Civil Engineering",
+    "Computer Science",
+    "Data Science",
+    "Electrical and Computer Engineering",
+    "Environmental Engineering",
+    "Industrial Engineering",
+    "Interactive Media and Game Development",
+    "Management Engineering",
+    "Manufacturing Engineering",
+    "Materials Science and Engineering",
+    "Mathematical Sciences",
+    "Mechanical Engineering",
+    "Physics",
+    "Professional Writing",
+    "Robotics Engineering",
+    "Society, Technology, and Policy",
+    "Systems Engineering"
+]
+
+# Research interests and topics
+interests = [
+    "Algorithms & Theory",
+    "Artificial Intelligence",
+    "Bioinformatics",
+    "Biomechanics",
+    "Blockchain & Distributed Systems",
+    "Cloud Computing",
+    "Computer Graphics",
+    "Computer Networks",
+    "Computer Vision",
+    "Cybersecurity",
+    "Data Mining",
+    "Database Systems",
+    "Deep Learning",
+    "Digital Signal Processing",
+    "Embedded Systems",
+    "Environmental Modeling",
+    "Game Development",
+    "High Performance Computing",
+    "Human-Computer Interaction",
+    "Human-Robot Interaction",
+    "Internet of Things",
+    "Machine Learning",
+    "Materials Science",
+    "Mobile Computing",
+    "Natural Language Processing",
+    "Operating Systems",
+    "Quantum Computing",
+    "Robotics",
+    "Software Engineering",
+    "Sustainable Energy Systems",
+    "Virtual Reality & Augmented Reality",
+    "Web Technologies"
+]
+
+# Programming languages and technologies
+languages = [
+    "Assembly",
+    "C",
+    "C#",
+    "C++",
+    "Dart",
+    "Go",
+    "Haskell",
+    "Java",
+    "JavaScript",
+    "Julia",
+    "Kotlin",
+    "MATLAB",
+    "Perl",
+    "PHP",
+    "Python",
+    "R",
+    "Ruby",
+    "Rust",
+    "Scala",
+    "SQL",
+    "Swift",
+    "TypeScript",
+    "Visual Basic"
+]
+
+# WPI Computer Science courses (undergraduate level)
+courses = [
+    "CS1101",  # Introduction to Program Design
+    "CS1102",  # Accelerated Introduction to Program Design
+    "CS2011",  # Introduction to Machine Organization and Assembly Language
+    "CS2022",  # Discrete Mathematics
+    "CS220X",  # Discrete Mathematics for Transfer Students
+    "CS2102",  # Object-Oriented Design Concepts
+    "CS2119",  # Application Building with Object-Oriented Concepts
+    "CS2301",  # Systems Programming for Non-majors
+    "CS2303",  # Systems Programming Concepts
+    "CS3013",  # Operating Systems
+    "CS3041",  # Human-Computer Interaction
+    "CS3133",  # Foundations of Computer Science
+    "CS3431",  # Database Systems I
+    "CS3516",  # Computer Networks
+    "CS3733",  # Software Engineering
+    "CS4120",  # Analysis of Algorithms
+    "CS4123",  # Theory of Computation
+    "CS4233",  # Object-Oriented Analysis & Design
+    "CS4241",  # Webware: Computational Technology for Network Information Systems
+    "CS4341",  # Introduction to Artificial Intelligence
+    "CS4342",  # Machine Learning
+    "CS4401",  # Software Security Engineering
+    "CS4404",  # Tools and Techniques in Computer Network Security
+    "CS4432",  # Database Systems II
+    "CS4513",  # Distributed Computing Systems
+    "CS4514",  # Concurrent Programming
+    "CS4516",  # Advanced Computer Networks
+    "CS4518",  # Mobile and Ubiquitous Computing
+    "CS4533",  # Techniques of Programming Language Translation
+    "CS4731",  # Computer Graphics
+    "CS4732",  # Computer Animation
+    "CS4801",  # Introduction to Cryptography and Communication Security
+]
 
 # Default faculty info table
 fac_ids = [1, 2, 3]
