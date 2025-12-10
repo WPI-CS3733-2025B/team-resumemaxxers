@@ -75,9 +75,6 @@ def student_approve(application_id):
             return redirect(request.referrer or url_for('faculty.faculty_dashboard'))
     
     application.status = "approved"
-
-    for rec in application.recommendations:
-        db.session.delete(rec)
     
     db.session.commit()
     # Send a notification email to the student

@@ -91,10 +91,10 @@ def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES
         
         # Filter applications based on recommendation requirements
         if position.ref_required:
-            # Only show applications where recommendation is approved
+            # Show applications that are approved OR have approved recommendations
             filtered_applications = [
                 app for app in position.applications
-                if any(rec.status == 'approved' for rec in app.recommendations)
+                if app.status == 'approved' or any(rec.status == 'approved' for rec in app.recommendations)
             ]
         else:
             # Show all applications if no reference required
