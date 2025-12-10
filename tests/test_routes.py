@@ -226,6 +226,16 @@ def test_student_registration_page_loads(request, test_client, init_database):
     assert b"Register" in response.data
 
 
+def test_sso_page_loads(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/auth/sso' page is requested (GET)
+    THEN check that the response is valid
+    """
+    # Create a test client using the Flask application configured for testing
+    response = test_client.get('/auth/sso')
+    assert response.status_code == 302
+
 def test_student_registration_invalid_email(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing

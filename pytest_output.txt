@@ -1,0 +1,78 @@
+==================================================================== test session starts =====================================================================
+platform linux -- Python 3.10.12, pytest-8.4.2, pluggy-1.6.0 -- /usr/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /home/matvei/softeng-resumemaxxers
+plugins: anyio-3.7.1, cov-7.0.0, mock-3.15.1
+collecting ... collected 57 items
+
+tests/test_routes.py::test_errors PASSED                                                                                                               [  1%]
+tests/test_routes.py::test_student_dashboard_loads PASSED                                                                                              [  3%]
+tests/test_routes.py::test_student_dashboard_sorting PASSED                                                                                            [  5%]
+tests/test_routes.py::test_student_registration_page_loads PASSED                                                                                      [  7%]
+tests/test_routes.py::test_student_registration_invalid_email PASSED                                                                                   [  8%]
+tests/test_routes.py::test_student_registration PASSED                                                                                                 [ 10%]
+tests/test_routes.py::test_student_login_page_loads PASSED                                                                                             [ 12%]
+tests/test_routes.py::test_login_with_invalid_credentials_fails PASSED                                                                                 [ 14%]
+tests/test_routes.py::test_login_with_invalid_credentials_fails_2 PASSED                                                                               [ 15%]
+tests/test_routes.py::test_student_login_and_logout_succeeds PASSED                                                                                    [ 17%]
+tests/test_routes.py::test_faculty_can_create_position PASSED                                                                                          [ 19%]
+tests/test_routes.py::test_faculty_can_create_position_gpa_error PASSED                                                                                [ 21%]
+tests/test_routes.py::test_faculty_can_create_position_gpa_error_2 PASSED                                                                              [ 22%]
+tests/test_routes.py::test_faculty_can_create_position_date_error PASSED                                                                               [ 24%]
+tests/test_routes.py::test_student_can_view_own_profile PASSED                                                                                         [ 26%]
+tests/test_routes.py::test_view_faculty_profile PASSED                                                                                                 [ 28%]
+tests/test_routes.py::test_edit_student_profile PASSED                                                                                                 [ 29%]
+tests/test_routes.py::test_student_cannot_apply_twice PASSED                                                                                           [ 31%]
+tests/test_routes.py::test_faculty_can_view_applications PASSED                                                                                        [ 33%]
+tests/test_routes.py::test_faculty_can_approve_application PASSED                                                                                      [ 35%]
+tests/test_routes.py::test_faculty_can_reject_application PASSED                                                                                       [ 36%]
+tests/test_routes.py::test_faculty_can_edit_position PASSED                                                                                            [ 38%]
+tests/test_routes.py::test_faculty_can_edit_position_validation PASSED                                                                                 [ 40%]
+tests/test_routes.py::test_faculty_can_edit_position_date_error PASSED                                                                                 [ 42%]
+tests/test_routes.py::test_faculty_can_delete_position PASSED                                                                                          [ 43%]
+tests/test_routes.py::test_student_can_view_recommended_positions PASSED                                                                               [ 45%]
+tests/test_routes.py::test_view_position_details PASSED                                                                                                [ 47%]
+tests/test_routes.py::test_faculty_dashboard_shows_positions_and_applications PASSED                                                                   [ 49%]
+tests/test_routes.py::test_student_cannot_access_faculty_dashboard FAILED                                                                              [ 50%]
+tests/test_routes.py::test_student_cannot_access_faculty_pages PASSED                                                                                  [ 52%]
+tests/test_routes.py::test_unauthorized_user_cannot_edit_others_position PASSED                                                                        [ 54%]
+tests/test_routes.py::test_index_filter_by_major PASSED                                                                                                [ 56%]
+tests/test_routes.py::test_edit_lists_page_loads PASSED                                                                                                [ 57%]
+tests/test_routes.py::test_add_course_to_lists PASSED                                                                                                  [ 59%]
+tests/test_routes.py::test_add_topic_to_lists PASSED                                                                                                   [ 61%]
+tests/test_routes.py::test_add_language_to_lists PASSED                                                                                                [ 63%]
+tests/test_routes.py::test_add_major_to_lists PASSED                                                                                                   [ 64%]
+tests/test_routes.py::test_remove_major_from_lists PASSED                                                                                              [ 66%]
+tests/test_routes.py::test_remove_language_from_lists PASSED                                                                                           [ 68%]
+tests/test_routes.py::test_delete_course_from_lists PASSED                                                                                             [ 70%]
+tests/test_routes.py::test_delete_topic_from_lists PASSED                                                                                              [ 71%]
+tests/test_routes.py::test_delete_course_with_dependency_from_lists PASSED                                                                             [ 73%]
+tests/test_routes.py::test_unverified_faculty_redirect PASSED                                                                                          [ 75%]
+tests/test_routes.py::test_faculty_can_approve_recommendation PASSED                                                                                   [ 77%]
+tests/test_routes.py::test_faculty_can_reject_recommendation PASSED                                                                                    [ 78%]
+tests/test_routes.py::test_faculty_index_loads PASSED                                                                                                  [ 80%]
+tests/test_routes.py::test_faculty_can_view_student_list_for_position PASSED                                                                           [ 82%]
+tests/test_routes.py::test_student_can_withdraw_application PASSED                                                                                     [ 84%]
+tests/test_routes.py::test_edit_student_profile_success PASSED                                                                                         [ 85%]
+tests/test_routes.py::test_edit_student_profile_failure PASSED                                                                                         [ 87%]
+tests/test_routes.py::test_edit_student_profile_failure_2 PASSED                                                                                       [ 89%]
+tests/test_routes.py::test_edit_student_profile_failure_3 PASSED                                                                                       [ 91%]
+tests/test_routes.py::test_edit_student_profile_gpa_letter_error PASSED                                                                                [ 92%]
+tests/test_routes.py::test_faculty_registration PASSED                                                                                                 [ 94%]
+tests/test_routes.py::test_unverified_faculty_login PASSED                                                                                             [ 96%]
+tests/test_routes.py::test_404_error_handler PASSED                                                                                                    [ 98%]
+tests/test_routes.py::test_403_error_handler FAILED                                                                                                    [100%]
+
+========================================================================== FAILURES ==========================================================================
+/home/matvei/softeng-resumemaxxers/tests/test_routes.py:935: NameError: name 'student' is not defined
+/home/matvei/softeng-resumemaxxers/tests/test_routes.py:1693: NameError: name 'student' is not defined
+====================================================================== warnings summary ======================================================================
+tests/test_routes.py: 17 warnings
+  /home/matvei/.local/lib/python3.10/site-packages/flask_sqlalchemy/query.py:30: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    rv = self.get(ident)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================================================== short test summary info ===================================================================
+FAILED tests/test_routes.py::test_student_cannot_access_faculty_dashboard - NameError: name 'student' is not defined
+FAILED tests/test_routes.py::test_403_error_handler - NameError: name 'student' is not defined
+========================================================= 2 failed, 55 passed, 17 warnings in 45.93s =========================================================
