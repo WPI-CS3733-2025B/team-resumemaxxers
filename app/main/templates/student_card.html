@@ -88,17 +88,31 @@
       {% else %}
         <p class="text-muted mb-3">No references listed.</p>
       {% endif %}
+      {% set approved_apps = application.student.applications
+      |selectattr('status', 'equalto', 'approved')
+      |list %}
 
       {% if application.status|lower == 'approved' %}
           <button class="btn btn-add" disabled>Approved</button>
-          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-delete">Reject</a>
-        {% elif application.status|lower == 'rejected' %}
-          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-add">Approve</a>
+          <a href="{{ url_for('faculty.student_reject',
+                              application_id=application.id) }}"
+              class="btn btn-delete">Reject</a>
+      {% elif approved_apps %}
+          <button class="btn btn-add" disabled>Approved</button>
           <button class="btn btn-delete" disabled>Rejected</button>
-        {% else %}
-          <a href="{{ url_for('faculty.student_approve', application_id=application.id) }}" class="btn btn-add">Approve</a>
-          <a href="{{ url_for('faculty.student_reject', application_id=application.id) }}" class="btn btn-delete">Reject</a>
-        {% endif %}
+      {% elif application.status|lower == 'rejected' %}
+          <a href="{{ url_for('faculty.student_approve',
+                              application_id=application.id) }}"
+              class="btn btn-add">Approve</a>
+          <button class="btn btn-delete" disabled>Rejected</button>
+      {% else %}
+          <a href="{{ url_for('faculty.student_approve',
+                              application_id=application.id) }}"
+              class="btn btn-add">Approve</a>
+          <a href="{{ url_for('faculty.student_reject',
+                              application_id=application.id) }}"
+              class="btn btn-delete">Reject</a>
+      {% endif %}
     </div>
 
   </div>
