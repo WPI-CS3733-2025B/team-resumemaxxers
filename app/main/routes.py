@@ -89,16 +89,7 @@ def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES
     if isinstance(current_user, Faculty):  # if current user is faculty
         position=Position.query.get_or_404(position_id)
         
-        # Filter applications based on recommendation requirements
-        if position.ref_required:
-            # Show applications that are approved OR have approved recommendations
-            filtered_applications = [
-                app for app in position.applications
-                if app.status == 'approved' or any(rec.status == 'approved' for rec in app.recommendations)
-            ]
-        else:
-            # Show all applications if no reference required
-            filtered_applications = position.applications
+        filtered_applications = position.applications
         
         return render_template('apply_student_list.html', position=position, filtered_applications=filtered_applications)
     else:
