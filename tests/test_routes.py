@@ -150,7 +150,7 @@ def test_student_dashboard_loads(request, test_client, init_database):
         student = db.session.scalars(sqla.select(Student).filter_by(username='BiLl Clinton')).first()
         student_id = student.id
 
-    response = test_client.get(f'/student/{student_id}/profile')
+    response = test_client.get(f'/student/{student_id}/index')
     assert response.status_code == 200
     assert b"Course List" in response.data
 
@@ -191,21 +191,21 @@ def test_student_dashboard_sorting(request, test_client, init_database):
         major_eng_id = major_eng.id
 
     # Filter by Computer Science major
-    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_cs_id]})
+    response = test_client.post(f'/student/{student_id}/index', data={'majors': [major_cs_id]})
     assert response.status_code == 200
     assert b'CS Only Position' in response.data
     assert b'Eng High GPA Position' not in response.data
     assert b'Research Assistant' not in response.data  # This one requires Engineering
 
     # Filter by minimum GPA of 3.5
-    response = test_client.post(f'/student/{student_id}/profile', data={'grades': '3.5'})
+    response = test_client.post(f'/student/{student_id}/index', data={'grades': '3.5'})
     assert response.status_code == 200
     assert b'Eng High GPA Position' in response.data  # min_gpa is 3.8
     assert b'Eng Low GPA Position' not in response.data # min_gpa is 3.0
     assert b'CS Only Position' not in response.data # min_gpa is None
 
     # Test filtering by both major and GPA
-    response = test_client.post(f'/student/{student_id}/profile', data={'majors': [major_eng_id], 'grades': '3.5'})
+    response = test_client.post(f'/student/{student_id}/index', data={'majors': [major_eng_id], 'grades': '3.5'})
     assert response.status_code == 200
     assert b'Eng High GPA Position' in response.data
     assert b'Eng Low GPA Position' not in response.data

@@ -16,7 +16,7 @@ from app.student import student_blueprint as student
 from app.auth.role_required import role_required
 
 
-@student.route('/student/<student_id>/profile', methods=['GET', 'POST'])
+@student.route('/student/<student_id>/index', methods=['GET', 'POST'])
 @login_required
 @role_required("student")
 def student_index(student_id):
@@ -43,7 +43,7 @@ def student_index(student_id):
             if form.majors.data and len(form.majors.data) > 0:
                 Positions = Positions.join(Position.majors).where(Major.id.in_(form.majors.data)).distinct()
             if form.courses.data:
-                Positions = Positions.join(Position.courses).where(Position.id.in_(form.courses.data))
+                Positions = Positions.join(Position.courses).where(Course.id.in_(form.courses.data)).distinct()
             if form.grades.data:
                 try:
                     min_gpa = float(form.grades.data)
@@ -125,6 +125,38 @@ def edit_profile():
 
         for enrollment in current_user.courses:
             db.session.delete(enrollment)
+
+        validation_failed = False
+        for i, entry in enumerate(form.courses.entries, start=1):
+            instr = entry.form.instructor.data
+            grade = entry.form.grade.data
+            course_label = f"Entry #{i}"
+
+            if not instr:
+                entry.form.instructor.errors.append("Instructor is required.")
+                flash(f"Instructor is required.", "error")
+                validation_failed = True
+
+            if grade is None or (isinstance(grade, str) and grade.strip() == ""):
+                entry.form.grade.errors.append("Grade (GPA) is required.")
+                flash(f"Grade (GPA) is required.", "error")
+                validation_failed = True
+            else:
+                try:
+                    g = float(grade)
+                    if g > 5.0:
+                        entry.form.grade.errors.append("Grade cannot be greater than 5.0.")
+                        flash(f"Grade cannot be greater than 5.0.", "error")
+                        validation_failed = True
+                except (ValueError, TypeError):
+                    entry.form.grade.errors.append("Invalid grade. Enter a number.")
+                    flash(f"Invalid grade. Enter a number.", "error")
+                    validation_failed = True
+
+        if validation_failed:
+            flash("Please fix the highlighted errors in your course entries.", "error")
+            return render_template('edit_profile.html', title='Edit Profile',
+                                   form=form, Course=Course, Faculty=Faculty)
 
         for entry in form.courses.entries:
             db.session.add(

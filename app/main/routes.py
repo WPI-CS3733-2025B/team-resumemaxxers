@@ -16,7 +16,7 @@ from app.main import main_blueprint as main
 from app.auth.role_required import role_required
 
 @main.route('/', methods=['GET', 'POST'])
-@main.route('/index', methods=['GET', 'POST'])
+@main.route('/index', methods=['GET', 'POST']) #deprecated: see student.student_index for main.index
 @login_required
 def index():
     form = SortForm()
@@ -61,21 +61,10 @@ def index():
             return redirect(url_for('student.student_index', student_id=current_user.id))
     return render_template('student_index.html', title="Course List", students = Students, form = form, positions=PositionsA)
 
-@main.route('/faculty', methods=['GET'])
-@main.route('/faculty_index', methods=['GET'])
-@login_required
-@role_required("faculty")
-def faculty_index():
-    #courses = db.session.scalars(sqla.select(Course))
-    FacultyList = db.session.scalars(sqla.select(Faculty))
-    Positions = db.session.scalars(sqla.select(Position).order_by(Position.id.desc()))
-    return render_template('faculty_index.html', title="Course List", faculty = FacultyList, positions=Positions)
-
 @main.route('/position/<position_id>/view', methods=['GET'])
 @login_required
 def view_position(position_id):
     position=Position.query.get_or_404(position_id)
-    # Prevent students from viewing full positions
     if current_user.role == 'student' and position.is_full():
         flash('This position is full and no longer accepting applications.', 'error')
         return redirect(url_for('student.student_index', student_id=current_user.id))
@@ -85,8 +74,8 @@ def view_position(position_id):
 @main.route('/student_list/<position_id>/view', methods=['GET'])
 @login_required
 @role_required("faculty")
-def view_student_list(position_id):  # TODO: IDEALLY MOVE THIS TO FACULTY ROUTES I GUESS...
-    if isinstance(current_user, Faculty):  # if current user is faculty
+def view_student_list(position_id):  
+    if isinstance(current_user, Faculty): 
         position=Position.query.get_or_404(position_id)
         
         filtered_applications = position.applications
