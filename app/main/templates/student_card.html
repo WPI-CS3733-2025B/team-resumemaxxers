@@ -34,9 +34,9 @@
                 |list %}
         
             {% if approved_apps %}
-                <span>Yes</span>
+                <span class="badge bg-rejected">Yes</span>
             {% else %}
-                <span>No</span>
+                <span class="badge bg-approved">No</span>
             {% endif %}
           </div>
         </div>
@@ -81,7 +81,13 @@
                 – <a href="mailto:{{ recommendation.faculty.email }}">
                     {{ recommendation.faculty.email }}
                   </a>
-              ({{ recommendation.status }})
+              {% endif %}
+              {% if recommendation.status|lower == 'approved' %}
+                <span class="badge bg-approved ms-2">Approved</span>
+              {% elif recommendation.status|lower == 'rejected' %}
+                <span class="badge bg-rejected ms-2">Rejected</span>
+              {% else %}
+                <span class="badge bg-pending ms-2">Pending</span>
               {% endif %}
             </li>
           {% endfor %}
