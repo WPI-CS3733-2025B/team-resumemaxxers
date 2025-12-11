@@ -3,101 +3,141 @@
 
 {% block content %}
 
-    <main class="container">
+<main class="container my-4">
 
-        <section class="position-header">
-            <h2 class="position-title text-center">{{ position.name }}</h2>
-            
-        </section>
-        
-        <div class = "border rounded-3 bg-light p-3 mb-3">
-        <p class="position-faculty">
-                <strong>Faculty:</strong>
-                {{ position.faculty.firstname }} {{ position.faculty.lastname }}<br>
-                <strong>Email:</strong> {{ position.faculty.email }}
-        </p>
-        <section class="position-meta">
-            <div class="meta-item">
-                <span class="meta-label">Start date:</span>
-                <span class="meta-value">{{ position.start_date.date() }}</span>
+
+    <h2 class="text-center mb-4">{{ position.name }}</h2>
+
+    <div class="row g-3">
+
+
+        <div class="col-md-4 d-flex flex-column gap-3">
+
+
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <p class="mb-6 mt-3">
+                        <strong>Faculty:</strong>
+                        {{ position.faculty.firstname }} {{ position.faculty.lastname }}
+                    </p>
+
+                    <p class="mb-6"><strong>Email:</strong> {{ position.faculty.email }}</p>
+                    <p class="mb-6"><strong>Team size:</strong> {{ position.team_size }}</p>
+                    <p class="mb-6">
+                        <strong>Minimum GPA:</strong>
+                        {% if position.min_gpa %} {{ position.min_gpa }} {% else %} N/A {% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Reference required:</strong>
+                        {% if position.ref_required %} Yes {% else %} No {% endif %}
+                    </p>
+                </div>
             </div>
 
-            <div class="meta-item">
-                <span class="meta-label">End date:</span>
-                <span class="meta-value">{{ position.end_date.date() }}</span>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Dates</h5>
+
+                    <p class="mb-2 me-8">
+                        <strong>Start date:</strong>
+                        {{ position.start_date.date() }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>End date:</strong>
+                        {{ position.end_date.date() }}
+                    </p>
+                </div>
             </div>
-
-            <div class="meta-item">
-                <span class="meta-label">Team size:</span>
-                <span class="meta-value">{{ position.team_size }}</span>
-            </div>
-
-            <div class="meta-item">
-                <span class="meta-label">Minimum GPA:</span>
-                <span class="meta-value">
-                    {% if position.min_gpa %} {{ position.min_gpa }} {% else %} N/A {% endif %}
-                </span>
-            </div>
-
-            <div class="meta-item mb-3">
-                <span class="meta-label">Reference required:</span>
-                <span class="meta-value">
-                    {% if position.ref_required %} Yes {% else %} No {% endif %}
-                    
-                </span>
-            </div>
-        </section>
-
-        <section class="position-body">
-            <h5>Description</h5>
-            <p>{{ position.description }}</p>
-
-            <h5>Preferred Majors</h5>
-            <ul>
-                {% for major in position.majors %}
-                    <li>{{ major.name }}</li>
-                {% endfor %}
-            </ul>
-
-            <h5>Research Topics</h5>
-            <ul>
-                {% for topic in position.research_topics %}
-                    <li>{{ topic.name }}</li>
-                {% endfor %}
-            </ul>
-
-            <h5>Required Languages</h5>
-            <ul>
-                {% for lang in position.languages %}
-                    <li>{{ lang.name }}</li>
-                {% endfor %}
-            </ul>
-
-            <h5>Required Courses</h5>
-            <ul>
-                {% for course in position.courses %}
-                    <li>{{ course.name }}</li>
-                {% endfor %}
-            </ul>
-        </section>
-        </div>
-    
-
-        <div class="text-center">
-            {% if current_user.is_authenticated and current_user.role == 'student' %}
-                <a class="btn btn-add"
-                    href="{{ url_for('student.apply_position', position_id=position.id) }}">
-                    Apply for this Position
-                </a>
-            {% endif %}
-            {% if current_user.role == 'faculty' %}
-                    <a href="{{ url_for('faculty.edit_position', position_id=position.id) }}" class="btn btn-pending">Edit Position</a>
-                    <a href="{{ url_for('faculty.delete_position', position_id=position.id) }}" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this position?');">Delete Position</a>
-            {% endif %}
 
         </div>
-    </main>   
-    
 
-    
+
+        <div class="col-md-8 d-flex flex-column gap-3">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Description</h5>
+                    <p class="mb-0">{{ position.description }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Requirements & Preferences</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Preferred Majors</h6>
+                            <ul>
+                                {% for major in position.majors %}
+                                    <li>{{ major.name }}</li>
+                                {% else %}
+                                    <li class="text-muted">None specified</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Research Topics</h6>
+                            <ul>
+                                {% for topic in position.research_topics %}
+                                    <li>{{ topic.name }}</li>
+                                {% else %}
+                                    <li class="text-muted">None specified</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Required Languages</h6>
+                            <ul>
+                                {% for lang in position.languages %}
+                                    <li>{{ lang.name }}</li>
+                                {% else %}
+                                    <li class="text-muted">None specified</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6 mb-3 mt-3">
+                            <h6 class="fw-bold">Required Courses</h6>
+                            <ul>
+                                {% for course in position.courses %}
+                                    <li>{{ course.name }}</li>
+                                {% else %}
+                                    <li class="text-muted">None specified</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> 
+
+    </div>
+
+
+    <div class="text-center mt-4">
+        {% if current_user.is_authenticated and current_user.role == 'student' %}
+            <a class="btn btn-add"
+               href="{{ url_for('student.apply_position', position_id=position.id) }}">
+                Apply for this Position
+            </a>
+        {% endif %}
+
+        {% if current_user.role == 'faculty' %}
+            <a href="{{ url_for('faculty.edit_position', position_id=position.id) }}"
+               class="btn btn-pending">Edit Position</a>
+
+            <a href="{{ url_for('faculty.delete_position', position_id=position.id) }}"
+               class="btn btn-delete"
+               onclick="return confirm('Are you sure you want to delete this position?');">
+                Delete Position
+            </a>
+        {% endif %}
+    </div>
+
+</main>
+
 {% endblock %}
