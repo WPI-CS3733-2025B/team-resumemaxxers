@@ -3,7 +3,7 @@ body {
     padding: 1px;
     font-family: Tahoma;
     text-align: left;
-  
+    font-size: 18px;
 }
 
 .posttable { 
@@ -14,6 +14,7 @@ body {
 .nav-item {
     transition: 0.2s;
     opacity: 100%;
+    font-size: 18px;
 }
 
 .nav-item:hover {
@@ -47,7 +48,7 @@ body {
     vertical-align: middle;
     background-color: #f2f2f2;
     width: 32%;
-    margin: 3px;
+    margin: 8px;
     padding: 5px;
 }
 

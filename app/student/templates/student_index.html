@@ -6,12 +6,12 @@
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
 
             <div class="me-3 d-flex align-items-center gap-3">
-                <h1 class="mb-1">Welcome, student!</h1>
+                <h1 class="mb-3 mt-3">Welcome, student!</h1>
             </div>
         </div>
-        <div class="d-flex justify-content-start flex-wrap gap-4 mb-4 w-100">
+        <div class="d-flex justify-content-start flex-wrap gap-3 mb-4 w-100">
 
-            <form action="" method="post" class="d-flex flex-wrap align-items-end gap-4 w-100">
+            <form action="" method="post" class="d-flex flex-wrap align-items-end gap-3 w-100">
                 {{ form.hidden_tag() }}
 
                 <div class="d-flex flex-column">
@@ -45,11 +45,11 @@
                 </div>
 
                 <div class="d-flex align-items-end">
-                    {{ form.Refresh(class_="btn btn-add btn-sm btn-wide") }}
+                    {{ form.Refresh(class_="btn btn-add btn-sm") }}
                 </div>
 
                 <div class="d-flex align-items-end">
-                    <a href="{{ url_for('main.recommended') }}" class="btn btn-add btn-sm btn-wide">View Recommended</a>
+                    <a href="{{ url_for('main.recommended') }}" class="btn btn-add btn-sm">View Recommended</a>
                 </div>
             </form>
         </div>
