@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 from app import db, oauth
 from flask import render_template, flash, redirect, url_for, session, request
 import sqlalchemy as sqla
