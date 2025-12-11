@@ -2,7 +2,7 @@
 {% import 'bootstrap_wtf.html' as wtf %}
 
 {% block content %}
-    <h1> Create New Position </h1>
+    <h1 class="mb-3 mt-3"> Create New Position </h1>
 
     <form action="{{ url_for('faculty.create_position', faculty_id=current_user.id) }}" method="POST">
         {{ form.hidden_tag()}}
