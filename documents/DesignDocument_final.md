@@ -313,6 +313,7 @@ Include a detailed description of the routes your application will implement.
 |7. | 'POST'  | student/applications/<application_id>/withdrawn              | student withdraw their 'pending' applications |
 | 8. | 'GET'       | student/position/<position_id>                | page for viewing position info                 |
 |9. | 'POST'  | student/<student_id>/recommendations | student-only method for requesting a faculty recommendation    |
+|10. | 'GET', 'POST' | student/<student_id>/index        | student view main page (their available positions) |
 
 #### 2.2.2.3 \<Blueprint3> Routes main.faculty.routes -- faculty
 
