@@ -35,36 +35,39 @@ def callback():
     user = db.session.scalars(user_query).first()
 
     if user is None:
-        # Create a new user
-        user = Student(
-            email=user_info["email"],
-            username=''.join(c if c != "@" and c != "." else "" for c in user_info["email"]),  # no @ or . in username
-            firstname=user_info.get("given_name", ""),
-            lastname=user_info.get("family_name", ""),
-            gpa=0.0  # Set a default GPA
-        )
-        pw_unhashed = "SALTY!!!" + user.username + "SALTY!!!"
-        pw = hashlib.sha256(pw_unhashed.encode('utf-8')).hexdigest()
-        user.set_password(pw)
-        db.session.add(user)
-        db.session.commit()
-        subject = "Your Account for Research Finder"
-        message = f"""
-                Greetings, {user.username}!
+        user_query = sqla.select(Faculty).where(Faculty.email==user_info["email"])
+        user = db.session.scalars(user_query).first()
+        if user is None:
+            # Create a new user
+            user = Student(
+                email=user_info["email"],
+                username=''.join(c if c != "@" and c != "." else "" for c in user_info["email"]),  # no @ or . in username
+                firstname=user_info.get("given_name", ""),
+                lastname=user_info.get("family_name", ""),
+                gpa=0.0  # Set a default GPA
+            )
+            pw_unhashed = "SALTY!!!" + user.username + "SALTY!!!"
+            pw = hashlib.sha256(pw_unhashed.encode('utf-8')).hexdigest()
+            user.set_password(pw)
+            db.session.add(user)
+            db.session.commit()
+            subject = "Your Account for Research Finder"
+            message = f"""
+                    Greetings, {user.username}!
 
-                Please find your temporary password below:
+                    Please find your temporary password below:
 
-                {pw}
+                    {pw}
 
-                May your research be epic.
+                    May your research be epic.
 
-                Best wishes,
-                Matvei "G-Chist" Shestopalov
-                Head of Vibe Coding | Research App Development Team
-                """
+                    Best wishes,
+                    Matvei "G-Chist" Shestopalov
+                    Head of Vibe Coding | Research App Development Team
+                    """
 
-        send_email(user.email, subject, message)
-        flash("Welcome! Your account has been created. Make sure to edit it to include all info before you proceed!")
+            send_email(user.email, subject, message)
+            flash("Welcome! Your account has been created. Make sure to edit it to include all info before you proceed!")
 
     login_user(user)
     return redirect(url_for('main.index'))
