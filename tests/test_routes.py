@@ -91,13 +91,15 @@ def init_database(request, test_client):
                                       faculty_id=bill_clinton_fac.id)
     pos_teaching_assistant = Position(name='Teaching Assistant', description='Whar', faculty_id=dr_alan_turing.id)
 
+    pos_ref_required = Position(name='POS', description='Wharrrr', faculty_id=dr_alan_turing.id, ref_required=True)
+
     # Course Enrollments
     enroll_bill = CourseEnrollment(student_id=bill_clinton.id, course_id=course_intro_cs.id,
                                    instructor_id=bill_clinton_fac.id, grade=3)
     enroll_donald = CourseEnrollment(student_id=donald_trump.id, course_id=course_adv_algo.id,
                                    instructor_id=bill_clinton_fac.id, grade=4)
 
-    db.session.add_all([pos_research_assistant, pos_teaching_assistant, enroll_bill, enroll_donald])
+    db.session.add_all([pos_research_assistant, pos_teaching_assistant, pos_ref_required, enroll_bill, enroll_donald])
     db.session.commit()
 
     bill_clinton.majors.append(major_engineering)
@@ -613,6 +615,25 @@ def test_student_cannot_apply_twice(request, test_client, init_database):
     response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Another test application'}, follow_redirects=True)
     assert response.status_code == 200
     assert b"You have already applied for this position." in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_student_apply_with_reference(request, test_client, init_database):
+    #
+    # GIVEN a Flask application configured for testing
+    # WHEN a student applies for a position requiring a reference
+    # THEN the application should be submitted
+    # 
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='POS')).first()
+        assert position is not None
+
+    response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Test application', 'reference_email': 'donald@trump.com'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Application submitted successfully!" in response.data
 
     do_logout(test_client, path='/auth/session')
 
