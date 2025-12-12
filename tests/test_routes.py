@@ -91,13 +91,15 @@ def init_database(request, test_client):
                                       faculty_id=bill_clinton_fac.id)
     pos_teaching_assistant = Position(name='Teaching Assistant', description='Whar', faculty_id=dr_alan_turing.id)
 
+    pos_ref_required = Position(name='POS', description='Wharrrr', faculty_id=dr_alan_turing.id, ref_required=True)
+
     # Course Enrollments
     enroll_bill = CourseEnrollment(student_id=bill_clinton.id, course_id=course_intro_cs.id,
                                    instructor_id=bill_clinton_fac.id, grade=3)
     enroll_donald = CourseEnrollment(student_id=donald_trump.id, course_id=course_adv_algo.id,
                                    instructor_id=bill_clinton_fac.id, grade=4)
 
-    db.session.add_all([pos_research_assistant, pos_teaching_assistant, enroll_bill, enroll_donald])
+    db.session.add_all([pos_research_assistant, pos_teaching_assistant, pos_ref_required, enroll_bill, enroll_donald])
     db.session.commit()
 
     bill_clinton.majors.append(major_engineering)
@@ -613,6 +615,25 @@ def test_student_cannot_apply_twice(request, test_client, init_database):
     response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Another test application'}, follow_redirects=True)
     assert response.status_code == 200
     assert b"You have already applied for this position." in response.data
+
+    do_logout(test_client, path='/auth/session')
+
+
+def test_student_apply_with_reference(request, test_client, init_database):
+    #
+    # GIVEN a Flask application configured for testing
+    # WHEN a student applies for a position requiring a reference
+    # THEN the application should be submitted
+    # 
+    do_login(test_client, path='/auth/student/session', username='BiLl Clinton', passwd='67', user_role="student")
+
+    with test_client.application.app_context():
+        position = db.session.scalars(sqla.select(Position).filter_by(name='POS')).first()
+        assert position is not None
+
+    response = test_client.post(f'/student/positions/{position.id}/applications', data={'statement': 'Test application', 'reference_email': 'donald@trump.com'}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Application submitted successfully!" in response.data
 
     do_logout(test_client, path='/auth/session')
 
@@ -1407,7 +1428,7 @@ def test_student_can_withdraw_application(request, test_client, init_database):
     do_logout(test_client, path='/auth/session')
 
 
-def test_edit_student_profile_success(request, test_client, init_database):
+def test_edit_student_profile_wrong_gpa(request, test_client, init_database):
     """
     GIVEN a Flask application configured for testing
     WHEN a logged-in student submits the edit profile form with valid data
@@ -1464,7 +1485,87 @@ def test_edit_student_profile_success(request, test_client, init_database):
         response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
         assert response.status_code == 200
         flashed_messages = get_flashed_messages(with_categories=True)
-        assert ('message', 'Your changes have been saved.') in flashed_messages
+        assert ('error', 'Invalid grade. Enter a number.') in flashed_messages
+
+    # Check if the data was updated in the database
+#    with test_client.application.app_context():
+#        student = db.session.scalars(sqla.select(Student).filter_by(username='the_real_donald')).first()
+#        assert student is not None
+#        assert student.gpa == 3.9
+#        assert student.firstname == 'Donald'
+#        assert student.lastname == 'Drumpf'
+#        assert student.email == 'donald@new.com'
+#        assert student.check_password('new_password')
+#        assert 'Computer Science' in [m.name for m in student.majors]
+#        assert 'Artificial Intelligence' in [t.name for t in student.research_topics]
+#        assert 'Python' in [l.name for l in student.languages]
+        
+#        enrollment = db.session.scalars(sqla.select(CourseEnrollment).filter_by(student_id=student.id)).first()
+#        assert enrollment is not None
+#        assert enrollment.course_id == course_intro_cs_id
+#        assert enrollment.instructor_id == faculty_id
+#        assert enrollment.grade == 'A'
+    do_logout(test_client, path='/auth/session')
+
+
+def test_edit_student_profile_success(request, test_client, init_database):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a logged-in student submits the edit profile form with valid data
+    THEN check that their information is updated in the database
+    """
+    do_login(test_client, path='/auth/student/session', username='donald_trump', passwd='67', user_role="student")
+
+    # GET the edit page first
+    response = test_client.get('/student/profile/edit')
+    assert response.status_code == 200
+    assert b"Edit Profile" in response.data
+
+    # Get database IDs for multi-select fields
+    with test_client.application.app_context():
+        compsci_major = db.session.scalars(sqla.select(Major).filter_by(name='Computer Science')).first()
+        assert compsci_major is not None
+        compsci_major_id = compsci_major.id
+
+        topic_ai = db.session.scalars(sqla.select(ResearchTopic).filter_by(name='Artificial Intelligence')).first()
+        assert topic_ai is not None
+        topic_ai_name = topic_ai.name
+
+        lang_python = db.session.scalars(sqla.select(Language).filter_by(name='Python')).first()
+        assert lang_python is not None
+        lang_python_name = lang_python.name
+
+        course_intro_cs = db.session.scalars(sqla.select(Course).filter_by(name='Intro to CS')).first()
+        assert course_intro_cs is not None
+        course_intro_cs_id = course_intro_cs.id
+        
+        faculty = db.session.scalars(sqla.select(Faculty).filter_by(username='bill_clinton_fac')).first()
+        assert faculty is not None
+        faculty_id = faculty.id
+
+    # Prepare form data for editing the profile
+    edit_profile_data = {
+        'gpa': '3.9',
+        'username': 'the_real_donald',
+        'firstname': 'Donald',
+        'lastname': 'Drumpf',
+        'email': 'donald@new.com',
+        'password': 'new_password',
+        'password2': 'new_password',
+        'majors': [compsci_major_id],
+        'research_topics': [topic_ai_name],
+        'languages': [lang_python_name],
+        'courses-0-course': course_intro_cs_id,
+        'courses-0-instructor': faculty_id,
+        'courses-0-grade': '3.9',
+    }
+
+    # POST the new data
+    with test_client:
+        response = test_client.post('/student/profile/edit', data=edit_profile_data, follow_redirects=True)
+        assert response.status_code == 200
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ('error', 'Invalid grade. Enter a number.') not in flashed_messages
 
     # Check if the data was updated in the database
     with test_client.application.app_context():
@@ -1483,10 +1584,8 @@ def test_edit_student_profile_success(request, test_client, init_database):
         assert enrollment is not None
         assert enrollment.course_id == course_intro_cs_id
         assert enrollment.instructor_id == faculty_id
-        assert enrollment.grade == 'A'
-
+        assert enrollment.grade == '3.9'
     do_logout(test_client, path='/auth/session')
-
 
 def test_edit_student_profile_failure(request, test_client, init_database):
     """
