@@ -3,7 +3,7 @@
  
 
 {% block content %}
-<h1> Edit Position </h1>
+<h1 class="mb-3 mt-3"> Edit Position </h1>
 
 <form action = "{{url_for('faculty.edit_position', position_id=position.id )}}" method = "POST">
     {{ form.hidden_tag()}}

@@ -1,54 +1,121 @@
 {% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> Faculty profile </h1>
-    <div class = "border rounded-3 bg-light p-3">
-        <h3> Faculty username: {{ user.username }} </h3>
-        <p> <b>Positions:</b> 
-            <ul>
-                {% for name in user.get_position_names() %}
-                    <li>{{ name }}</li>
-                {% endfor %}
-            </ul>
-        </p>
 
-        <h2>My Recommendations</h2>
-            {% if user.recommendations %}
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Position</th>
-                            <th>From</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rec in user.recommendations %}
-                            <tr>
-                                <td><a href="{{ url_for('main.view_position', position_id=rec.application.position.id) }}">{{ rec.application.position.name }}</a></td>
-                                <td><a href="{{ url_for('student.student_profile_view', student_id=rec.student_id) }}">{{ rec.student.firstname }} {{ rec.student.lastname }}</a></td>
-                                <td>{{ rec.status }}</td>
-                                <td>
-                                    
-                                    
-                                        {% if rec.status|lower == 'approved' %}
-                                            <button class="btn btn-add" disabled>Approved</button>
-                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-delete">Reject</a>
-                                            {% elif rec.status|lower == 'rejected' %}
-                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-add">Approve</a>
-                                            <button class="btn btn-delete" disabled>Rejected</button>
-                                            {% else %}
-                                            <a href="{{ url_for('faculty.recommendation_approve', recommendation_id=rec.id) }}" class="btn btn-add">Approve</a>
-                                            <a href="{{ url_for('faculty.recommendation_reject', recommendation_id=rec.id) }}" class="btn btn-delete">Reject</a>
-                                        {% endif %}
-                                </td>
-                            </tr>
+<main class="container my-4">
+
+    <h2 class="text-center mb-4">Faculty Profile</h2>
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+
+                    <h4 class="card-title">
+                        {{ user.firstname }} {{ user.lastname }}
+                    </h4>
+                    <p class="text-muted mb-2">{{ user.username }}</p>
+
+                    {% if user.email %}
+                        <p class="mb-3"><strong>Email:</strong> {{ user.email }}</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <h4 class="fw-bold mb-2">Positions</h4>
+                    <ul class="list-unstyled mb-0 text-start">
+                        {% for name in user.get_position_names() %}
+                            <li>• {{ name }}</li>
+                        {% else %}
+                            <li class="text-muted">No positions posted yet.</li>
                         {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>You have no recommendations yet.</p>
-            {% endif %}
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 d-flex flex-column gap-3">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h5 class="card-title mb-3">My Recommendations</h5>
+
+                    {% if user.recommendations %}
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Student</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rec in user.recommendations %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('main.view_position',
+                                                                    position_id=rec.application.position.id) }}">
+                                                    {{ rec.application.position.name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('student.student_profile_view',
+                                                                    student_id=rec.student_id) }}">
+                                                    {{ rec.student.firstname }} {{ rec.student.lastname }}
+                                                </a>
+                                            </td>
+                                            <td class="text-center">
+                                                {% if rec.status|lower == 'approved' %}
+                                                    <span class="badge bg-approved">Approved</span>
+                                                {% elif rec.status|lower == 'rejected' %}
+                                                    <span class="badge bg-rejected">Rejected</span>
+                                                {% else %}
+                                                    <span class="badge bg-pending">Pending</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                {% if rec.status|lower == 'approved' %}
+                                                    <button class="btn btn-add btn-sm" disabled>Approved</button>
+                                                    <a href="{{ url_for('faculty.recommendation_reject',
+                                                                        recommendation_id=rec.id) }}"
+                                                       class="btn btn-delete btn-sm">Reject</a>
+
+                                                {% elif rec.status|lower == 'rejected' %}
+                                                    <a href="{{ url_for('faculty.recommendation_approve',
+                                                                        recommendation_id=rec.id) }}"
+                                                       class="btn btn-add btn-sm">Approve</a>
+                                                    <button class="btn btn-delete btn-sm" disabled>Rejected</button>
+
+                                                {% else %}
+                                                    <a href="{{ url_for('faculty.recommendation_approve',
+                                                                        recommendation_id=rec.id) }}"
+                                                       class="btn btn-add btn-sm">Approve</a>
+                                                    <a href="{{ url_for('faculty.recommendation_reject',
+                                                                        recommendation_id=rec.id) }}"
+                                                       class="btn btn-delete btn-sm">Reject</a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">You have no recommendations yet.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
     </div>
+
+</main>
+
 {% endblock %}
