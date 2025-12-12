@@ -1,10 +1,10 @@
 # Project Group Report - 2
 ## Team: `ResumeMaxxers`
 List team members and their GitHub usernames
-* `Matvey`,`Shestopalov`
-* `Kevin`,`Lai`
-* `Ziyue`,`Chen`
-* `Jim`,`Xiang`
+* `Matvey Shestopalov`,`G-Chist`
+* `Kevin Lai`,`Dmitry-Oyawale`
+* `Ziyue Chen`,`Xunn3714`
+* `Jim Xiang`,`JimXiang4985`
 ---
 **Course** : CS 3733 - Software Engineering
 **Instructor**: Sakire Arslan Ay
