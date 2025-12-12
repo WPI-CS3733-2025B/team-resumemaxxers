@@ -305,7 +305,7 @@ Include a detailed description of the routes your application will implement.
 |   | Methods      | URL Path                          | Description                              |
 |:--|:-------------|:----------------------------------|:-----------------------------------------|
 |1. | 'GET'        | student/<student_id>/profile | students or faculty view student profile |
-|2. | 'GET', 'POST' | student/<student_id>/profile        | student edits their profile              |
+|2. | 'GET', 'POST' | student/profile/edit        | student edits their profile              |
 |3. | 'GET', 'POST' | student/,student_id>/positions        | student view main page (positions) |
 | 4. | 'GET', 'POST' | student/positions/<position_id>/applications | student-only method for applying to a position |
 |5. | 'GET'        | student/<student_id>/applications | students views applications |
