@@ -1,67 +1,124 @@
 {% extends "bootstrap_base.html" %}
 
 {% block content %}
-    <h1> Student profile </h1>
 
-    <div class = "border rounded-3 bg-light p-3 mb-3">
-        <h3> Student username: {{ user.username }} </h3>
-        <h3>Name: {{ user.firstname }} {{ user.lastname }}</h3>
-        <p> <b>ID:</b> {{ user.id }}</p>
-        <p> <b>Email:</b> {{ user.email }}</p>
-        <p> <b>Majors:</b> 
-            <ul>
-                {% for major in user.get_major_names() %}
-                    <li>{{ major }}</li>
-                {% endfor %}
-            </ul>
-        </p>
-        <p> <b>Research Interests:</b> 
-            <ul>
-                {% for rinter in user.get_research_topic_names() %}
-                    <li>{{ rinter }}</li>
-                {% endfor %}
-            </ul>
-        </p>
-        <p> <b>GPA:</b> {{ user.gpa }} </p>
-        <p> <b>Languages:</b> 
-            <ul>
-                {% for lang in user.get_language_names() %}
-                    <li>{{ lang }}</li>
-                {% endfor %}
-            </ul>
-        </p>
-        <p> <b>Courses:</b> 
-            <ul>
-                {% for CEnroll in user.courses %}
-                    <li>{{ CEnroll.course.name }} by {{ CEnroll.instructor.firstname }} {{ CEnroll.instructor.lastname }}, grade: {{ CEnroll.grade }}</li>
-                {% endfor %}
-            </ul>
-        </p>
-        <p> <b>Recommendations:</b> 
-            <ul>
-                {% for rec in user.recommendations %}
-                    <li>{{ rec.faculty.firstname }} {{ rec.faculty.lastname }} ({{ rec.status }})</li>
-                {% endfor %}
-            </ul>
-        </p>
-        <p> <b>Already approved:</b>
-            <ul>
-                {% set approved_apps = user.applications
-                    |selectattr('status', 'equalto', 'approved')
-                    |list %}
-                
-                {% if approved_apps %}
-                    <li>Yes</li>
-                {% else %}
-                    <li>No</li>
-                {% endif %}
-            </ul>
-        </p>
-        
+<main class="container my-4">
 
+    <h2 class="text-center mb-4">Student Profile</h2>
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+
+                    <h4 class="card-title">{{ user.firstname }} {{ user.lastname }}</h4>
+                    <p class="text-muted">{{ user.username }}</p>
+
+                    <hr>
+
+                    <p class="mb-6"><strong>Email:</strong> {{ user.email }}</p>
+
+                    <h6 class="fw-bold">GPA</h6>
+                    <p class="mb-6">{{ user.gpa }}</p>
+
+                    <h6 class="fw-bold mt-3">Majors</h6>
+                    <ul class="list-unstyled mb-6">
+                        {% for major in user.get_major_names() %}
+                            <li>{{ major }}</li>
+                        {% else %}
+                            <li class="text-muted">No majors listed</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h6 class="fw-bold">Already hired?</h6>
+                    {% set approved_apps = user.applications
+                        |selectattr('status', 'equalto', 'approved')
+                        |list %}
+                    <p class="mb-0">
+                        {% if approved_apps %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 d-flex flex-column gap-3">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Research Interests</h5>
+                    <ul class="mb-0">
+                        {% for rinter in user.get_research_topic_names() %}
+                            <li>{{ rinter }}</li>
+                        {% else %}
+                            <li class="text-muted">No research interests listed</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Languages</h5>
+                    <ul class="mb-0">
+                        {% for lang in user.get_language_names() %}
+                            <li>{{ lang }}</li>
+                        {% else %}
+                            <li class="text-muted">No languages listed</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Courses Taken</h5>
+                    <ul class="mb-0">
+                        {% for CEnroll in user.courses %}
+                            <li>
+                                {{ CEnroll.course.name }} —
+                                {{ CEnroll.instructor.firstname }} {{ CEnroll.instructor.lastname }}
+                                (Grade: {{ CEnroll.grade }})
+                            </li>
+                        {% else %}
+                            <li class="text-muted">No courses recorded</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Recommendations</h5>
+                    <ul class="mb-0">
+                        {% for rec in user.recommendations %}
+                            <li>
+                                {{ rec.faculty.firstname }} {{ rec.faculty.lastname }}
+                                ({{ rec.status }})
+                            </li>
+                        {% else %}
+                            <li class="text-muted">No recommendations</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
     </div>
+
     {% if current_user.id == user.id %}
-        <p><a href="{{ url_for('student.edit_profile') }}" class="btn btn-add">Edit Profile</a></p>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('student.edit_profile') }}" class="btn btn-add">
+                Edit Profile
+            </a>
+        </div>
     {% endif %}
-      
-{% endblock %} 
+
+</main>
+
+{% endblock %}
