@@ -15,6 +15,10 @@ from datetime import datetime
 from app.main import main_blueprint as main
 from app.auth.role_required import role_required
 
+@main.route('/admin', methods=['GET', 'POST'])
+def admin():
+    return "CONGRATS!!! YOU FOUND A VULNERABILITY!"
+
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST']) #deprecated: see student.student_index for main.index
 @login_required
