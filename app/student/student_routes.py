@@ -197,8 +197,6 @@ def edit_profile():
                            form=form, Course=Course, Faculty=Faculty)
 
 @student.route('/student/positions/<position_id>/applications', methods=['GET', 'POST'])
-@login_required
-@role_required("student")
 def apply_position(position_id):
 
     position=Position.query.get_or_404(position_id)
