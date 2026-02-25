@@ -12,8 +12,8 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
 
-                    <h4 class="card-title">{{ user.firstname }} {{ user.lastname }}</h4>
-                    <p class="text-muted">{{ user.username }}</p>
+                    <h4 class="card-title">{{ user.firstname|safe }} {{ user.lastname|safe }}</h4>
+                    <p class="text-muted">{{ user.username|safe }}</p>
 
                     <hr>
 

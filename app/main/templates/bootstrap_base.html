@@ -61,6 +61,15 @@
                       Dashboard
                     </a>
                   </li>
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.fetch_url') }}">Fetch</a>
+                  </li>
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.debug') }}">Debug</a>
+                  </li>
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.export_data') }}">Export</a>
+                  </li>
                 {% elif current_user.role == 'faculty' %}
                   <li class="nav-item ms-2">
                     <a class="nav-link {% if request.endpoint == 'faculty.faculty_dashboard' %}active{% endif %}"
@@ -74,6 +83,16 @@
                       href="{{ url_for('faculty.create_position', faculty_id=current_user.id) }}">
                       Create Position
                     </a>
+                  </li>
+
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.fetch_url') }}">Fetch</a>
+                  </li>
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.debug') }}">Debug</a>
+                  </li>
+                  <li class="nav-item ms-2">
+                    <a class="nav-link" href="{{ url_for('main.export_data') }}">Export</a>
                   </li>
                 {% endif %}
               {% endif %}

@@ -70,7 +70,6 @@ def student_index(student_id):
                                positions=PositionsA)
 
 @student.route('/student/<student_id>/profile/view', methods=['GET'])
-@login_required
 def student_profile_view(student_id):
     student = db.session.get(Student, student_id)
     if student is None:

